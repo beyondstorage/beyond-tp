@@ -2,7 +2,7 @@ SHELL := /bin/bash
 VERSION := $(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 GO_BUILD_OPTION := -trimpath -tags netgo
 
-.PHONY: check format vet lint build
+.PHONY: check format vet lint build test
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
@@ -25,6 +25,12 @@ build: tidy check
 	@echo "build dm"
 	@mkdir -p ./bin
 	@go build ${GO_BUILD_OPTION} -race -o ./bin/dm
+	@echo "ok"
+
+test:
+	@echo "run test"
+	@go test -gcflags=-l -race -coverprofile=coverage.txt -covermode=atomic -v ./...
+	@go tool cover -html="coverage.txt" -o "coverage.html"
 	@echo "ok"
 
 tidy:
