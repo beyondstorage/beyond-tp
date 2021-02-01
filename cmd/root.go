@@ -2,14 +2,19 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+)
 
-	"github.com/aos-dev/dm/constants"
+// Name and other basic info for dm.
+const (
+	Name        = "dm"
+	Description = "Advanced tool for data migration."
+	Version     = "0.0.1"
 )
 
 var RootCmd = &cobra.Command{
-	Use:     constants.Name,
-	Long:    constants.Description,
-	Version: constants.Version,
+	Use:     Name,
+	Long:    Description,
+	Version: Version,
 }
 
 func Init() error {

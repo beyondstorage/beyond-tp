@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/aos-dev/dm/server/http"
+	"github.com/aos-dev/dm/api"
 )
 
 var ServerCmd = &cobra.Command{
@@ -18,5 +18,5 @@ var ServerCmd = &cobra.Command{
 }
 
 func serverRun(_ *cobra.Command, _ []string) error {
-	return http.Start()
+	return api.StartServer()
 }

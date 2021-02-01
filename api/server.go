@@ -1,4 +1,4 @@
-package http
+package api
 
 import (
 	"context"
@@ -11,12 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Start() (err error) {
-	r := gin.Default()
+func StartServer() (err error) {
+	r := gin.New()
 
 	// register middleware here
 	r.Use(gin.Recovery()) // recover any panic
-	r.Use(requestID())    // add request-id
+	r.Use(gin.Logger())
+	r.Use(requestID()) // add request-id
 
 	// register routers here
 	r.GET("/ping", ping)

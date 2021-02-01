@@ -1,8 +1,8 @@
 package utils
 
-import "github.com/satori/go.uuid"
+import "github.com/google/uuid"
 
 // NewUUID generates an UUID string.
 func NewUUID() string {
-	return uuid.NewV4().String()
+	return uuid.New().String()
 }

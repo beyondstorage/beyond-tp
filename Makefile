@@ -1,5 +1,4 @@
 SHELL := /bin/bash
-VERSION := $(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 GO_BUILD_OPTION := -trimpath -tags netgo
 
 .PHONY: check format vet lint build test
@@ -23,7 +22,6 @@ vet:
 
 build: tidy check
 	@echo "build dm"
-	@mkdir -p ./bin
 	@go build ${GO_BUILD_OPTION} -race -o ./bin/dm
 	@echo "ok"
 
