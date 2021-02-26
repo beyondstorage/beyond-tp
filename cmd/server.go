@@ -6,7 +6,15 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/aos-dev/dm/api"
+	ilog "github.com/aos-dev/dm/pkg/logger"
 )
+
+type serverFlags struct {
+	host string
+	port int
+}
+
+var serverFlag = serverFlags{}
 
 var ServerCmd = &cobra.Command{
 	Use:     "server",
@@ -17,6 +25,17 @@ var ServerCmd = &cobra.Command{
 	RunE:    serverRun,
 }
 
-func serverRun(_ *cobra.Command, _ []string) error {
-	return api.StartServer()
+func serverRun(c *cobra.Command, _ []string) error {
+	cfg := api.ServerConfig{
+		Host:   serverFlag.host,
+		Port:   serverFlag.port,
+		Logger: ilog.FromContext(c.Context()),
+	}
+
+	return api.StartServer(cfg)
+}
+
+func initServerCmdFlags() {
+	ServerCmd.Flags().StringVarP(&serverFlag.host, "host", "h", "0.0.0.0", "server host")
+	ServerCmd.Flags().IntVarP(&serverFlag.port, "port", "p", 7436, "server port")
 }
