@@ -37,7 +37,7 @@ func StartServer(cfg ServerConfig) (err error) {
 	// register middleware here
 	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
 	r.Use(logRequestInfo())                           // log request info
-	r.Use(ginRecovery(cfg.Debug))                     // recover any panic
+	r.Use(ginRecovery())                              // recover any panic
 
 	// register routers here
 	r.GET("/ping", ping)
