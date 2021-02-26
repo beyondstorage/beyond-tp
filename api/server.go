@@ -2,35 +2,46 @@ package api
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-func StartServer() (err error) {
+// ServerConfig handle configs to start a server
+type ServerConfig struct {
+	Host string `json:"host" yaml:"host"`
+	Port int    `json:"port" yaml:"port"`
+
+	Logger *zap.Logger
+}
+
+// StartServer start a HTTP server
+func StartServer(cfg ServerConfig) (err error) {
 	r := gin.New()
+	logger := cfg.Logger
 
 	// register middleware here
-	r.Use(gin.Recovery()) // recover any panic
-	r.Use(gin.Logger())
-	r.Use(requestID()) // add request-id
+	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
+	r.Use(logRequestInfo())                           // log request info
+	r.Use(ginRecovery(gin.IsDebugging()))             // recover any panic
 
 	// register routers here
 	r.GET("/ping", ping)
 
 	srv := &http.Server{
-		Addr:    ":7487",
+		Addr:    fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		Handler: r,
 	}
 
 	go func() {
 		// connect service
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			logger.Fatal("listen: %s", zap.Error(err))
 		}
 	}()
 
@@ -38,14 +49,14 @@ func StartServer() (err error) {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("Shutdown Server ...")
+	logger.Warn("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		logger.Fatal("Server Shutdown:", zap.Error(err))
 	}
-	log.Println("Server exiting")
+	logger.Warn("Server exiting")
 	return nil
 }
 
