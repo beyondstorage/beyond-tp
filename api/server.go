@@ -17,29 +17,40 @@ type ServerConfig struct {
 	Host string `json:"host" yaml:"host"`
 	Port int    `json:"port" yaml:"port"`
 
+	Debug bool `json:"debug" yaml:"debug"`
+
 	Logger *zap.Logger
 }
 
 // StartServer start a HTTP server
 func StartServer(cfg ServerConfig) (err error) {
+	// set gin mode instead of env GIN_MODE
+	mode := gin.ReleaseMode
+	if cfg.Debug {
+		mode = gin.DebugMode
+	}
+	gin.SetMode(mode)
+
 	r := gin.New()
 	logger := cfg.Logger
 
 	// register middleware here
 	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
 	r.Use(logRequestInfo())                           // log request info
-	r.Use(ginRecovery(gin.IsDebugging()))             // recover any panic
+	r.Use(ginRecovery(cfg.Debug))                     // recover any panic
 
 	// register routers here
 	r.GET("/ping", ping)
 
+	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Addr:    endpoint,
 		Handler: r,
 	}
 
 	go func() {
 		// connect service
+		logger.Info("server now started", zap.String("endpoint", endpoint))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Fatal("listen: %s", zap.Error(err))
 		}
