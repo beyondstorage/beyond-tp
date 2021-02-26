@@ -18,6 +18,14 @@ var RootCmd = &cobra.Command{
 }
 
 func Init() error {
+	initGlobalFlags()
+	initServerCmdFlags()
+
 	RootCmd.AddCommand(ServerCmd)
 	return nil
+}
+
+func initGlobalFlags() {
+	// Overwrite the default help flag to free -h shorthand.
+	RootCmd.PersistentFlags().Bool("help", false, "help for this command")
 }
