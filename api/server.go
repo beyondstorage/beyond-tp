@@ -41,6 +41,8 @@ func StartServer(cfg ServerConfig) (err error) {
 
 	// register routers here
 	r.GET("/ping", ping)
+	r.GET("/graphql", gin.WrapH(graphQLHandler(cfg.Debug)))
+	r.POST("/graphql", gin.WrapH(graphQLHandler(cfg.Debug)))
 
 	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	srv := &http.Server{
