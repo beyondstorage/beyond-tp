@@ -9,6 +9,7 @@ import (
 	ilog "github.com/aos-dev/dm/pkg/logger"
 )
 
+// serverFlags handle flags for server command
 type serverFlags struct {
 	host string
 	port int
@@ -29,6 +30,7 @@ func serverRun(c *cobra.Command, _ []string) error {
 	cfg := api.ServerConfig{
 		Host:   serverFlag.host,
 		Port:   serverFlag.port,
+		Debug:  globalFlag.debug,
 		Logger: ilog.FromContext(c.Context()),
 	}
 

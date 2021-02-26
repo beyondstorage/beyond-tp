@@ -60,7 +60,7 @@ func logRequestInfo() gin.HandlerFunc {
 }
 
 // ginRecovery inspired from `https://github.com/gin-contrib/zap`
-func ginRecovery(stack bool) gin.HandlerFunc {
+func ginRecovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -88,18 +88,11 @@ func ginRecovery(stack bool) gin.HandlerFunc {
 					return
 				}
 
-				if stack {
-					logger.Error("[Recovery from panic]",
-						zap.Any("error", err),
-						zap.String("request", string(httpRequest)),
-						zap.String("stack", string(debug.Stack())),
-					)
-				} else {
-					logger.Error("[Recovery from panic]",
-						zap.Any("error", err),
-						zap.String("request", string(httpRequest)),
-					)
-				}
+				logger.Error("[Recovery from panic]",
+					zap.Any("error", err),
+					zap.String("request", string(httpRequest)),
+					zap.String("stack", string(debug.Stack())),
+				)
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 		}()
