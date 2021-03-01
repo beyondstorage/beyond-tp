@@ -23,3 +23,7 @@
 *.iml
 out
 gen
+
+bin
+dist
+node_modules

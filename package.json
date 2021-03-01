@@ -1,0 +1,46 @@
+{
+  "name": "dm",
+  "version": "1.0.0",
+  "description": "dm is a data migration service.",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "clean": "rm -rf dist && mkdir -p dist",
+    "copyAssets": "cp -r static/images dist",
+    "server": "DM_LOG_LEVEL=debug ./bin/dm server --debug",
+    "webpack": "NODE_ENV=development webpack --config ./webpack.config.js --watch",
+    "prestart": "npm run clean && npm run copyAssets && make build",
+    "start": "concurrently 'npm run webpack' 'npm run server'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aos-dev/dm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aos-dev/dm/issues"
+  },
+  "homepage": "https://github.com/aos-dev/dm#readme",
+  "dependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-router-dom": "^5.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.0",
+    "css-loader": "^5.1.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.2.0",
+    "mini-css-extract-plugin": "^1.3.9",
+    "postcss-loader": "^5.0.0",
+    "sass": "^1.32.8",
+    "sass-loader": "^11.0.1",
+    "standard-version": "^9.1.1",
+    "ts-loader": "^8.0.17",
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "typescript": "^4.2.2",
+    "webpack": "^5.24.2",
+    "webpack-cli": "^4.5.0"
+  }
+}
