@@ -10,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"github.com/aos-dev/dm/api/graphql"
 )
 
 // ServerConfig handle configs to start a server
@@ -41,8 +43,13 @@ func StartServer(cfg ServerConfig) (err error) {
 
 	// register routers here
 	r.GET("/ping", ping)
-	r.GET("/graphql", gin.WrapH(graphQLHandler(cfg.Debug)))
-	r.POST("/graphql", gin.WrapH(graphQLHandler(cfg.Debug)))
+	// register routers for graphql
+	gqlHandler, err := graphql.InitHandler(cfg.Debug)
+	if err != nil {
+		logger.Fatal("init GraphQL handler failed:", zap.Error(err))
+	}
+	r.GET("/graphql", gin.WrapH(gqlHandler))
+	r.POST("/graphql", gin.WrapH(gqlHandler))
 
 	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	srv := &http.Server{
@@ -54,7 +61,7 @@ func StartServer(cfg ServerConfig) (err error) {
 		// connect service
 		logger.Info("server now started", zap.String("endpoint", endpoint))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal("listen: %s", zap.Error(err))
+			logger.Fatal("listen:", zap.Error(err))
 		}
 	}()
 

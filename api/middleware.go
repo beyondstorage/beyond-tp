@@ -10,9 +10,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
-
-	"github.com/aos-dev/dm/utils"
 )
 
 const requestIDCtxKey = "request_id_ctx_key"
@@ -20,7 +19,7 @@ const requestIDCtxKey = "request_id_ctx_key"
 // setRequestID init requestID and set into context
 func setRequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		requestID := utils.NewUUID()
+		requestID := uuid.NewString()
 		c.Writer.Header().Set("x-dm-request-id", requestID) // set uuid in header for frontend use
 		c.Set(requestIDCtxKey, requestID)
 		c.Next()
