@@ -4,16 +4,16 @@
   "description": "dm is a data migration service.",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -rf dist && mkdir -p dist",
-    "copyAssets": "cp -r ui/images dist",
-    "eslint": "eslint 'ui/**/*.{ts,tsx}' --fix",
-    "prettier": "prettier --test ui/**/*",
-    "prebuild": "npm run clean && npm run copyAssets",
     "build": "webpack --config webpack.config.js",
+    "clean": "rm -rf dist && mkdir -p dist",
+    "copyImages": "cp -r ui/images dist",
+    "eslint": "eslint 'ui/**/*.{ts,tsx}' --fix",
+    "prebuild": "npm run clean && npm run copyImages",
+    "prestart": "npm run clean && npm run copyImages && make build",
+    "prettier": "prettier --test ui/**/*",
     "server": "DM_LOG_LEVEL=debug ./bin/dm server --debug",
-    "webpack": "NODE_ENV=development webpack --config ./webpack.config.js --watch",
-    "prestart": "npm run clean && npm run copyAssets && make build",
-    "start": "concurrently 'npm run webpack' 'npm run server'"
+    "start": "concurrently 'npm run webpack' 'npm run server'",
+    "webpack": "NODE_ENV=development webpack --config ./webpack.config.js --watch"
   },
   "repository": {
     "type": "git",
