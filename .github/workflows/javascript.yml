@@ -22,9 +22,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: cd ui
-      - run: npm install
-      - run: npm run eslint
+      - name: Npm install
+        run: npm run install
+        working-directory: ./ui
+      - name: Npm eslint
+        run: npm run eslint
+        working-directory: ./ui
 
   build:
     name: Build
@@ -39,6 +42,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: cd ui
-      - run: npm install
-      - run: npm run build
+      - name: Npm install
+        run: npm run install
+        working-directory: ./ui
+      - name: Npm build
+        run: npm run build
+        working-directory: ./ui
