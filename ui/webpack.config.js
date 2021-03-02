@@ -1,11 +1,9 @@
-const path = require('path')
+const path = require('path');
+const ESLintPlugin = require('eslint-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
-const Webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === 'development';
 
 const rules = [
   {
@@ -30,7 +28,7 @@ const rules = [
   {
     test: /\.ts(x?)$/,
     exclude: /node_modules/,
-    use: ['ts-loader', 'eslint-loader']
+    use: ['ts-loader']
   },
   {
     test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
@@ -45,11 +43,11 @@ const rules = [
       }
     ]
   }
-]
+];
 
 module.exports = {
   entry: {
-    main: './ui/js/index.tsx'
+    main: './src/js/index.tsx'
   },
   name: 'main',
   mode: isDev ? 'development' : 'production',
@@ -65,16 +63,13 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: !isDev ? '[name].[contenthash].css' : '[name].css'
     }),
-    new HtmlWebpackPlugin({
-      inject: false,
-      chunks: ['main'],
-      template: './templates/index.html',
-      filename: `${__dirname}/dist/templates/index.html`
-    })
+    new ESLintPlugin({
+      extensions: ['ts', 'tsx'],
+    }),
   ].filter(Boolean),
 
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     plugins: [new TsconfigPathsPlugin()]
   }
-}
+};
