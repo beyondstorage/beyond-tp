@@ -10,7 +10,7 @@ import (
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*models.Task, error) {
-	db := models.MustDBHandlerFrom(ctx)
+	db := models.DBFromGin(GinContextFrom(ctx))
 
 	task := models.NewTask()
 	task.Name = input.Name
@@ -25,7 +25,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 }
 
 func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*models.Task, error) {
-	db := models.MustDBHandlerFrom(ctx)
+	db := models.DBFromGin(GinContextFrom(ctx))
 
 	// try to get task first
 	task, err := db.GetTask(input.ID)
@@ -40,12 +40,12 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*
 }
 
 func (r *queryResolver) Task(ctx context.Context, id string) (*models.Task, error) {
-	db := models.MustDBHandlerFrom(ctx)
+	db := models.DBFromGin(GinContextFrom(ctx))
 	return db.GetTask(id)
 }
 
 func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
-	db := models.MustDBHandlerFrom(ctx)
+	db := models.DBFromGin(GinContextFrom(ctx))
 	return db.ListTasks()
 }
 
