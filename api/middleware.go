@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -14,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/models"
+	dmlog "github.com/aos-dev/dm/pkg/logger"
 )
 
 const requestIDCtxKey = "request_id_ctx_key"
@@ -33,7 +32,7 @@ func setRequestID() gin.HandlerFunc {
 func setLoggerWithReqID(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		loggerWithRequestID := logger.With(zap.String("request_id", c.GetString(requestIDCtxKey)))
-		setLoggerIn(c, loggerWithRequestID)
+		dmlog.SetLoggerInGin(c, loggerWithRequestID)
 		c.Next()
 	}
 }
@@ -47,7 +46,7 @@ func logRequestInfo() gin.HandlerFunc {
 		c.Next()
 
 		cost := time.Since(start)
-		logger := mustGetLoggerFrom(c)
+		logger := dmlog.MustGetLoggerFromGin(c)
 		logger.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -68,7 +67,7 @@ func ginRecovery() gin.HandlerFunc {
 			if err := recover(); err != nil {
 				// Check for a broken connection, as it is not really a
 				// condition that warrants a panic stack trace.
-				logger := mustGetLoggerFrom(c)
+				logger := dmlog.MustGetLoggerFromGin(c)
 				var brokenPipe bool
 				if ne, ok := err.(*net.OpError); ok {
 					if se, ok := ne.Err.(*os.SyscallError); ok {
@@ -98,15 +97,6 @@ func ginRecovery() gin.HandlerFunc {
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 		}()
-		c.Next()
-	}
-}
-
-// dbIntoContext inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
-func dbIntoContext(h *models.DBHandler) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx := context.WithValue(c.Request.Context(), models.DBCtxKey, h)
-		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
 }

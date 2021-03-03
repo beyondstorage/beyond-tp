@@ -1,26 +1,41 @@
 package models
 
 import (
-	"errors"
+	"context"
 
 	"github.com/dgraph-io/badger/v3"
+	"github.com/gin-gonic/gin"
 )
 
-type DBHandler struct {
+type DB struct {
 	db *badger.DB
 }
 
-var DBCtxKey struct{}
+var dBCtxKey struct{}
 
-var (
-	// ErrNotFound returns when request record not found in db
-	ErrNotFound = errors.New("record not found")
-)
-
-func NewDB(path string) (*DBHandler, error) {
+func NewDB(path string) (*DB, error) {
 	db, err := badger.Open(badger.DefaultOptions(path))
 	if err != nil {
 		return nil, err
 	}
-	return &DBHandler{db: db}, nil
+	return &DB{db: db}, nil
+}
+
+// DbIntoContext inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
+func DbIntoContext(h *DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.WithValue(c.Request.Context(), dBCtxKey, h)
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
+	}
+}
+
+// MustDBHandlerFrom inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
+func MustDBHandlerFrom(ctx context.Context) *DB {
+	v := ctx.Value(dBCtxKey)
+	if v == nil {
+		panic("could not retrieve DBPath")
+	}
+
+	return v.(*DB)
 }

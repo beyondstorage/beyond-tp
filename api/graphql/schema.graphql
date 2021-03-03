@@ -20,7 +20,6 @@ enum TaskStatus {
   stopped
 }
 
-
 type Query {
   task(id: String!): Task!
   tasks: [Task!]!

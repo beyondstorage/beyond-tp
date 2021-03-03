@@ -34,7 +34,7 @@ func Init() error {
 }
 
 func initGlobalFlags() {
-	RootCmd.PersistentFlags().StringVar(&globalFlag.db, "db", "/tmp/badger", "path to locate badger db")
+	RootCmd.PersistentFlags().StringVar(&globalFlag.db, "db", "", "path to locate badger db")
 	RootCmd.PersistentFlags().BoolVar(&globalFlag.debug, "debug", false, "enable debug or not")
 	// Overwrite the default help flag to free -h shorthand.
 	RootCmd.PersistentFlags().Bool("help", false, "help for this command")

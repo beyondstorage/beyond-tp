@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dgraph-io/badger/v3"
+	"github.com/google/uuid"
 )
 
 const (
@@ -27,7 +28,11 @@ const taskPrefix = "t"
 type TaskStatus int
 
 func (ts TaskStatus) MarshalGQL(w io.Writer) {
-	w.Write([]byte(strconv.Quote(ts.String())))
+	_, err := w.Write([]byte(strconv.Quote(ts.String())))
+	// handle error as panic
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (ts *TaskStatus) UnmarshalGQL(v interface{}) error {
@@ -98,57 +103,57 @@ func (t Task) FormatKey() []byte {
 	return b.Bytes()
 }
 
-// SaveTask save a task into DB
-func (h *DBHandler) SaveTask(t Task) error {
-	return h.db.Update(func(txn *badger.Txn) error {
-		res, err := json.Marshal(t)
-		if err != nil {
-			return err
-		}
-		return txn.Set(t.FormatKey(), res)
-	})
+// NewTask created a task with default value
+func NewTask() *Task {
+	now := time.Now()
+	t := Task{
+		ID:        uuid.NewString(),
+		Status:    StatusCreated, // set StatusCreated as default value
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	return &t
 }
 
-// DeleteTask delete a task from DB
-func (h *DBHandler) DeleteTask(t *Task) error {
-	txn := h.db.NewTransaction(true)
+// CreateTask save a task into DB
+func (d *DB) CreateTask(t *Task) error {
+	txn := d.db.NewTransaction(true)
 	defer txn.Discard()
-	// try to get task first
-	item, err := txn.Get(t.FormatKey())
+
+	res, err := json.Marshal(t)
 	if err != nil {
-		// handle not found error manually
-		if errors.Is(err, badger.ErrKeyNotFound) {
-			return fmt.Errorf("%s: %w", err.Error(), ErrNotFound)
-		}
 		return err
 	}
-	if err = item.Value(func(val []byte) error {
-		return json.Unmarshal(val, t)
-	}); err != nil {
-		return err
-	}
-	// then delete
-	if err = txn.Delete(t.FormatKey()); err != nil {
+
+	if err = txn.Set(t.FormatKey(), res); err != nil {
 		return err
 	}
 	return txn.Commit()
 }
 
-// SetStatus transfer int into TaskStatus and set it for task
-func (t *Task) SetStatus(status int) {
-	t.Status = TaskStatus(status)
+// DeleteTask delete a task by given ID from DB
+func (d *DB) DeleteTask(id string) error {
+	txn := d.db.NewTransaction(true)
+	defer txn.Discard()
+	// try to get task first
+	t := Task{ID: id}
+	if err := txn.Delete(t.FormatKey()); err != nil {
+		return err
+	}
+	return txn.Commit()
 }
 
 // GetTask get task from db and parsed into struct with specific ID
-func (h *DBHandler) GetTask(id string) (*Task, error) {
-	t := &Task{ID: id}
-	txn := h.db.NewTransaction(false)
+func (d *DB) GetTask(id string) (*Task, error) {
+	txn := d.db.NewTransaction(false)
 	defer txn.Discard()
+
+	t := &Task{ID: id}
 	item, err := txn.Get(t.FormatKey())
 	if err != nil {
 		// handle not found error manually
 		if errors.Is(err, badger.ErrKeyNotFound) {
-			return nil, fmt.Errorf("%s: %w", err.Error(), ErrNotFound)
+			return nil, NewNotFoundErr(id)
 		}
 		return nil, err
 	}
@@ -159,8 +164,8 @@ func (h *DBHandler) GetTask(id string) (*Task, error) {
 }
 
 // ListTasks create a db iterator and conduct result tasks
-func (h *DBHandler) ListTasks() ([]*Task, error) {
-	txn := h.db.NewTransaction(false)
+func (d *DB) ListTasks() ([]*Task, error) {
+	txn := d.db.NewTransaction(false)
 	defer txn.Discard()
 	it := txn.NewIterator(badger.DefaultIteratorOptions)
 	defer it.Close()

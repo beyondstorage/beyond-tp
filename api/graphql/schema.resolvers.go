@@ -5,53 +5,47 @@ package graphql
 
 import (
 	"context"
-	"time"
 
 	"github.com/aos-dev/dm/models"
-	"github.com/google/uuid"
 )
 
-func (r *mutationResolver) CreateTask(ctx context.Context, input *models.CreateTask) (*models.Task, error) {
-	db := mustDBHandlerFrom(ctx)
+func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*models.Task, error) {
+	db := models.MustDBHandlerFrom(ctx)
 
-	now := time.Now()
-	task := models.Task{
-		ID:        uuid.NewString(), // generate uuid
-		Name:      input.Name,
-		Status:    models.StatusCreated, // default status: created
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	task := models.NewTask()
+	task.Name = input.Name
 	if input.Status != nil {
 		task.Status = *input.Status
 	}
-	err := db.SaveTask(task)
+	err := db.CreateTask(task)
 	if err != nil {
 		return nil, err
 	}
-	return &task, nil
+	return task, nil
 }
 
-func (r *mutationResolver) DeleteTask(ctx context.Context, input *models.DeleteTask) (*models.Task, error) {
-	db := mustDBHandlerFrom(ctx)
+func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*models.Task, error) {
+	db := models.MustDBHandlerFrom(ctx)
 
-	task := models.Task{
-		ID: input.ID,
-	}
-	err := db.DeleteTask(&task)
+	// try to get task first
+	task, err := db.GetTask(input.ID)
 	if err != nil {
 		return nil, err
 	}
-	return &task, nil
+	// then delete task
+	if err = db.DeleteTask(input.ID); err != nil {
+		return nil, err
+	}
+	return task, nil
 }
 
 func (r *queryResolver) Task(ctx context.Context, id string) (*models.Task, error) {
-	db := mustDBHandlerFrom(ctx)
+	db := models.MustDBHandlerFrom(ctx)
 	return db.GetTask(id)
 }
 
 func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
-	db := mustDBHandlerFrom(ctx)
+	db := models.MustDBHandlerFrom(ctx)
 	return db.ListTasks()
 }
 

@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
 
 	"github.com/aos-dev/dm/api"
-	ilog "github.com/aos-dev/dm/pkg/logger"
+	dmlog "github.com/aos-dev/dm/pkg/logger"
 )
 
 // serverFlags handle flags for server command
@@ -23,16 +24,19 @@ var ServerCmd = &cobra.Command{
 	Long:    fmt.Sprintf("dm server can start a http server to handle http request"),
 	Example: "Start server: dm server",
 	Args:    cobra.ExactArgs(0),
-	RunE:    serverRun,
+	PreRunE: func(c *cobra.Command, _ []string) error {
+		return validateServerFlags(c)
+	},
+	RunE: serverRun,
 }
 
 func serverRun(c *cobra.Command, _ []string) error {
-	cfg := api.ServerConfig{
+	cfg := api.Config{
 		Host:   serverFlag.host,
 		Port:   serverFlag.port,
 		Debug:  globalFlag.debug,
-		DB:     globalFlag.db,
-		Logger: ilog.FromContext(c.Context()),
+		DBPath: globalFlag.db,
+		Logger: dmlog.FromContext(c.Context()),
 	}
 
 	return api.StartServer(cfg)
@@ -41,4 +45,11 @@ func serverRun(c *cobra.Command, _ []string) error {
 func initServerCmdFlags() {
 	ServerCmd.Flags().StringVarP(&serverFlag.host, "host", "h", "0.0.0.0", "server host")
 	ServerCmd.Flags().IntVarP(&serverFlag.port, "port", "p", 7436, "server port")
+}
+
+func validateServerFlags(c *cobra.Command) error {
+	if db := c.Flag("db").Value.String(); db == "" {
+		return errors.New("db flag is required")
+	}
+	return nil
 }

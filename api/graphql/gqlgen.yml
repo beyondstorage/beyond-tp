@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - ./*.graphqls
+  - ./*.graphql
 
 # Where should the generated server code go?
 exec:
@@ -14,8 +14,8 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: ../../models/gql_generated.go
-  package: models
+  filename: ./model_generated.go
+  package: graphql
 
 # Where should the resolver implementations go?
 resolver:
@@ -34,8 +34,8 @@ resolver:
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
-autobind:
-  - "github.com/aos-dev/dm/models"
+#autobind:
+#  - "github.com/aos-dev/dm/models"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -45,3 +45,5 @@ autobind:
 models:
   Task:
     model: github.com/aos-dev/dm/models.Task
+  TaskStatus:
+    model: github.com/aos-dev/dm/models.TaskStatus
