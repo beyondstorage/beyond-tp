@@ -12,7 +12,7 @@
     "prebuild": "npm run clean && npm run copyImages",
     "prestart": "npm run clean && npm run copyImages && npm run build:server",
     "prettier": "prettier --test src/**/*",
-    "server": "DM_LOG_LEVEL=debug ../bin/dm server --debug",
+    "server": "cd .. && DM_LOG_LEVEL=debug ./bin/dm server --debug --db=db",
     "start": "concurrently 'npm run webpack' 'npm run server'",
     "webpack": "NODE_ENV=development webpack --config ./webpack.config.js --watch"
   },
