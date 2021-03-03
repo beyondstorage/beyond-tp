@@ -113,10 +113,28 @@ func (h *DBHandler) SaveTask(t Task) error {
 }
 
 // DeleteTask delete a task from DB
-func (h *DBHandler) DeleteTask(t Task) error {
-	return h.db.Update(func(txn *badger.Txn) error {
-		return txn.Delete(t.FormatKey())
-	})
+func (h *DBHandler) DeleteTask(t *Task) error {
+	txn := h.db.NewTransaction(true)
+	defer txn.Discard()
+	// try to get task first
+	item, err := txn.Get(t.FormatKey())
+	if err != nil {
+		// handle not found error manually
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return fmt.Errorf("%s: %w", err.Error(), ErrNotFound)
+		}
+		return err
+	}
+	if err = item.Value(func(val []byte) error {
+		return json.Unmarshal(val, t)
+	}); err != nil {
+		return err
+	}
+	// then delete
+	if err = txn.Delete(t.FormatKey()); err != nil {
+		return err
+	}
+	return txn.Commit()
 }
 
 // SetStatus transfer int into TaskStatus and set it for task

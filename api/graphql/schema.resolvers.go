@@ -7,14 +7,15 @@ import (
 	"context"
 	"time"
 
-	"github.com/aos-dev/dm/api/graphql/generated"
 	"github.com/aos-dev/dm/models"
 	"github.com/google/uuid"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *models.CreateTask) (*models.Task, error) {
+	db := mustDBHandlerFrom(ctx)
+
 	now := time.Now()
-	task := &models.Task{
+	task := models.Task{
 		ID:        uuid.NewString(), // generate uuid
 		Name:      input.Name,
 		Status:    models.StatusCreated, // default status: created
@@ -24,18 +25,20 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *models.CreateT
 	if input.Status != nil {
 		task.Status = *input.Status
 	}
-	err := task.Save()
+	err := db.SaveTask(task)
 	if err != nil {
 		return nil, err
 	}
-	return task, nil
+	return &task, nil
 }
 
 func (r *mutationResolver) DeleteTask(ctx context.Context, input *models.DeleteTask) (*models.Task, error) {
+	db := mustDBHandlerFrom(ctx)
+
 	task := models.Task{
 		ID: input.ID,
 	}
-	err := task.Delete()
+	err := db.DeleteTask(&task)
 	if err != nil {
 		return nil, err
 	}
@@ -43,18 +46,20 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, input *models.DeleteT
 }
 
 func (r *queryResolver) Task(ctx context.Context, id string) (*models.Task, error) {
-	return models.GetTask(id)
+	db := mustDBHandlerFrom(ctx)
+	return db.GetTask(id)
 }
 
 func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
-	return models.ListTasks()
+	db := mustDBHandlerFrom(ctx)
+	return db.ListTasks()
 }
 
-// Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
-// Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

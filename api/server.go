@@ -8,10 +8,13 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/api/graphql"
+	"github.com/aos-dev/dm/models"
 )
 
 // ServerConfig handle configs to start a server
@@ -19,7 +22,8 @@ type ServerConfig struct {
 	Host string `json:"host" yaml:"host"`
 	Port int    `json:"port" yaml:"port"`
 
-	Debug bool `json:"debug" yaml:"debug"`
+	Debug bool   `json:"debug" yaml:"debug"`
+	DB    string `json:"db" yaml:"db"`
 
 	Logger *zap.Logger
 }
@@ -43,13 +47,22 @@ func StartServer(cfg ServerConfig) (err error) {
 
 	// register routers here
 	r.GET("/ping", ping)
-	// register routers for graphql
-	gqlHandler, err := graphql.InitHandler(cfg.Debug)
+
+	// init DB handler for db actions
+	dbHandler, err := models.NewDB(cfg.DB)
 	if err != nil {
-		logger.Fatal("init GraphQL handler failed:", zap.Error(err))
+		logger.Fatal("new db failed:", zap.Error(err), zap.String("path", cfg.DB))
 	}
-	r.GET("/graphql", gin.WrapH(gqlHandler))
-	r.POST("/graphql", gin.WrapH(gqlHandler))
+	// register routers for graphql
+	gqlGroup := r.Group("/graphql")
+	gqlGroup.Use(dbIntoContext(dbHandler)) // register db into context
+	// enable playground only in debug mode
+	if cfg.Debug {
+		playGroundHandler := playground.Handler("GraphQL playground", "/graphql")
+		gqlGroup.GET("", gin.WrapF(playGroundHandler))
+	}
+	gplHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &graphql.Resolver{}}))
+	gqlGroup.POST("", gin.WrapH(gplHandler))
 
 	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	srv := &http.Server{

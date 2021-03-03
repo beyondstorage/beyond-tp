@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -12,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/aos-dev/dm/models"
 )
 
 const requestIDCtxKey = "request_id_ctx_key"
@@ -95,6 +98,15 @@ func ginRecovery() gin.HandlerFunc {
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 		}()
+		c.Next()
+	}
+}
+
+// dbIntoContext inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
+func dbIntoContext(h *models.DBHandler) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.WithValue(c.Request.Context(), models.DBCtxKey, h)
+		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
 }
