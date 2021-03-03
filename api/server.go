@@ -10,20 +10,24 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"github.com/aos-dev/dm/api/graphql"
+	"github.com/aos-dev/dm/models"
 )
 
-// ServerConfig handle configs to start a server
-type ServerConfig struct {
-	Host string `json:"host" yaml:"host"`
-	Port int    `json:"port" yaml:"port"`
+// Config handle configs to start a server
+type Config struct {
+	Host string
+	Port int
 
-	Debug bool `json:"debug" yaml:"debug"`
+	Debug  bool
+	DBPath string
 
 	Logger *zap.Logger
 }
 
 // StartServer start a HTTP server
-func StartServer(cfg ServerConfig) (err error) {
+func StartServer(cfg Config) (err error) {
 	// set gin mode instead of env GIN_MODE
 	mode := gin.ReleaseMode
 	if cfg.Debug {
@@ -41,8 +45,15 @@ func StartServer(cfg ServerConfig) (err error) {
 
 	// register routers here
 	r.GET("/ping", ping)
-	r.GET("/graphql", gin.WrapH(graphQLHandler(cfg.Debug)))
-	r.POST("/graphql", gin.WrapH(graphQLHandler(cfg.Debug)))
+
+	// init DBPath handler for db actions
+	db, err := models.NewDB(cfg.DBPath)
+	if err != nil {
+		logger.Fatal("new db failed:", zap.Error(err), zap.String("path", cfg.DBPath))
+	}
+
+	// register routers for graphql
+	graphql.RegisterRouter(r, "/graphql", db, cfg.Debug)
 
 	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	srv := &http.Server{
@@ -54,7 +65,7 @@ func StartServer(cfg ServerConfig) (err error) {
 		// connect service
 		logger.Info("server now started", zap.String("endpoint", endpoint))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal("listen: %s", zap.Error(err))
+			logger.Fatal("listen:", zap.Error(err))
 		}
 	}()
 
