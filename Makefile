@@ -15,6 +15,11 @@ format:
 	@go fmt ./...
 	@echo "ok"
 
+generate:
+	@echo "generate code"
+	@go generate ./...
+	@echo "ok"
+
 vet:
 	@echo "go vet"
 	@go vet ./...
