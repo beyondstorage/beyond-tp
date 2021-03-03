@@ -33,7 +33,7 @@ func (ts TaskStatus) MarshalGQL(w io.Writer) {
 func (ts *TaskStatus) UnmarshalGQL(v interface{}) error {
 	switch v := v.(type) {
 	case string:
-		*ts = Task{}.ParseStatus(strings.ToLower(v))
+		ts.Parse(strings.ToLower(v))
 		return nil
 	case int:
 		*ts = TaskStatus(v)
@@ -62,6 +62,24 @@ func (ts TaskStatus) String() string {
 	}
 }
 
+// Parse status string into TaskStatus
+func (ts *TaskStatus) Parse(status string) {
+	var res TaskStatus
+	switch strings.ToLower(status) {
+	case "created":
+		res = StatusCreated
+	case "running":
+		res = StatusRunning
+	case "finished":
+		res = StatusFinished
+	case "stopped":
+		res = StatusStopped
+	default:
+		res = StatusUnknown
+	}
+	*ts = res
+}
+
 // Task contains info of data migration task
 type Task struct {
 	ID        string     `json:"id"`
@@ -78,27 +96,6 @@ func (t Task) FormatKey() []byte {
 	b.WriteString(":")
 	b.WriteString(t.ID)
 	return b.Bytes()
-}
-
-// NumToStatus check status num and transfer to status
-func (t Task) NumToStatus() string {
-	return t.Status.String()
-}
-
-// ParseStatus parse status string into num
-func (t Task) ParseStatus(status string) TaskStatus {
-	switch strings.ToLower(status) {
-	case "created":
-		return StatusCreated
-	case "running":
-		return StatusRunning
-	case "finished":
-		return StatusFinished
-	case "stopped":
-		return StatusStopped
-	default:
-		return StatusUnknown
-	}
 }
 
 // SaveTask save a task into DB
