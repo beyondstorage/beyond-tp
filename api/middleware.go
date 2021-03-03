@@ -10,9 +10,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/utils"
+	dmlogger "github.com/aos-dev/dm/pkg/logger"
 )
 
 const requestIDCtxKey = "request_id_ctx_key"
@@ -20,7 +21,7 @@ const requestIDCtxKey = "request_id_ctx_key"
 // setRequestID init requestID and set into context
 func setRequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		requestID := utils.NewUUID()
+		requestID := uuid.NewString()
 		c.Writer.Header().Set("x-dm-request-id", requestID) // set uuid in header for frontend use
 		c.Set(requestIDCtxKey, requestID)
 		c.Next()
@@ -31,7 +32,7 @@ func setRequestID() gin.HandlerFunc {
 func setLoggerWithReqID(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		loggerWithRequestID := logger.With(zap.String("request_id", c.GetString(requestIDCtxKey)))
-		setLoggerIn(c, loggerWithRequestID)
+		dmlogger.WithinGinContext(c, loggerWithRequestID)
 		c.Next()
 	}
 }
@@ -45,7 +46,7 @@ func logRequestInfo() gin.HandlerFunc {
 		c.Next()
 
 		cost := time.Since(start)
-		logger := mustGetLoggerFrom(c)
+		logger := dmlogger.FromGinContext(c)
 		logger.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -66,7 +67,7 @@ func ginRecovery() gin.HandlerFunc {
 			if err := recover(); err != nil {
 				// Check for a broken connection, as it is not really a
 				// condition that warrants a panic stack trace.
-				logger := mustGetLoggerFrom(c)
+				logger := dmlogger.FromGinContext(c)
 				var brokenPipe bool
 				if ne, ok := err.(*net.OpError); ok {
 					if se, ok := ne.Err.(*os.SyscallError); ok {

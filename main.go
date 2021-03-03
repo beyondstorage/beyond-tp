@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/aos-dev/dm/cmd"
-	ilog "github.com/aos-dev/dm/pkg/logger"
+	dmlogger "github.com/aos-dev/dm/pkg/logger"
 )
 
 const (
@@ -35,7 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ctx := ilog.ContextWithLogger(context.Background(), logger)
+	ctx := dmlogger.WithinContext(context.Background(), logger)
 	if err := cmd.RootCmd.ExecuteContext(ctx); err != nil {
 		logger.Error("execute command failed:", zap.Error(err))
 		os.Exit(1)
