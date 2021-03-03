@@ -11,8 +11,8 @@ type contextKey struct{}
 // loggerKey is used as key to store logger in context
 var loggerKey contextKey
 
-// ContextWithLogger set *Logger into given context and return
-func ContextWithLogger(ctx context.Context, l *zap.Logger) context.Context {
+// WithinContext set *Logger into given context and return
+func WithinContext(ctx context.Context, l *zap.Logger) context.Context {
 	if ctx == nil {
 		ctx = context.Background()
 	}

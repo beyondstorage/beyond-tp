@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	dmlog "github.com/aos-dev/dm/pkg/logger"
+	dmlogger "github.com/aos-dev/dm/pkg/logger"
 )
 
 const requestIDCtxKey = "request_id_ctx_key"
@@ -32,7 +32,7 @@ func setRequestID() gin.HandlerFunc {
 func setLoggerWithReqID(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		loggerWithRequestID := logger.With(zap.String("request_id", c.GetString(requestIDCtxKey)))
-		dmlog.SetLoggerInGin(c, loggerWithRequestID)
+		dmlogger.WithinGinContext(c, loggerWithRequestID)
 		c.Next()
 	}
 }
@@ -46,7 +46,7 @@ func logRequestInfo() gin.HandlerFunc {
 		c.Next()
 
 		cost := time.Since(start)
-		logger := dmlog.MustGetLoggerFromGin(c)
+		logger := dmlogger.FromGinContext(c)
 		logger.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -67,7 +67,7 @@ func ginRecovery() gin.HandlerFunc {
 			if err := recover(); err != nil {
 				// Check for a broken connection, as it is not really a
 				// condition that warrants a panic stack trace.
-				logger := dmlog.MustGetLoggerFromGin(c)
+				logger := dmlogger.FromGinContext(c)
 				var brokenPipe bool
 				if ne, ok := err.(*net.OpError); ok {
 					if se, ok := ne.Err.(*os.SyscallError); ok {

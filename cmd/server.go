@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/aos-dev/dm/api"
-	dmlog "github.com/aos-dev/dm/pkg/logger"
+	dmlogger "github.com/aos-dev/dm/pkg/logger"
 )
 
 // serverFlags handle flags for server command
@@ -36,7 +36,7 @@ func serverRun(c *cobra.Command, _ []string) error {
 		Port:   serverFlag.port,
 		Debug:  globalFlag.debug,
 		DBPath: globalFlag.db,
-		Logger: dmlog.FromContext(c.Context()),
+		Logger: dmlogger.FromContext(c.Context()),
 	}
 
 	return api.StartServer(cfg)
