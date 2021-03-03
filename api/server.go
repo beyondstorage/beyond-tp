@@ -43,6 +43,8 @@ func StartServer(cfg Config) (err error) {
 	r.Use(logRequestInfo())                           // log request info
 	r.Use(ginRecovery())                              // recover any panic
 
+	r.Static("assets", "ui/dist")
+
 	// register routers here
 	r.GET("/ping", ping)
 
