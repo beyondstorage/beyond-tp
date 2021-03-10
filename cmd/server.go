@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/aos-dev/noah/task"
 	"github.com/spf13/cobra"
 
 	"github.com/aos-dev/dm/api"
@@ -31,12 +32,24 @@ var ServerCmd = &cobra.Command{
 }
 
 func serverRun(c *cobra.Command, _ []string) error {
+	logger := zapcontext.From(c.Context())
+
 	cfg := api.Config{
 		Host:   serverFlag.host,
 		Port:   serverFlag.port,
 		Debug:  globalFlag.debug,
 		DBPath: globalFlag.db,
-		Logger: zapcontext.From(c.Context()),
+		Logger: logger,
+	}
+
+	logger.Info("start portal")
+	_, err := task.NewPortal(c.Context(), task.PortalConfig{
+		Host:      "localhost",
+		GrpcPort:  7000,
+		QueuePort: 7010,
+	})
+	if err != nil {
+		return err
 	}
 
 	return api.StartServer(cfg)
