@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/aos-dev/dm/models"
+	"go.uber.org/zap"
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/spf13/cobra"
@@ -36,10 +38,19 @@ func serverRun(c *cobra.Command, _ []string) error {
 		Port:   serverFlag.port,
 		Debug:  globalFlag.debug,
 		DBPath: globalFlag.db,
-		Logger: zapcontext.From(c.Context()),
 	}
 
-	return api.StartServer(cfg)
+	ctx := c.Context()
+	logger := zapcontext.From(ctx)
+
+	db, err := models.NewDB(cfg.DBPath)
+	if err != nil {
+		logger.Fatal("new db failed:", zap.Error(err), zap.String("path", cfg.DBPath))
+	}
+
+	ctx = models.DbIntoContext(ctx, db)
+
+	return api.StartServer(ctx, cfg)
 }
 
 func initServerCmdFlags() {

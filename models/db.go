@@ -1,15 +1,17 @@
 package models
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/dgraph-io/badger/v3"
-	"github.com/gin-gonic/gin"
 )
 
 type DB struct {
 	db *badger.DB
 }
 
-const dbGinCtxKey = "db_in_gin"
+var contextKey struct{}
 
 func NewDB(path string) (*DB, error) {
 	db, err := badger.Open(badger.DefaultOptions(path))
@@ -19,15 +21,25 @@ func NewDB(path string) (*DB, error) {
 	return &DB{db: db}, nil
 }
 
-// DbIntoGin inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
-func DbIntoGin(db *DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set(dbGinCtxKey, db)
-		c.Next()
+func DbIntoContext(ctx context.Context, db *DB) context.Context {
+	if ctx == nil {
+		panic(fmt.Errorf("ctx is nil"))
 	}
+	if db == nil {
+		panic(fmt.Errorf("db is nil"))
+	}
+	// If context already has db, we can return directly.
+	_, ok := ctx.Value(contextKey).(*DB)
+	if ok {
+		return ctx
+	}
+	return context.WithValue(ctx, contextKey, db)
 }
 
-// DBFromGin inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
-func DBFromGin(c *gin.Context) *DB {
-	return c.MustGet(dbGinCtxKey).(*DB)
+func DBFromContext(ctx context.Context) *DB {
+	db, ok := ctx.Value(contextKey).(*DB)
+	if !ok {
+		panic(fmt.Errorf("db is not set"))
+	}
+	return db
 }

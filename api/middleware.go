@@ -15,10 +15,10 @@ import (
 	"go.uber.org/zap"
 )
 
-const requestIDCtxKey = "request_id_ctx_key"
+const requestIDCtxKey = "request_id"
 
-// setRequestID init requestID and set into context
-func setRequestID() gin.HandlerFunc {
+// WithRequestID init WithRequestID and set into context
+func WithRequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID := uuid.NewString()
 		c.Writer.Header().Set("x-dm-request-id", requestID) // set uuid in header for frontend use
@@ -27,25 +27,18 @@ func setRequestID() gin.HandlerFunc {
 	}
 }
 
-// setLoggerWithReqID set a zap logger with requestID into context
-func setLoggerWithReqID(logger *zap.Logger) gin.HandlerFunc {
+// WithLogger set a zap logger with WithRequestID into context
+func WithLogger(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		loggerWithRequestID := logger.With(zap.String("request_id", c.GetString(requestIDCtxKey)))
-		zapcontext.WithinGin(c, loggerWithRequestID)
-		c.Next()
-	}
-}
+		logger = logger.With(zap.String("request_id", c.GetString(requestIDCtxKey)))
+		zapcontext.WithinGin(c, logger)
 
-// logRequestInfo inspired from `https://github.com/gin-contrib/zap`
-func logRequestInfo() gin.HandlerFunc {
-	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
 		c.Next()
 
 		cost := time.Since(start)
-		logger := zapcontext.FromGin(c)
 		logger.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -54,13 +47,12 @@ func logRequestInfo() gin.HandlerFunc {
 			zap.String("ip", c.ClientIP()),
 			zap.String("user-agent", c.Request.UserAgent()),
 			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
-			zap.Duration("cost", cost),
-		)
+			zap.Duration("cost", cost))
 	}
 }
 
-// ginRecovery inspired from `https://github.com/gin-contrib/zap`
-func ginRecovery() gin.HandlerFunc {
+// WithRecovery inspired from `https://github.com/gin-contrib/zap`
+func WithRecovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {

@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -22,12 +23,13 @@ type Config struct {
 
 	Debug  bool
 	DBPath string
-
-	Logger *zap.Logger
 }
 
 // StartServer start a HTTP server
-func StartServer(cfg Config) (err error) {
+func StartServer(ctx context.Context, cfg Config) (err error) {
+	logger := zapcontext.From(ctx)
+	db := models.DBFromContext(ctx)
+
 	// set gin mode instead of env GIN_MODE
 	mode := gin.ReleaseMode
 	if cfg.Debug {
@@ -36,26 +38,17 @@ func StartServer(cfg Config) (err error) {
 	gin.SetMode(mode)
 
 	r := gin.New()
-	logger := cfg.Logger
 
-	// register middleware here
-	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
-	r.Use(logRequestInfo())                           // log request info
-	r.Use(ginRecovery())                              // recover any panic
-
+	r.Use(WithRequestID())
+	r.Use(WithLogger(logger))
+	r.Use(WithRecovery()) // recover any panic
 	r.Static("assets", "ui/dist")
 
 	// register routers here
 	r.GET("/ping", ping)
 
-	// init DBPath handler for db actions
-	db, err := models.NewDB(cfg.DBPath)
-	if err != nil {
-		logger.Fatal("new db failed:", zap.Error(err), zap.String("path", cfg.DBPath))
-	}
-
 	// register routers for graphql
-	graphql.RegisterRouter(r, "/graphql", db, cfg.Debug)
+	graphql.RegisterRouter(ctx, r, "/graphql", db, cfg.Debug)
 
 	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	srv := &http.Server{
