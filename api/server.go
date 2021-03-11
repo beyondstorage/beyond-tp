@@ -13,7 +13,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/api/graphql"
-	"github.com/aos-dev/dm/models"
 )
 
 // Config handle configs to start a server
@@ -28,7 +27,6 @@ type Config struct {
 // StartServer start a HTTP server
 func StartServer(ctx context.Context, cfg Config) (err error) {
 	logger := zapcontext.From(ctx)
-	db := models.DBFromContext(ctx)
 
 	// set gin mode instead of env GIN_MODE
 	mode := gin.ReleaseMode
@@ -48,7 +46,7 @@ func StartServer(ctx context.Context, cfg Config) (err error) {
 	r.GET("/ping", ping)
 
 	// register routers for graphql
-	graphql.RegisterRouter(ctx, r, "/graphql", db, cfg.Debug)
+	graphql.RegisterRouter(ctx, r, "/graphql", cfg.Debug)
 
 	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	srv := &http.Server{
