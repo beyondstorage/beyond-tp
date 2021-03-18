@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/aos-dev/noah/task"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -15,28 +16,29 @@ import (
 	"github.com/aos-dev/dm/models"
 )
 
-// Config handle configs to start a server
-type Config struct {
+// Server handle configs to start a server
+type Server struct {
 	Host string
 	Port int
 
-	Debug  bool
-	DBPath string
+	Debug bool
 
 	Logger *zap.Logger
+	DB     *models.DB
+	Portal *task.Portal
 }
 
-// StartServer start a HTTP server
-func StartServer(cfg Config) (err error) {
+// Start a HTTP server
+func (s *Server) Start() error {
 	// set gin mode instead of env GIN_MODE
 	mode := gin.ReleaseMode
-	if cfg.Debug {
+	if s.Debug {
 		mode = gin.DebugMode
 	}
 	gin.SetMode(mode)
 
 	r := gin.New()
-	logger := cfg.Logger
+	logger := s.Logger
 
 	// register middleware here
 	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
@@ -48,16 +50,16 @@ func StartServer(cfg Config) (err error) {
 	// register routers here
 	r.GET("/ping", ping)
 
-	// init DBPath handler for db actions
-	db, err := models.NewDB(cfg.DBPath)
-	if err != nil {
-		logger.Fatal("new db failed:", zap.Error(err), zap.String("path", cfg.DBPath))
+	// register routers for graphql
+	graphql.RegisterRouter(r, "/graphql", s.DB, s.Debug)
+
+	// register routers for tasks
+	taskGroup := r.Group("/task")
+	{
+		taskGroup.POST("/copy", s.copyTask)
 	}
 
-	// register routers for graphql
-	graphql.RegisterRouter(r, "/graphql", db, cfg.Debug)
-
-	endpoint := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	endpoint := fmt.Sprintf("%s:%d", s.Host, s.Port)
 	srv := &http.Server{
 		Addr:    endpoint,
 		Handler: r,
@@ -88,4 +90,8 @@ func StartServer(cfg Config) (err error) {
 
 func ping(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
+}
+
+func (s *Server) copyTask(c *gin.Context) {
+	c.String(http.StatusOK, "copy")
 }

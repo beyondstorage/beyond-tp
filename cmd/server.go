@@ -7,8 +7,10 @@ import (
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/aos-dev/noah/task"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/api"
+	"github.com/aos-dev/dm/models"
 )
 
 // serverFlags handle flags for server command
@@ -34,17 +36,15 @@ var ServerCmd = &cobra.Command{
 func serverRun(c *cobra.Command, _ []string) error {
 	logger := zapcontext.From(c.Context())
 
-	cfg := api.Config{
-		Host:   serverFlag.host,
-		Port:   serverFlag.port,
-		Debug:  globalFlag.debug,
-		DBPath: globalFlag.db,
-		Logger: logger,
+	db, err := models.NewDB(globalFlag.db)
+	if err != nil {
+		logger.Error("new db failed:", zap.Error(err), zap.String("path", globalFlag.db))
+		return err
 	}
 
 	logger.Info("start portal")
-	_, err := task.NewPortal(c.Context(), task.PortalConfig{
-		Host:      "localhost",
+	portal, err := task.NewPortal(c.Context(), task.PortalConfig{
+		Host:      serverFlag.host,
 		GrpcPort:  7000,
 		QueuePort: 7010,
 	})
@@ -52,7 +52,16 @@ func serverRun(c *cobra.Command, _ []string) error {
 		return err
 	}
 
-	return api.StartServer(cfg)
+	srv := api.Server{
+		Host:   serverFlag.host,
+		Port:   serverFlag.port,
+		Debug:  globalFlag.debug,
+		Logger: logger,
+		DB:     db,
+		Portal: portal,
+	}
+
+	return srv.Start()
 }
 
 func initServerCmdFlags() {
