@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.13.0
 	github.com/aos-dev/go-toolbox v0.0.0-20210310073023-db4ad0026279
 	github.com/dgraph-io/badger/v3 v3.2011.1
+	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/google/uuid v1.2.0
 	github.com/spf13/cobra v1.1.3
