@@ -8,8 +8,12 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/aos-dev/noah/proto"
 	"github.com/aos-dev/noah/task"
 	"github.com/gin-gonic/gin"
+	protobuf "github.com/golang/protobuf/proto"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/api/graphql"
@@ -93,5 +97,39 @@ func ping(c *gin.Context) {
 }
 
 func (s *Server) copyTask(c *gin.Context) {
-	c.String(http.StatusOK, "copy")
+	logger := zapcontext.FromGin(c)
+
+	copyFileJob := &proto.CopyDir{
+		Src:       0,
+		Dst:       1,
+		SrcPath:   "",
+		DstPath:   "",
+		Recursive: true,
+	}
+	content, err := protobuf.Marshal(copyFileJob)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	copyFileTask := &proto.Task{
+		Id: uuid.NewString(),
+		Endpoints: []*proto.Endpoint{
+			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/b/"}}},
+			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/c/"}}},
+		},
+		Job: &proto.Job{
+			Id:      uuid.NewString(),
+			Type:    task.TypeCopyDir,
+			Content: content,
+		},
+	}
+
+	logger.Info("before first publish")
+	err = s.Portal.Publish(c, copyFileTask)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.String(http.StatusOK, "copy published")
 }
