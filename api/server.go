@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -42,11 +43,16 @@ func StartServer(cfg Config) (err error) {
 	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
 	r.Use(logRequestInfo())                           // log request info
 	r.Use(ginRecovery())                              // recover any panic
+	r.Use(cors.Default())                             // cors all allowed
 
-	r.Static("assets", "ui/dist")
+	r.Static("web", "ui/build/web")
+	r.LoadHTMLGlob("ui/build/web/index.html")
 
 	// register routers here
 	r.GET("/ping", ping)
+	r.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{})
+	})
 
 	// init DBPath handler for db actions
 	db, err := models.NewDB(cfg.DBPath)

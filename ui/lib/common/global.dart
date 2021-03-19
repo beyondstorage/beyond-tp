@@ -1,0 +1,1 @@
+const globalHeaderHeight = 52.0;
