@@ -16,7 +16,7 @@ class PageToolbar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: Text(
+            child: SelectableText(
               title, style: Theme.of(context).textTheme.headline6),
           ),
           ...children,

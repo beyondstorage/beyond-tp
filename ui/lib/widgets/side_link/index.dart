@@ -67,7 +67,7 @@ class SideLink extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.only(left: 8.0),
-                child: Text(
+                child: SelectableText(
                   title.tr,
                   style: c.hovered.value || isCurrentPage
                     ? Theme.of(context).primaryTextTheme.headline6

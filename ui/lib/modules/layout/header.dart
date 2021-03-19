@@ -41,7 +41,7 @@ class Header extends StatelessWidget {
           Expanded(
             child: Text(""),
           ),
-          Obx(() => Text(
+          Obx(() => SelectableText(
             c.userName.value,
             style: Theme.of(context).appBarTheme.textTheme.headline6),
           ),
@@ -49,7 +49,7 @@ class Header extends StatelessWidget {
             padding: EdgeInsets.only(left: 20.0),
             child: OutlinedButton(
               onPressed: () => c.logout(),
-              child: Text(
+              child: SelectableText(
                 "Logout".tr,
                 style: Theme.of(context).appBarTheme.textTheme.headline6,
               ),
