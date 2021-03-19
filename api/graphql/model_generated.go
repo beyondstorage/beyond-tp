@@ -3,14 +3,68 @@
 package graphql
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/aos-dev/dm/models"
 )
 
 type CreateTask struct {
 	Name   string             `json:"name"`
 	Status *models.TaskStatus `json:"status"`
+	Type   models.TaskType    `json:"type"`
+	Src    *Endpoint          `json:"src"`
+	Dst    *Endpoint          `json:"dst"`
 }
 
 type DeleteTask struct {
 	ID string `json:"id"`
+}
+
+type Endpoint struct {
+	Type   ServiceType `json:"type"`
+	Path   string      `json:"path"`
+	Option interface{} `json:"option"`
+}
+
+type ServiceType string
+
+const (
+	ServiceTypeFs       ServiceType = "fs"
+	ServiceTypeQingstor ServiceType = "qingstor"
+)
+
+var AllServiceType = []ServiceType{
+	ServiceTypeFs,
+	ServiceTypeQingstor,
+}
+
+func (e ServiceType) IsValid() bool {
+	switch e {
+	case ServiceTypeFs, ServiceTypeQingstor:
+		return true
+	}
+	return false
+}
+
+func (e ServiceType) String() string {
+	return string(e)
+}
+
+func (e *ServiceType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ServiceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ServiceType", str)
+	}
+	return nil
+}
+
+func (e ServiceType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

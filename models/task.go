@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aos-dev/noah/task"
 	"github.com/dgraph-io/badger/v3"
 	"github.com/google/uuid"
 )
@@ -188,4 +189,54 @@ func (d *DB) ListTasks() ([]*Task, error) {
 		}
 	}
 	return tasks, nil
+}
+
+type TaskType uint32
+
+// String implement Stringer for TaskType
+func (tt TaskType) String() string {
+	switch uint32(tt) {
+	case task.TypeCopyDir:
+		return "copy_dir"
+	case task.TypeCopyFile:
+		return "copy_file"
+	default:
+		return "unknown"
+	}
+}
+
+// Parse type string into TaskType
+func (tt *TaskType) Parse(t string) {
+	var res uint32
+	switch strings.ToLower(t) {
+	case "copy_file":
+		res = task.TypeCopyFile
+	default: // copy dir as default
+		res = task.TypeCopyDir
+	}
+	*tt = TaskType(res)
+}
+
+func (tt TaskType) MarshalGQL(w io.Writer) {
+	_, err := w.Write([]byte(strconv.Quote(tt.String())))
+	// handle error as panic
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (tt *TaskType) UnmarshalGQL(v interface{}) error {
+	switch v := v.(type) {
+	case string:
+		tt.Parse(strings.ToLower(v))
+		return nil
+	case uint32:
+		*tt = TaskType(v)
+		return nil
+	case TaskType:
+		*tt = v
+		return nil
+	default:
+		return fmt.Errorf("%T is not a uint32 or string", v)
+	}
 }

@@ -2,6 +2,9 @@
 #
 # https://gqlgen.com/getting-started/
 
+scalar Time
+scalar Any
+
 type Task {
   id: String!
   name: String!
@@ -9,8 +12,6 @@ type Task {
   created_at: Time!
   updated_at: Time!
 }
-
-scalar Time
 
 enum TaskStatus {
   unknown
@@ -28,6 +29,15 @@ type Query {
 input CreateTask {
   name: String!
   status: TaskStatus
+  type: TaskType!
+  src: Endpoint!
+  dst: Endpoint!
+}
+
+input Endpoint {
+  type: ServiceType!
+  path: String!
+  option: Any
 }
 
 input DeleteTask {
@@ -37,4 +47,14 @@ input DeleteTask {
 type Mutation {
   createTask(input: CreateTask): Task!
   deleteTask(input: DeleteTask): Task!
+}
+
+enum TaskType {
+  copyDir
+  copyFile
+}
+
+enum ServiceType {
+  fs
+  qingstor
 }

@@ -47,3 +47,5 @@ models:
     model: github.com/aos-dev/dm/models.Task
   TaskStatus:
     model: github.com/aos-dev/dm/models.TaskStatus
+  TaskType:
+    model: github.com/aos-dev/dm/models.TaskType

@@ -233,6 +233,9 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
+scalar Time
+scalar Any
+
 type Task {
   id: String!
   name: String!
@@ -240,8 +243,6 @@ type Task {
   created_at: Time!
   updated_at: Time!
 }
-
-scalar Time
 
 enum TaskStatus {
   unknown
@@ -259,6 +260,15 @@ type Query {
 input CreateTask {
   name: String!
   status: TaskStatus
+  type: TaskType!
+  src: Endpoint!
+  dst: Endpoint!
+}
+
+input Endpoint {
+  type: ServiceType!
+  path: String!
+  option: Any
 }
 
 input DeleteTask {
@@ -268,7 +278,18 @@ input DeleteTask {
 type Mutation {
   createTask(input: CreateTask): Task!
   deleteTask(input: DeleteTask): Task!
-}`, BuiltIn: false},
+}
+
+enum TaskType {
+  copyDir
+  copyFile
+}
+
+enum ServiceType {
+  fs
+  qingstor
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1890,6 +1911,30 @@ func (ec *executionContext) unmarshalInputCreateTask(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNTaskType2githubᚗcomᚋaosᚑdevᚋdmᚋmodelsᚐTaskType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "src":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("src"))
+			it.Src, err = ec.unmarshalNEndpoint2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐEndpoint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "dst":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dst"))
+			it.Dst, err = ec.unmarshalNEndpoint2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐEndpoint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -1907,6 +1952,42 @@ func (ec *executionContext) unmarshalInputDeleteTask(ctx context.Context, obj in
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputEndpoint(ctx context.Context, obj interface{}) (Endpoint, error) {
+	var it Endpoint
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			it.Type, err = ec.unmarshalNServiceType2githubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐServiceType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "path":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("path"))
+			it.Path, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "option":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("option"))
+			it.Option, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2325,6 +2406,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNEndpoint2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐEndpoint(ctx context.Context, v interface{}) (*Endpoint, error) {
+	res, err := ec.unmarshalInputEndpoint(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNServiceType2githubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐServiceType(ctx context.Context, v interface{}) (ServiceType, error) {
+	var res ServiceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNServiceType2githubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐServiceType(ctx context.Context, sel ast.SelectionSet, v ServiceType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2398,6 +2494,16 @@ func (ec *executionContext) unmarshalNTaskStatus2githubᚗcomᚋaosᚑdevᚋdm�
 }
 
 func (ec *executionContext) marshalNTaskStatus2githubᚗcomᚋaosᚑdevᚋdmᚋmodelsᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v models.TaskStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNTaskType2githubᚗcomᚋaosᚑdevᚋdmᚋmodelsᚐTaskType(ctx context.Context, v interface{}) (models.TaskType, error) {
+	var res models.TaskType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTaskType2githubᚗcomᚋaosᚑdevᚋdmᚋmodelsᚐTaskType(ctx context.Context, sel ast.SelectionSet, v models.TaskType) graphql.Marshaler {
 	return v
 }
 
@@ -2643,6 +2749,21 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v interface{}) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalAny(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.SelectionSet, v interface{}) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalAny(v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

@@ -10,15 +10,25 @@ import (
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*models.Task, error) {
-	db := models.DBFromGin(GinContextFrom(ctx))
+	// gc := GinContextFrom(ctx)
+	db := r.DB
+
+	t, err := input.FormatTask()
+	if err != nil {
+		return nil, err
+	}
 
 	task := models.NewTask()
 	task.Name = input.Name
 	if input.Status != nil {
 		task.Status = *input.Status
 	}
-	err := db.CreateTask(task)
-	if err != nil {
+
+	if err = db.CreateTask(task); err != nil {
+		return nil, err
+	}
+
+	if err = r.Portal.Publish(ctx, t); err != nil {
 		return nil, err
 	}
 	return task, nil
