@@ -55,7 +55,13 @@ func (s *Server) Start() error {
 	r.GET("/ping", ping)
 
 	// register routers for graphql
-	graphql.RegisterRouter(r, "/graphql", s.DB, s.Debug)
+	gqlServer := graphql.Server{
+		Path:   "/graphql",
+		Debug:  s.Debug,
+		DB:     s.DB,
+		Portal: s.Portal,
+	}
+	gqlServer.RegisterRouter(r)
 
 	// register routers for tasks
 	taskGroup := r.Group("/task")

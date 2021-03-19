@@ -5,6 +5,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/aos-dev/noah/task"
 	"github.com/gin-gonic/gin"
 
 	"github.com/aos-dev/dm/models"
@@ -12,17 +13,28 @@ import (
 
 const ginCtxKey = "gin_in_ctx"
 
-func RegisterRouter(r *gin.Engine, relPath string, db *models.DB, debug bool) {
+type Server struct {
+	Path  string
+	Debug bool
+
+	DB     *models.DB
+	Portal *task.Portal
+}
+
+func (s *Server) RegisterRouter(r *gin.Engine) {
 	// register routers for graphql
-	gqlGroup := r.Group(relPath)
+	gqlGroup := r.Group(s.Path)
 	// register db into gin context, then set gin ctx into context
-	gqlGroup.Use(models.DbIntoGin(db), WithInGinCtx())
+	gqlGroup.Use(WithInGinCtx())
 	// enable playground only in debug mode
-	if debug {
-		playGroundHandler := playground.Handler("GraphQL playground", relPath)
+	if s.Debug {
+		playGroundHandler := playground.Handler("GraphQL playground", s.Path)
 		gqlGroup.GET("", gin.WrapF(playGroundHandler))
 	}
-	gplHandler := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{}}))
+	gplHandler := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{
+		DB:     s.DB,
+		Portal: s.Portal,
+	}}))
 	gqlGroup.POST("", gin.WrapH(gplHandler))
 }
 
