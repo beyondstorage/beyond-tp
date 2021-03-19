@@ -11,7 +11,7 @@ class GridTableTD extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
       child: SelectableText(
-        value,
+        value ?? "",
         style: style,
         maxLines: 1,
       ),

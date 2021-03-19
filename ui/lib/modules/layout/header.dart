@@ -21,7 +21,10 @@ class HeaderController extends GetxController {
   }
 }
 
-class Header extends StatelessWidget {
+class Header extends StatelessWidget implements PreferredSizeWidget {
+  @override
+  Size get preferredSize => Size.fromHeight(globalHeaderHeight);
+
   @override
   Widget build(BuildContext context) {
     final HeaderController c = Get.put(HeaderController());
@@ -67,8 +70,19 @@ class MobileHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final HeaderController c = Get.put(HeaderController());
+
     return AppBar(
-      title: Text("Project name".tr, style: Theme.of(context).textTheme.headline4),
+      title: Text(
+        "Project name".tr,
+        style: Theme.of(context).appBarTheme.textTheme.headline4
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.logout, size: 24.0),
+          onPressed: () => c.logout(),
+        ),
+      ]
     );
   }
 }
