@@ -11,6 +11,7 @@ import (
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/aos-dev/noah/proto"
 	"github.com/aos-dev/noah/task"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
@@ -48,11 +49,16 @@ func (s *Server) Start() error {
 	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
 	r.Use(logRequestInfo())                           // log request info
 	r.Use(ginRecovery())                              // recover any panic
+	r.Use(cors.Default())                             // cors all allowed
 
-	r.Static("assets", "ui/dist")
+	r.Static("web", "ui/build/web")
+	r.LoadHTMLGlob("ui/build/web/index.html")
 
 	// register routers here
 	r.GET("/ping", ping)
+	r.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{})
+	})
 
 	// register routers for graphql
 	gqlServer := graphql.Server{
