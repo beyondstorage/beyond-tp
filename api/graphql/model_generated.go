@@ -11,11 +11,12 @@ import (
 )
 
 type CreateTask struct {
-	Name   string             `json:"name"`
-	Status *models.TaskStatus `json:"status"`
-	Type   models.TaskType    `json:"type"`
-	Src    *Endpoint          `json:"src"`
-	Dst    *Endpoint          `json:"dst"`
+	Name    string             `json:"name"`
+	Status  *models.TaskStatus `json:"status"`
+	Type    models.TaskType    `json:"type"`
+	Src     *Endpoint          `json:"src"`
+	Dst     *Endpoint          `json:"dst"`
+	Options interface{}        `json:"options"`
 }
 
 type DeleteTask struct {
@@ -23,9 +24,9 @@ type DeleteTask struct {
 }
 
 type Endpoint struct {
-	Type   ServiceType `json:"type"`
-	Path   string      `json:"path"`
-	Option interface{} `json:"option"`
+	Type    ServiceType `json:"type"`
+	Path    string      `json:"path"`
+	Options interface{} `json:"options"`
 }
 
 type ServiceType string

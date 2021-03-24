@@ -8,13 +8,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
-	"github.com/aos-dev/noah/proto"
 	"github.com/aos-dev/noah/task"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	protobuf "github.com/golang/protobuf/proto"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/api/graphql"
@@ -69,12 +65,6 @@ func (s *Server) Start() error {
 	}
 	gqlServer.RegisterRouter(r)
 
-	// register routers for tasks
-	taskGroup := r.Group("/task")
-	{
-		taskGroup.POST("/copy", s.copyTask)
-	}
-
 	endpoint := fmt.Sprintf("%s:%d", s.Host, s.Port)
 	srv := &http.Server{
 		Addr:    endpoint,
@@ -106,42 +96,4 @@ func (s *Server) Start() error {
 
 func ping(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
-}
-
-func (s *Server) copyTask(c *gin.Context) {
-	logger := zapcontext.FromGin(c)
-
-	copyFileJob := &proto.CopyDir{
-		Src:       0,
-		Dst:       1,
-		SrcPath:   "",
-		DstPath:   "",
-		Recursive: true,
-	}
-	content, err := protobuf.Marshal(copyFileJob)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	copyFileTask := &proto.Task{
-		Id: uuid.NewString(),
-		Endpoints: []*proto.Endpoint{
-			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/b/"}}},
-			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/c/"}}},
-		},
-		Job: &proto.Job{
-			Id:      uuid.NewString(),
-			Type:    task.TypeCopyDir,
-			Content: content,
-		},
-	}
-
-	logger.Info("before first publish")
-	err = s.Portal.Publish(c, copyFileTask)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-	c.String(http.StatusOK, "copy published")
 }

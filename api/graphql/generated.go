@@ -263,12 +263,13 @@ input CreateTask {
   type: TaskType!
   src: Endpoint!
   dst: Endpoint!
+  options: Any
 }
 
 input Endpoint {
   type: ServiceType!
   path: String!
-  option: Any
+  options: Any
 }
 
 input DeleteTask {
@@ -1935,6 +1936,14 @@ func (ec *executionContext) unmarshalInputCreateTask(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
+		case "options":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+			it.Options, err = ec.unmarshalOAny2interface(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -1983,11 +1992,11 @@ func (ec *executionContext) unmarshalInputEndpoint(ctx context.Context, obj inte
 			if err != nil {
 				return it, err
 			}
-		case "option":
+		case "options":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("option"))
-			it.Option, err = ec.unmarshalOAny2interface(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+			it.Options, err = ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}

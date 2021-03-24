@@ -191,6 +191,40 @@ func (d *DB) ListTasks() ([]*Task, error) {
 	return tasks, nil
 }
 
+func (d *DB) SetTaskStatus(id string, status TaskStatus) error {
+	txn := d.db.NewTransaction(true)
+	defer txn.Discard()
+
+	t := Task{ID: id}
+	item, err := txn.Get(t.FormatKey())
+	if err != nil {
+		// handle not found error manually
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return NewNotFoundErr(id)
+		}
+		return err
+	}
+	err = item.Value(func(val []byte) error {
+		return json.Unmarshal(val, &t)
+	})
+	if err != nil {
+		return err
+	}
+
+	t.Status = status
+
+	data, err := json.Marshal(t)
+	if err != nil {
+		return err
+	}
+
+	err = txn.Set(t.FormatKey(), data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type TaskType uint32
 
 // String implement Stringer for TaskType

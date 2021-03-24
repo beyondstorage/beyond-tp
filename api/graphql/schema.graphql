@@ -32,12 +32,13 @@ input CreateTask {
   type: TaskType!
   src: Endpoint!
   dst: Endpoint!
+  options: Any
 }
 
 input Endpoint {
   type: ServiceType!
   path: String!
-  option: Any
+  options: Any
 }
 
 input DeleteTask {

@@ -6,11 +6,15 @@ package graphql
 import (
 	"context"
 
+	"github.com/aos-dev/go-toolbox/zapcontext"
+	"go.uber.org/zap"
+
 	"github.com/aos-dev/dm/models"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*models.Task, error) {
-	// gc := GinContextFrom(ctx)
+	gc := GinContextFrom(ctx)
+	logger := zapcontext.FromGin(gc)
 	db := r.DB
 
 	t, err := input.FormatTask()
@@ -31,6 +35,20 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 	if err = r.Portal.Publish(ctx, t); err != nil {
 		return nil, err
 	}
+
+	go func() {
+		err := r.Portal.Wait(ctx, t)
+		if err != nil {
+			logger.Error("task running failed", zap.Error(err))
+			return
+		}
+		logger.Info("task exec succeed", zap.String("task_id", t.Id))
+		// set task status into finished async
+		err = db.SetTaskStatus(t.Id, models.StatusFinished)
+		if err != nil {
+			logger.Error("set task status failed", zap.String("task_id", t.Id), zap.Error(err))
+		}
+	}()
 	return task, nil
 }
 

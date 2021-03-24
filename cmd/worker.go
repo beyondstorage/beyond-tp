@@ -55,10 +55,7 @@ func workerRun(c *cobra.Command, _ []string) error {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
 	<-ch
-	logger.Info("Draining...")
-	if err = w.Drain(); err != nil {
-		logger.Fatal("Worker failed while draining", zap.Error(err))
-	}
+	// TODO: We need to handle w.DisConnect here
 	logger.Info("Exiting")
 	return nil
 }
