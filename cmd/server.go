@@ -40,7 +40,7 @@ func serverRun(c *cobra.Command, _ []string) error {
 
 	db, err := models.NewDB(globalFlag.db)
 	if err != nil {
-		logger.Error("new db failed:", zap.Error(err), zap.String("path", globalFlag.db))
+		logger.Error("new db:", zap.Error(err), zap.String("path", globalFlag.db))
 		return err
 	}
 

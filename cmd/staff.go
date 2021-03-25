@@ -41,12 +41,12 @@ func staffRun(c *cobra.Command, _ []string) error {
 		ManagerAddr: staffFlag.managerAddr,
 	})
 	if err != nil {
-		logger.Error("new staff failed", zap.Error(err))
+		logger.Error("new staff", zap.Error(err))
 		return err
 	}
 	err = w.Connect(c.Context())
 	if err != nil {
-		logger.Error("staff connect manager failed", zap.Error(err), zap.String("manager", staffFlag.managerAddr))
+		logger.Error("staff connect manager", zap.Error(err), zap.String("manager", staffFlag.managerAddr))
 		return err
 	}
 
