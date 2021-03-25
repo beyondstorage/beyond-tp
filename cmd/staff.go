@@ -61,7 +61,7 @@ func staffRun(c *cobra.Command, _ []string) error {
 }
 
 func initStaffCmdFlags() {
-	StaffCmd.Flags().StringVarP(&staffFlag.host, "host", "h", "0.0.0.0", "staff host")
+	StaffCmd.Flags().StringVarP(&staffFlag.host, "host", "h", "localhost", "staff host")
 	StaffCmd.Flags().StringVar(&staffFlag.managerAddr, "manager", "", "manager server address")
 }
 

@@ -15,8 +15,10 @@ import (
 
 // serverFlags handle flags for server command
 type serverFlags struct {
-	host string
-	port int
+	host      string
+	port      int
+	rpcPort   int
+	queuePort int
 }
 
 var serverFlag = serverFlags{}
@@ -45,8 +47,8 @@ func serverRun(c *cobra.Command, _ []string) error {
 	logger.Info("start manager")
 	manager, err := task.NewManager(c.Context(), task.ManagerConfig{
 		Host:      serverFlag.host,
-		GrpcPort:  7000,
-		QueuePort: 7010,
+		GrpcPort:  serverFlag.rpcPort,
+		QueuePort: serverFlag.queuePort,
 	})
 	if err != nil {
 		return err
@@ -65,8 +67,10 @@ func serverRun(c *cobra.Command, _ []string) error {
 }
 
 func initServerCmdFlags() {
-	ServerCmd.Flags().StringVarP(&serverFlag.host, "host", "h", "0.0.0.0", "server host")
-	ServerCmd.Flags().IntVarP(&serverFlag.port, "port", "p", 7436, "server port")
+	ServerCmd.Flags().StringVarP(&serverFlag.host, "host", "h", "localhost", "server host")
+	ServerCmd.Flags().IntVarP(&serverFlag.port, "port", "p", 7436, "web server port")
+	ServerCmd.Flags().IntVar(&serverFlag.rpcPort, "rpc-port", 7000, "grpc server port")
+	ServerCmd.Flags().IntVar(&serverFlag.queuePort, "queue-port", 7010, "msg queue server port")
 }
 
 func validateServerFlags(c *cobra.Command) error {
