@@ -1,0 +1,47 @@
+name: "Flutter Release"
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: "0 14 * * *"
+
+jobs:
+  flutter_release:
+    name: Flutter Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.0.x'
+      - run: flutter pub get
+        working-directory: ./ui
+      #- run: flutter test
+      #  working-directory: ./ui
+      - run: flutter build web
+        working-directory: ./ui
+      - run: tree
+        working-directory: ./ui
+      - uses: WebFreak001/deploy-nightly@v1.1.0
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: "https://uploads.github.com/repos/aos-dev/dm/releases/40394663/assets{?name,label}"
+          release_id: 40394663
+          asset_path: *
+          asset_name: myapp_windows-nightly-$$.zip
+          asset_content_type: application/zip
+          max_releases: 7
