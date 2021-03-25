@@ -16,18 +16,20 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 	_ = zapcontext.FromGin(gc)
 	db := r.DB
 
-	pt, err := input.FormatTask()
-	if err != nil {
-		return nil, err
-	}
-
 	task := models.NewTask()
 	task.Name = input.Name
+	task.Type = input.Type
 	if input.Status != nil {
 		task.Status = *input.Status
 	}
+	if input.Options != nil {
+		task.Options = input.Options.(map[string]interface{})
+	}
+	// src and dst in input always not nil
+	task.Src = *input.Src
+	task.Dst = *input.Dst
 
-	if err = db.CreateTask(task); err != nil {
+	if err := db.SaveTask(task); err != nil {
 		return nil, err
 	}
 
@@ -37,8 +39,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 	}
 
 	// otherwise, run task
-	err = r.runTask(ctx, task.ID, pt)
-	if err != nil {
+	if err := r.runTask(ctx, task); err != nil {
 		return nil, err
 	}
 
@@ -58,6 +59,19 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*
 	return task, nil
 }
 
+func (r *mutationResolver) RunTask(ctx context.Context, id string) (*models.Task, error) {
+	// try to get task first
+	task, err := r.DB.GetTask(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = r.runTask(ctx, task); err != nil {
+		return nil, err
+	}
+	return task, nil
+}
+
 func (r *queryResolver) Task(ctx context.Context, id string) (*models.Task, error) {
 	return r.DB.GetTask(id)
 }
@@ -66,11 +80,19 @@ func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
 	return r.DB.ListTasks()
 }
 
+func (r *taskResolver) Options(ctx context.Context, obj *models.Task) (interface{}, error) {
+	return obj.Options, nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+// Task returns TaskResolver implementation.
+func (r *Resolver) Task() TaskResolver { return &taskResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type taskResolver struct{ *Resolver }

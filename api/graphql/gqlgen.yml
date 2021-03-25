@@ -49,3 +49,9 @@ models:
     model: github.com/aos-dev/dm/models.TaskStatus
   TaskType:
     model: github.com/aos-dev/dm/models.TaskType
+  EndpointInput:
+    model: github.com/aos-dev/dm/models.Endpoint
+  Endpoint:
+    model: github.com/aos-dev/dm/models.Endpoint
+  ServiceType:
+    model: github.com/aos-dev/dm/models.ServiceType

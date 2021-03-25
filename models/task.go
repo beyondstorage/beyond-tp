@@ -10,8 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aos-dev/noah/proto"
 	"github.com/aos-dev/noah/task"
 	"github.com/dgraph-io/badger/v3"
+	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 )
 
@@ -21,6 +23,7 @@ const (
 	StatusRunning
 	StatusFinished
 	StatusStopped
+	StatusError
 )
 
 const taskPrefix = "t"
@@ -63,6 +66,8 @@ func (ts TaskStatus) String() string {
 		return "finished"
 	case StatusStopped:
 		return "stopped"
+	case StatusError:
+		return "error"
 	default:
 		return "unknown"
 	}
@@ -80,6 +85,8 @@ func (ts *TaskStatus) Parse(status string) {
 		res = StatusFinished
 	case "stopped":
 		res = StatusStopped
+	case "error":
+		res = StatusError
 	default:
 		res = StatusUnknown
 	}
@@ -96,11 +103,43 @@ func (ts *TaskStatus) IsRunning() bool {
 
 // Task contains info of data migration task
 type Task struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Status    TaskStatus `json:"status"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID        string                 `json:"id"`
+	Name      string                 `json:"name"`
+	Type      TaskType               `json:"type"`
+	Status    TaskStatus             `json:"status"`
+	CreatedAt time.Time              `json:"created_at"`
+	UpdatedAt time.Time              `json:"updated_at"`
+	Src       Endpoint               `json:"src"`
+	Dst       Endpoint               `json:"dst"`
+	Options   map[string]interface{} `json:"options,omitempty"`
+}
+
+// Endpoint contains info to create an endpoint
+type Endpoint struct {
+	Type    ServiceType `json:"type"`
+	Path    string      `json:"path"`
+	Options interface{} `json:"options,omitempty"`
+}
+
+// parse Endpoint into *proto.Endpoint
+func (e Endpoint) parse() *proto.Endpoint {
+	// ensure handle e.Option as map[string]interface{}
+	opt := make(map[string]interface{})
+	if e.Options != nil {
+		opt = e.Options.(map[string]interface{})
+	}
+
+	pairs := make([]*proto.Pair, 0, len(opt)+1) // +1 for work dir inject
+
+	// conduct pairs with endpoint's options
+	for k, v := range opt {
+		pairs = append(pairs, &proto.Pair{Key: k, Value: v.(string)})
+	}
+
+	// inject work dir into pairs with given path
+	pairs = append(pairs, &proto.Pair{Key: "work_dir", Value: e.Path})
+
+	return &proto.Endpoint{Type: e.Type.String(), Pairs: pairs}
 }
 
 // FormatKey format db key for task
@@ -120,12 +159,45 @@ func NewTask() *Task {
 		Status:    StatusCreated, // set StatusCreated as default value
 		CreatedAt: now,
 		UpdatedAt: now,
+		Src:       Endpoint{Options: make(map[string]interface{})},
+		Dst:       Endpoint{Options: make(map[string]interface{})},
+		Options:   make(map[string]interface{}),
 	}
 	return &t
 }
 
-// CreateTask save a task into DB
-func (d *DB) CreateTask(t *Task) error {
+// FormatProtoTask conduct task into *proto.Task
+func (t Task) FormatProtoTask() (*proto.Task, error) {
+	// TODO: conduct other tasks, such as move or sync
+	copyFileJob := &proto.CopyDir{
+		Src:       0,
+		Dst:       1,
+		SrcPath:   "",
+		DstPath:   "",
+		Recursive: t.Options["recursive"].(bool),
+	}
+	content, err := protobuf.Marshal(copyFileJob)
+	if err != nil {
+		return nil, err
+	}
+
+	copyFileTask := &proto.Task{
+		Id: uuid.NewString(),
+		Endpoints: []*proto.Endpoint{
+			t.Src.parse(),
+			t.Dst.parse(),
+		},
+		Job: &proto.Job{
+			Id:      uuid.NewString(),
+			Type:    uint32(t.Type),
+			Content: content,
+		},
+	}
+	return copyFileTask, nil
+}
+
+// SaveTask save a task into DB
+func (d *DB) SaveTask(t *Task) error {
 	txn := d.db.NewTransaction(true)
 	defer txn.Discard()
 
@@ -184,12 +256,12 @@ func (d *DB) ListTasks() ([]*Task, error) {
 	for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
 		item := it.Item()
 		err := item.Value(func(v []byte) error {
-			task := &Task{}
-			err := json.Unmarshal(v, &task)
+			t := &Task{}
+			err := json.Unmarshal(v, &t)
 			if err != nil {
 				return err
 			}
-			tasks = append(tasks, task)
+			tasks = append(tasks, t)
 			return nil
 		})
 		if err != nil {
@@ -197,41 +269,6 @@ func (d *DB) ListTasks() ([]*Task, error) {
 		}
 	}
 	return tasks, nil
-}
-
-func (d *DB) SetTaskStatus(id string, status TaskStatus) error {
-	txn := d.db.NewTransaction(true)
-	defer txn.Discard()
-
-	t := Task{ID: id}
-	item, err := txn.Get(t.FormatKey())
-	if err != nil {
-		// handle not found error manually
-		if errors.Is(err, badger.ErrKeyNotFound) {
-			return NewNotFoundErr(id)
-		}
-		return err
-	}
-	err = item.Value(func(val []byte) error {
-		return json.Unmarshal(val, &t)
-	})
-	if err != nil {
-		return err
-	}
-
-	t.Status = status
-	t.UpdatedAt = time.Now()
-
-	data, err := json.Marshal(t)
-	if err != nil {
-		return err
-	}
-
-	err = txn.Set(t.FormatKey(), data)
-	if err != nil {
-		return err
-	}
-	return txn.Commit()
 }
 
 type TaskType uint32
@@ -281,5 +318,38 @@ func (tt *TaskType) UnmarshalGQL(v interface{}) error {
 		return nil
 	default:
 		return fmt.Errorf("%T is not a uint32 or string", v)
+	}
+}
+
+type ServiceType string
+
+// String implement Stringer for ServiceType
+func (st ServiceType) String() string {
+	return string(st)
+}
+
+// Parse type string into ServiceType
+func (st *ServiceType) Parse(t string) {
+	*st = ServiceType(t)
+}
+
+func (st ServiceType) MarshalGQL(w io.Writer) {
+	_, err := w.Write([]byte(strconv.Quote(st.String())))
+	// handle error as panic
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (st *ServiceType) UnmarshalGQL(v interface{}) error {
+	switch v := v.(type) {
+	case string:
+		st.Parse(strings.ToLower(v))
+		return nil
+	case ServiceType:
+		*st = v
+		return nil
+	default:
+		return fmt.Errorf("%T is not a string", v)
 	}
 }

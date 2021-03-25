@@ -8,9 +8,13 @@ scalar Any
 type Task {
   id: String!
   name: String!
+  type: TaskType!
   status: TaskStatus!
   created_at: Time!
   updated_at: Time!
+  src: Endpoint!
+  dst: Endpoint!
+  options: Any
 }
 
 enum TaskStatus {
@@ -19,6 +23,7 @@ enum TaskStatus {
   running
   finished
   stopped
+  error
 }
 
 type Query {
@@ -30,12 +35,18 @@ input CreateTask {
   name: String!
   status: TaskStatus
   type: TaskType!
-  src: Endpoint!
-  dst: Endpoint!
+  src: EndpointInput!
+  dst: EndpointInput!
   options: Any
 }
 
-input Endpoint {
+input EndpointInput {
+  type: ServiceType!
+  path: String!
+  options: Any
+}
+
+type Endpoint {
   type: ServiceType!
   path: String!
   options: Any
@@ -48,6 +59,7 @@ input DeleteTask {
 type Mutation {
   createTask(input: CreateTask): Task!
   deleteTask(input: DeleteTask): Task!
+  runTask(id: String!): Task!
 }
 
 enum TaskType {
