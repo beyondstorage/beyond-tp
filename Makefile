@@ -25,8 +25,15 @@ vet:
 	@go vet ./...
 	@echo "ok"
 
+build-frontend:
+	@echo "build frontend"
+	cd ./ui && flutter build web
+	@echo "ok"
+
 build: tidy check
 	@echo "build dm"
+	@rm -r api/web
+	@cp -r ui/build/web api
 	@go build ${GO_BUILD_OPTION} -race -o ./bin/dm
 	@echo "ok"
 

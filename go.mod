@@ -1,6 +1,6 @@
 module github.com/aos-dev/dm
 
-go 1.15
+go 1.16
 
 require (
 	github.com/99designs/gqlgen v0.13.0
