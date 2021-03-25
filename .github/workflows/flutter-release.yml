@@ -35,7 +35,6 @@ jobs:
       - run: tree
         working-directory: ./ui
       - uses: WebFreak001/deploy-nightly@v1.1.0
-        if: ${{ github.ref == 'refs/heads/main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
