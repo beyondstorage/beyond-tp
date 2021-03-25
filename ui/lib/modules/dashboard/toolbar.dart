@@ -14,7 +14,7 @@ class Toolbar extends GetView<DashboardController> {
       children: [
         Button(
           icon: Icons.add,
-          label: Text("New task".tr),
+          child: Text("New task".tr),
           type: ButtonType.primary,
           onPressed: controller.onPressedNew,
         ),

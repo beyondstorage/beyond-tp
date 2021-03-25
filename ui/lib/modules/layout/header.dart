@@ -50,12 +50,13 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           ),
           Padding(
             padding: EdgeInsets.only(left: 20.0),
-            child: OutlinedButton(
-              onPressed: () => c.logout(),
-              child: SelectableText(
-                "Logout".tr,
-                style: Theme.of(context).appBarTheme.textTheme.headline6,
+            child: IconButton(
+              icon: Icon(
+                Icons.logout, color: Colors.white,
               ),
+              iconSize: 20.0,
+              tooltip: "Logout".tr,
+              onPressed: () => c.logout(),
             ),
           ),
         ],

@@ -39,7 +39,7 @@ class GridTableTR extends StatelessWidget {
     return MouseRegion(
       onExit: onExit,
       onEnter: onHovered,
-      cursor: SystemMouseCursors.click,
+      // cursor: SystemMouseCursors.click,
       child: Obx(() => Container(
         decoration: BoxDecoration(
           color: color,
