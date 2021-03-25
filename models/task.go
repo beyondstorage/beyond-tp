@@ -86,6 +86,14 @@ func (ts *TaskStatus) Parse(status string) {
 	*ts = res
 }
 
+// IsRunning assert whether task status is running
+func (ts *TaskStatus) IsRunning() bool {
+	if ts == nil {
+		return false
+	}
+	return *ts == StatusRunning
+}
+
 // Task contains info of data migration task
 type Task struct {
 	ID        string     `json:"id"`

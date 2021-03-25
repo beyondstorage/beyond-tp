@@ -7,17 +7,16 @@ import (
 	"context"
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
-	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/models"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*models.Task, error) {
 	gc := GinContextFrom(ctx)
-	logger := zapcontext.FromGin(gc)
+	_ = zapcontext.FromGin(gc)
 	db := r.DB
 
-	t, err := input.FormatTask()
+	pt, err := input.FormatTask()
 	if err != nil {
 		return nil, err
 	}
@@ -32,28 +31,17 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 		return nil, err
 	}
 
-	if err = r.Manager.Publish(ctx, t); err != nil {
+	// if not running, return task directly and do nothing
+	if !input.Status.IsRunning() {
+		return task, nil
+	}
+
+	// otherwise, run task
+	err = r.runTask(ctx, task, pt)
+	if err != nil {
 		return nil, err
 	}
 
-	go func() {
-		var status models.TaskStatus
-		err := r.Manager.Wait(ctx, t)
-		if err != nil {
-			logger.Error("task running failed", zap.Error(err))
-			status = models.StatusStopped
-		} else {
-			logger.Info("task exec succeed", zap.String("task_id", t.Id))
-			// set task status into finished async
-			status = models.StatusFinished
-		}
-
-		err = db.SetTaskStatus(task.ID, status)
-		if err != nil {
-			logger.Error("set task status failed",
-				zap.String("dm task", task.ID), zap.String("task", t.Id), zap.Error(err))
-		}
-	}()
 	return task, nil
 }
 
