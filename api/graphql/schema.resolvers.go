@@ -37,7 +37,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 	}
 
 	// otherwise, run task
-	err = r.runTask(ctx, task, pt)
+	err = r.runTask(ctx, task.ID, pt)
 	if err != nil {
 		return nil, err
 	}
