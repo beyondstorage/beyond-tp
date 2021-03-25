@@ -40,7 +40,7 @@ jobs:
         with:
           upload_url: "https://uploads.github.com/repos/aos-dev/dm/releases/40394663/assets{?name,label}"
           release_id: 40394663
-          asset_path: *
+          asset_path: test.zip
           asset_name: myapp_windows-nightly-$$.zip
           asset_content_type: application/zip
           max_releases: 7
