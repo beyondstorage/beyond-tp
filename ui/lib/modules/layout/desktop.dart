@@ -10,27 +10,19 @@ class DesktopLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
+    return Scaffold(
+      appBar: Header(),
+      body: Row(
         children: [
-          Header(),
+          Navigators(),
           Expanded(
-            child: Row(
-              children: [
-                Navigators(),
-                Expanded(
-                  child: Padding(
-                    child: child,
-                    padding: EdgeInsets.all(20.0),
-                  ),
-                ),
-              ],
-            )
+            child: Padding(
+              child: child,
+              padding: EdgeInsets.all(20.0),
+            ),
           ),
         ],
       ),
-      color: Theme.of(context).scaffoldBackgroundColor,
     );
   }
 }

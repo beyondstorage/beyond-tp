@@ -36,6 +36,22 @@ class DashboardController extends GetxController {
     });
   }
 
+  Future<QueryResult> deleteTask(String id) {
+    String _query = '''
+      mutation {
+        deleteTask(input: { id: "$id" }) { id }
+      }
+    ''';
+
+    return queryGraphQL(
+      QueryOptions(document: gql(_query))
+    ).then((result) {
+      getTasks();
+
+      return result;
+    });
+  }
+
   void onPressedNew() {
     print("click new button");
   }

@@ -21,7 +21,10 @@ class HeaderController extends GetxController {
   }
 }
 
-class Header extends StatelessWidget {
+class Header extends StatelessWidget implements PreferredSizeWidget {
+  @override
+  Size get preferredSize => Size.fromHeight(globalHeaderHeight);
+
   @override
   Widget build(BuildContext context) {
     final HeaderController c = Get.put(HeaderController());
@@ -41,18 +44,19 @@ class Header extends StatelessWidget {
           Expanded(
             child: Text(""),
           ),
-          Obx(() => Text(
+          Obx(() => SelectableText(
             c.userName.value,
             style: Theme.of(context).appBarTheme.textTheme.headline6),
           ),
           Padding(
             padding: EdgeInsets.only(left: 20.0),
-            child: OutlinedButton(
-              onPressed: () => c.logout(),
-              child: Text(
-                "Logout".tr,
-                style: Theme.of(context).appBarTheme.textTheme.headline6,
+            child: IconButton(
+              icon: Icon(
+                Icons.logout, color: Colors.white,
               ),
+              iconSize: 20.0,
+              tooltip: "Logout".tr,
+              onPressed: () => c.logout(),
             ),
           ),
         ],
@@ -67,8 +71,19 @@ class MobileHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final HeaderController c = Get.put(HeaderController());
+
     return AppBar(
-      title: Text("Project name".tr, style: Theme.of(context).textTheme.headline4),
+      title: Text(
+        "Project name".tr,
+        style: Theme.of(context).appBarTheme.textTheme.headline4
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.logout, size: 24.0),
+          onPressed: () => c.logout(),
+        ),
+      ]
     );
   }
 }

@@ -64,6 +64,8 @@ final themeData = ThemeData(
   backgroundColor: rgba(255, 255, 255, 1),
   scaffoldBackgroundColor: rgba(231, 238, 242, 1),
 
+  errorColor: rgba(202, 38, 33, 1),
+
   appBarTheme: AppBarTheme(
     backgroundColor: rgba(2, 5, 8, 1),
     textTheme: getTextTheme(color: rgba(255, 255, 255, 1)),

@@ -39,7 +39,7 @@ class GridTableTR extends StatelessWidget {
     return MouseRegion(
       onExit: onExit,
       onEnter: onHovered,
-      cursor: SystemMouseCursors.click,
+      // cursor: SystemMouseCursors.click,
       child: Obx(() => Container(
         decoration: BoxDecoration(
           color: color,
@@ -53,10 +53,16 @@ class GridTableTR extends StatelessWidget {
         child: LayoutGrid(
           rowSizes: [44.px],
           columnSizes: columnSizes,
-          children: columns.map((col) => GridTableTD(
-            value: data[col.dataIndex],
-            style: Theme.of(context).dataTableTheme.dataTextStyle,
-          )).toList()
+          children: columns.map((col) {
+            if (col.render != null) {
+              return col.render(data[col.dataIndex], data);
+            }
+
+            return GridTableTD(
+              value: data[col.dataIndex],
+              style: Theme.of(context).dataTableTheme.dataTextStyle,
+            );
+          }).toList()
         ),
       )),
     );

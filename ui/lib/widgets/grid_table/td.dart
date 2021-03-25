@@ -10,12 +10,10 @@ class GridTableTD extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-      child: Text(
-        value,
+      child: SelectableText(
+        value ?? "",
         style: style,
         maxLines: 1,
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
       ),
     );
   }
