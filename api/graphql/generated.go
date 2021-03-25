@@ -283,7 +283,6 @@ type Mutation {
 
 enum TaskType {
   copyDir
-  copyFile
 }
 
 enum ServiceType {
