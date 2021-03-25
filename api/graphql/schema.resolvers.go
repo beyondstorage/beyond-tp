@@ -58,28 +58,24 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 }
 
 func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*models.Task, error) {
-	db := models.DBFromGin(GinContextFrom(ctx))
-
 	// try to get task first
-	task, err := db.GetTask(input.ID)
+	task, err := r.DB.GetTask(input.ID)
 	if err != nil {
 		return nil, err
 	}
 	// then delete task
-	if err = db.DeleteTask(input.ID); err != nil {
+	if err = r.DB.DeleteTask(input.ID); err != nil {
 		return nil, err
 	}
 	return task, nil
 }
 
 func (r *queryResolver) Task(ctx context.Context, id string) (*models.Task, error) {
-	db := models.DBFromGin(GinContextFrom(ctx))
-	return db.GetTask(id)
+	return r.DB.GetTask(id)
 }
 
 func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
-	db := models.DBFromGin(GinContextFrom(ctx))
-	return db.ListTasks()
+	return r.DB.ListTasks()
 }
 
 // Mutation returns MutationResolver implementation.
