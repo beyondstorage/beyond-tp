@@ -24,9 +24,9 @@ type Server struct {
 
 	Debug bool
 
-	Logger *zap.Logger
-	DB     *models.DB
-	Portal *task.Portal
+	Logger  *zap.Logger
+	DB      *models.DB
+	Manager *task.Manager
 }
 
 // Start a HTTP server
@@ -58,10 +58,10 @@ func (s *Server) Start() error {
 
 	// register routers for graphql
 	gqlServer := graphql.Server{
-		Path:   "/graphql",
-		Debug:  s.Debug,
-		DB:     s.DB,
-		Portal: s.Portal,
+		Path:    "/graphql",
+		Debug:   s.Debug,
+		DB:      s.DB,
+		Manager: s.Manager,
 	}
 	gqlServer.RegisterRouter(r)
 

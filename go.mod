@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/99designs/gqlgen v0.13.0
 	github.com/aos-dev/go-toolbox v0.0.0-20210310073023-db4ad0026279
-	github.com/aos-dev/noah v0.0.0-20210323101542-89630be751d9
+	github.com/aos-dev/noah v0.0.0-20210325010434-552e7db3278a
 	github.com/dgraph-io/badger/v3 v3.2011.1
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3

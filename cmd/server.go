@@ -42,8 +42,8 @@ func serverRun(c *cobra.Command, _ []string) error {
 		return err
 	}
 
-	logger.Info("start portal")
-	portal, err := task.NewPortal(c.Context(), task.PortalConfig{
+	logger.Info("start manager")
+	manager, err := task.NewManager(c.Context(), task.ManagerConfig{
 		Host:      serverFlag.host,
 		GrpcPort:  7000,
 		QueuePort: 7010,
@@ -53,12 +53,12 @@ func serverRun(c *cobra.Command, _ []string) error {
 	}
 
 	srv := api.Server{
-		Host:   serverFlag.host,
-		Port:   serverFlag.port,
-		Debug:  globalFlag.debug,
-		Logger: logger,
-		DB:     db,
-		Portal: portal,
+		Host:    serverFlag.host,
+		Port:    serverFlag.port,
+		Debug:   globalFlag.debug,
+		Logger:  logger,
+		DB:      db,
+		Manager: manager,
 	}
 
 	return srv.Start()

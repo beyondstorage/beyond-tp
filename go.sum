@@ -45,8 +45,8 @@ github.com/aos-dev/go-storage/v3 v3.4.2 h1:eo63BKlN1sjXmrZAOsps4Lrjxp9M5fKbn2m9d
 github.com/aos-dev/go-storage/v3 v3.4.2/go.mod h1:PZJT0Ta7YxVM5QoYoh8Q/X4I6e/z/7gOJqm85Aib4nY=
 github.com/aos-dev/go-toolbox v0.0.0-20210310073023-db4ad0026279 h1:wYwWyQ3FyFHW27WCyv8tqmxOk0S9sT2SYL+LJAcjGOk=
 github.com/aos-dev/go-toolbox v0.0.0-20210310073023-db4ad0026279/go.mod h1:z9stQnEScgkLExuPYa2x8YosLzqFJm2W947a6QztsM8=
-github.com/aos-dev/noah v0.0.0-20210323101542-89630be751d9 h1:AzXRFbWU1vh3KbXEbSJgAkmaaEAo1JhOBWURzH+c4uY=
-github.com/aos-dev/noah v0.0.0-20210323101542-89630be751d9/go.mod h1:zLiO0BZlihmknyaHLwavrYEfsSuN3TwntXWbHVfGwpE=
+github.com/aos-dev/noah v0.0.0-20210325010434-552e7db3278a h1:xThXe0AeTy39m2GOevfbl+z01WpGAL2PKDoKNdK0PuU=
+github.com/aos-dev/noah v0.0.0-20210325010434-552e7db3278a/go.mod h1:zLiO0BZlihmknyaHLwavrYEfsSuN3TwntXWbHVfGwpE=
 github.com/aos-dev/specs/go v0.0.0-20210205073047-af8ef94af73d/go.mod h1:XTNlLZtPA1inITyDH5hNnQXVjvvKUvo+lurs5GYB8NA=
 github.com/aos-dev/specs/go v0.0.0-20210304082749-d044cb2d3362/go.mod h1:XTNlLZtPA1inITyDH5hNnQXVjvvKUvo+lurs5GYB8NA=
 github.com/aos-dev/specs/go v0.0.0-20210312090615-23109627848b h1:qIehSnBbr31ATAckM9u9h6gSz+9PkGqu79vTngx6wPw=

@@ -32,21 +32,26 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 		return nil, err
 	}
 
-	if err = r.Portal.Publish(ctx, t); err != nil {
+	if err = r.Manager.Publish(ctx, t); err != nil {
 		return nil, err
 	}
 
 	go func() {
-		err := r.Portal.Wait(ctx, t)
+		var status models.TaskStatus
+		err := r.Manager.Wait(ctx, t)
 		if err != nil {
 			logger.Error("task running failed", zap.Error(err))
-			return
+			status = models.StatusStopped
+		} else {
+			logger.Info("task exec succeed", zap.String("task_id", t.Id))
+			// set task status into finished async
+			status = models.StatusFinished
 		}
-		logger.Info("task exec succeed", zap.String("task_id", t.Id))
-		// set task status into finished async
-		err = db.SetTaskStatus(t.Id, models.StatusFinished)
+
+		err = db.SetTaskStatus(task.ID, status)
 		if err != nil {
-			logger.Error("set task status failed", zap.String("task_id", t.Id), zap.Error(err))
+			logger.Error("set task status failed",
+				zap.String("dm task", task.ID), zap.String("task", t.Id), zap.Error(err))
 		}
 	}()
 	return task, nil

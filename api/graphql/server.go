@@ -17,8 +17,8 @@ type Server struct {
 	Path  string
 	Debug bool
 
-	DB     *models.DB
-	Portal *task.Portal
+	DB      *models.DB
+	Manager *task.Manager
 }
 
 func (s *Server) RegisterRouter(r *gin.Engine) {
@@ -32,8 +32,8 @@ func (s *Server) RegisterRouter(r *gin.Engine) {
 		gqlGroup.GET("", gin.WrapF(playGroundHandler))
 	}
 	gplHandler := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{
-		DB:     s.DB,
-		Portal: s.Portal,
+		DB:      s.DB,
+		Manager: s.Manager,
 	}}))
 	gqlGroup.POST("", gin.WrapH(gplHandler))
 }
