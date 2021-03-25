@@ -212,6 +212,7 @@ func (d *DB) SetTaskStatus(id string, status TaskStatus) error {
 	}
 
 	t.Status = status
+	t.UpdatedAt = time.Now()
 
 	data, err := json.Marshal(t)
 	if err != nil {
@@ -222,7 +223,7 @@ func (d *DB) SetTaskStatus(id string, status TaskStatus) error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return txn.Commit()
 }
 
 type TaskType uint32
