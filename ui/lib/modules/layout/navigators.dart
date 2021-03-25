@@ -18,7 +18,7 @@ class Navigators extends StatelessWidget {
             alignment: Alignment.centerLeft,
             margin: EdgeInsets.only(bottom: 48.0),
             padding: EdgeInsets.symmetric(horizontal: 20.0),
-            child: Text(
+            child: SelectableText(
               'Project name'.tr,
               style: Theme.of(context).textTheme.headline4,
             ),
