@@ -31,13 +31,13 @@ func main() {
 	}
 
 	if err := cmd.Init(); err != nil {
-		logger.Error("init command line failed:", zap.Error(err))
+		logger.Error("init command line:", zap.Error(err))
 		os.Exit(1)
 	}
 
 	ctx := zapcontext.Within(context.Background(), logger)
 	if err := cmd.RootCmd.ExecuteContext(ctx); err != nil {
-		logger.Error("execute command failed:", zap.Error(err))
+		logger.Error("execute command:", zap.Error(err))
 		os.Exit(1)
 	}
 }

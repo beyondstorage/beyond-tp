@@ -2,15 +2,20 @@
 #
 # https://gqlgen.com/getting-started/
 
+scalar Time
+scalar Any
+
 type Task {
   id: String!
   name: String!
+  type: TaskType!
   status: TaskStatus!
   created_at: Time!
   updated_at: Time!
+  src: Endpoint!
+  dst: Endpoint!
+  options: Any
 }
-
-scalar Time
 
 enum TaskStatus {
   unknown
@@ -18,6 +23,7 @@ enum TaskStatus {
   running
   finished
   stopped
+  error
 }
 
 type Query {
@@ -27,7 +33,22 @@ type Query {
 
 input CreateTask {
   name: String!
-  status: TaskStatus
+  type: TaskType!
+  src: EndpointInput!
+  dst: EndpointInput!
+  options: Any
+}
+
+input EndpointInput {
+  type: ServiceType!
+  path: String!
+  options: Any
+}
+
+type Endpoint {
+  type: ServiceType!
+  path: String!
+  options: Any
 }
 
 input DeleteTask {
@@ -37,4 +58,14 @@ input DeleteTask {
 type Mutation {
   createTask(input: CreateTask): Task!
   deleteTask(input: DeleteTask): Task!
+  runTask(id: String!): Task!
+}
+
+enum TaskType {
+  copyDir
+}
+
+enum ServiceType {
+  fs
+  qingstor
 }

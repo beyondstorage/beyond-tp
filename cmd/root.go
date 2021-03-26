@@ -28,8 +28,10 @@ var RootCmd = &cobra.Command{
 func Init() error {
 	initGlobalFlags()
 	initServerCmdFlags()
+	initStaffCmdFlags()
 
 	RootCmd.AddCommand(ServerCmd)
+	RootCmd.AddCommand(StaffCmd)
 	return nil
 }
 

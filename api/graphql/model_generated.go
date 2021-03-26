@@ -7,8 +7,11 @@ import (
 )
 
 type CreateTask struct {
-	Name   string             `json:"name"`
-	Status *models.TaskStatus `json:"status"`
+	Name    string           `json:"name"`
+	Type    models.TaskType  `json:"type"`
+	Src     *models.Endpoint `json:"src"`
+	Dst     *models.Endpoint `json:"dst"`
+	Options interface{}      `json:"options"`
 }
 
 type DeleteTask struct {
