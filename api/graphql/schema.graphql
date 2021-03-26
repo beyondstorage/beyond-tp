@@ -33,7 +33,6 @@ type Query {
 
 input CreateTask {
   name: String!
-  status: TaskStatus
   type: TaskType!
   src: EndpointInput!
   dst: EndpointInput!

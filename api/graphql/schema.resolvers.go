@@ -19,9 +19,6 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 	task := models.NewTask()
 	task.Name = input.Name
 	task.Type = input.Type
-	if input.Status != nil {
-		task.Status = *input.Status
-	}
 	if input.Options != nil {
 		task.Options = input.Options.(map[string]interface{})
 	}
@@ -32,17 +29,6 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 	if err := db.SaveTask(task); err != nil {
 		return nil, err
 	}
-
-	// if not running, return task directly and do nothing
-	if !input.Status.IsRunning() {
-		return task, nil
-	}
-
-	// otherwise, run task
-	if err := r.runTask(ctx, task); err != nil {
-		return nil, err
-	}
-
 	return task, nil
 }
 
