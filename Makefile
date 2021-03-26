@@ -6,7 +6,7 @@ GO_BUILD_OPTION := -trimpath -tags netgo
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
 	@echo "  check      to format, vet and lint "
-	@echo "  build      to create bin directory and build qsctl"
+	@echo "  build      to create bin directory and build dm"
 
 check: format vet
 

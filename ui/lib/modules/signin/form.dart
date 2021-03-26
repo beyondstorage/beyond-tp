@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
 import 'controller.dart';
+import '../../widgets/button/index.dart';
 
 class SignInForm extends GetView<SigninController> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -69,10 +70,17 @@ class SignInForm extends GetView<SigninController> {
             onSaved: controller.password,
           ),
           sizedBoxSpace,
-          ElevatedButton(
-            child: Text("Submit".tr),
-            onPressed: onSubmit,
-          ),
+          Row(
+            children: [
+              Expanded(
+                child: Button(
+                  type: ButtonType.primary,
+                  child: Text("Submit".tr),
+                  onPressed: onSubmit,
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );
