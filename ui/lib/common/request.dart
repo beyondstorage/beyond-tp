@@ -1,18 +1,22 @@
-import 'package:get/get.dart';
+// import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' as Foundation;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import 'shared_prefs.dart';
+// import 'shared_prefs.dart';
 
-import '../routes/index.dart';
+// import '../routes/index.dart';
 
 Future<QueryResult> queryGraphQL(QueryOptions options) async {
-  String server = await getConfig("server");
+  // Support login page later
+  // String server = await getConfig("server");
+  //
+  // if (server == null) {
+  //   Get.toNamed(Routes.login);
+  //
+  //   return QueryResult(source: QueryResultSource.optimisticResult);
+  // }
 
-  if (server == null) {
-    Get.toNamed(Routes.login);
-
-    return QueryResult(source: QueryResultSource.optimisticResult);
-  }
+  String server = Foundation.kDebugMode ? "http://0.0.0.0:7436" : "";
 
   GraphQLClient client = GraphQLClient(
     cache: GraphQLCache(), link: HttpLink("$server/graphql"));
@@ -21,7 +25,6 @@ Future<QueryResult> queryGraphQL(QueryOptions options) async {
 
   if (result.hasException) {
     // todo exception
-    // print(result.exception.toString());
   }
 
   return result;
