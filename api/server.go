@@ -23,7 +23,7 @@ type Server struct {
 	Host string
 	Port int
 
-	Debug bool
+	DevMode bool
 
 	Logger  *zap.Logger
 	DB      *models.DB
@@ -34,7 +34,7 @@ type Server struct {
 func (s *Server) Start() error {
 	// set gin mode instead of env GIN_MODE
 	mode := gin.ReleaseMode
-	if s.Debug {
+	if s.DevMode {
 		mode = gin.DebugMode
 	}
 	gin.SetMode(mode)
@@ -58,7 +58,7 @@ func (s *Server) Start() error {
 	// register routers for graphql
 	gqlServer := graphql.Server{
 		Path:    "/graphql",
-		Debug:   s.Debug,
+		Debug:   s.DevMode,
 		DB:      s.DB,
 		Manager: s.Manager,
 	}
