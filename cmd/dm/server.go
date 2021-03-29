@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"errors"
@@ -23,7 +23,7 @@ type serverFlags struct {
 
 var serverFlag = serverFlags{}
 
-var ServerCmd = &cobra.Command{
+var serverCmd = &cobra.Command{
 	Use:     "server",
 	Short:   fmt.Sprintf("start a http server"),
 	Long:    fmt.Sprintf("dm server can start a http server to handle http request"),
@@ -57,7 +57,7 @@ func serverRun(c *cobra.Command, _ []string) error {
 	srv := api.Server{
 		Host:    serverFlag.host,
 		Port:    serverFlag.port,
-		Debug:   globalFlag.debug,
+		DevMode: globalFlag.dev,
 		Logger:  logger,
 		DB:      db,
 		Manager: manager,
@@ -67,10 +67,10 @@ func serverRun(c *cobra.Command, _ []string) error {
 }
 
 func initServerCmdFlags() {
-	ServerCmd.Flags().StringVarP(&serverFlag.host, "host", "h", "localhost", "server host")
-	ServerCmd.Flags().IntVarP(&serverFlag.port, "port", "p", 7436, "web server port")
-	ServerCmd.Flags().IntVar(&serverFlag.rpcPort, "rpc-port", 7000, "grpc server port")
-	ServerCmd.Flags().IntVar(&serverFlag.queuePort, "queue-port", 7010, "msg queue server port")
+	serverCmd.Flags().StringVarP(&serverFlag.host, "host", "h", "localhost", "server host")
+	serverCmd.Flags().IntVarP(&serverFlag.port, "port", "p", 7436, "web server port")
+	serverCmd.Flags().IntVar(&serverFlag.rpcPort, "rpc-port", 7000, "grpc server port")
+	serverCmd.Flags().IntVar(&serverFlag.queuePort, "queue-port", 7010, "msg queue server port")
 }
 
 func validateServerFlags(c *cobra.Command) error {
