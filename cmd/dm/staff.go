@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ type staffFlags struct {
 
 var staffFlag = staffFlags{}
 
-var StaffCmd = &cobra.Command{
+var staffCmd = &cobra.Command{
 	Use:     "staff",
 	Short:   fmt.Sprintf("start a task staff"),
 	Long:    fmt.Sprintf("dm staff can start a task staff to handle task job distribution"),
@@ -61,8 +61,8 @@ func staffRun(c *cobra.Command, _ []string) error {
 }
 
 func initStaffCmdFlags() {
-	StaffCmd.Flags().StringVarP(&staffFlag.host, "host", "h", "localhost", "staff host")
-	StaffCmd.Flags().StringVar(&staffFlag.managerAddr, "manager", "", "manager server address")
+	staffCmd.Flags().StringVarP(&staffFlag.host, "host", "h", "localhost", "staff host")
+	staffCmd.Flags().StringVar(&staffFlag.managerAddr, "manager", "", "manager server address")
 }
 
 func validateStaffFlags(c *cobra.Command) error {
