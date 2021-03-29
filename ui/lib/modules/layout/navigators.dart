@@ -24,8 +24,8 @@ class Navigators extends StatelessWidget {
             ),
           ),
           SideLink(title: "Tasks", icon: Icons.dashboard, path: Routes.main),
-          SideLink(title: "Endpoints", icon: Icons.album, path: Routes.endpoints),
-          SideLink(title: "Agents", icon: Icons.source, path: "/agents"),
+          // SideLink(title: "Endpoints", icon: Icons.album, path: Routes.endpoints),
+          // SideLink(title: "Agents", icon: Icons.source, path: "/agents"),
         ],
       )
     );
