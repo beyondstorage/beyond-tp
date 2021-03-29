@@ -34,7 +34,5 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.0.x'
-      - run: flutter pub get
-        working-directory: ./ui
       - run: flutter test
         working-directory: ./ui

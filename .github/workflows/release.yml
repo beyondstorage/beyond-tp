@@ -22,14 +22,5 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.0.x'
-      # Build flutter
-      - run: flutter pub get
-        working-directory: ./ui
-      - run: flutter test
-        working-directory: ./ui
-      - run: flutter build web
-        working-directory: ./ui
-      - run: tree
-        working-directory: ./ui
       - run: make build-frontend
       - run: make build
