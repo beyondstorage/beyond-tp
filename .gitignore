@@ -28,3 +28,6 @@ db
 bin
 dist
 node_modules
+
+api/ui/*
+!api/ui/ui.go

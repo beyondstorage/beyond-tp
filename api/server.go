@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/aos-dev/dm/api/ui"
 	"net/http"
 	"os"
 	"os/signal"
@@ -47,13 +48,11 @@ func (s *Server) Start() error {
 	r.Use(ginRecovery())                              // recover any panic
 	r.Use(cors.Default())                             // cors all allowed
 
-	r.Static("web", "ui/build/web")
-	r.LoadHTMLGlob("ui/build/web/index.html")
-
 	// register routers here
 	r.GET("/ping", ping)
+	r.StaticFS("/ui", http.FS(ui.UI))
 	r.NoRoute(func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{})
+		c.Status(http.StatusNotFound)
 	})
 
 	// register routers for graphql
