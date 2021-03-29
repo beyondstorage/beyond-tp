@@ -37,28 +37,33 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         children: [
-          Image(
-            image: AssetImage("images/logo.png"),
-            height: 32,
+          // Logo in v1.0
+          // Image(
+          //   image: AssetImage("images/logo.png"),
+          //   height: 32,
+          // ),
+          SelectableText(
+            "Project name".tr,
+            style: Theme.of(context).appBarTheme.textTheme.headline4
           ),
           Expanded(
             child: Text(""),
           ),
-          Obx(() => SelectableText(
-            c.userName.value,
-            style: Theme.of(context).appBarTheme.textTheme.headline6),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20.0),
-            child: IconButton(
-              icon: Icon(
-                Icons.logout, color: Colors.white,
-              ),
-              iconSize: 20.0,
-              tooltip: "Logout".tr,
-              onPressed: () => c.logout(),
-            ),
-          ),
+          // Obx(() => SelectableText(
+          //   c.userName.value,
+          //   style: Theme.of(context).appBarTheme.textTheme.headline6),
+          // ),
+          // Padding(
+          //   padding: EdgeInsets.only(left: 20.0),
+          //   child: IconButton(
+          //     icon: Icon(
+          //       Icons.logout, color: Colors.white,
+          //     ),
+          //     iconSize: 20.0,
+          //     tooltip: "Logout".tr,
+          //     onPressed: () => c.logout(),
+          //   ),
+          // ),
         ],
       ),
     );
