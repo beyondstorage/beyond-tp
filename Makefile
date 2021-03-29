@@ -32,8 +32,8 @@ build-frontend:
 
 build: tidy check
 	@echo "build dm"
-	@rm -r api/web
-	@cp -r ui/build/web api
+	@git clean -Xf api/ui/
+	@cp -r ui/build/web/* api/ui
 	@go build ${GO_BUILD_OPTION} -race -o ./bin/dm
 	@echo "ok"
 

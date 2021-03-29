@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
-	"embed"
 	"fmt"
+	"github.com/aos-dev/dm/api/ui"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,9 +17,6 @@ import (
 	"github.com/aos-dev/dm/api/graphql"
 	"github.com/aos-dev/dm/models"
 )
-
-//go:embed web
-var ui embed.FS
 
 // Server handle configs to start a server
 type Server struct {
@@ -53,7 +50,7 @@ func (s *Server) Start() error {
 
 	// register routers here
 	r.GET("/ping", ping)
-	r.StaticFS("/ui", http.FS(ui))
+	r.StaticFS("/ui", http.FS(ui.UI))
 	r.NoRoute(func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
