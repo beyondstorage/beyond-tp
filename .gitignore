@@ -29,5 +29,7 @@ bin
 dist
 node_modules
 
+releases
+
 api/ui/*
 !api/ui/ui.go
