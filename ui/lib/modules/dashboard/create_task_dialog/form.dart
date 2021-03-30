@@ -26,12 +26,22 @@ class CreateTaskForm extends GetView<CreateTaskController> {
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               SizedBox(
                 width: 124,
-                child: SelectableText(
-                  'Task name'.tr,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 2.67,
-                    fontWeight: FontWeight.w500,
+                child: RichText(
+                  text: TextSpan(
+                    text: 'Task name'.tr,
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 2.67,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '*',
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

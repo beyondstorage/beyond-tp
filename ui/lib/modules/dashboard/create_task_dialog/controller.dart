@@ -7,14 +7,12 @@ import '../../../common/request.dart';
 class CreateTaskController extends GetxController {
   RxString name = ''.obs;
   RxString srcType = ''.obs;
-  RxString srcPath = ''.obs;
-  RxString srcWorkDir = '/'.obs;
+  RxString srcPath = '/'.obs;
   RxString srcBucketName = ''.obs;
   RxString srcCredential = ''.obs;
 
   RxString dstType = ''.obs;
-  RxString dstPath = ''.obs;
-  RxString dstWorkDir = '/'.obs;
+  RxString dstPath = '/'.obs;
   RxString dstBucketName = ''.obs;
   RxString dstCredential = ''.obs;
 
@@ -34,9 +32,8 @@ class CreateTaskController extends GetxController {
       return '''
         {
           type: $srcType,
-          path: "$srcPath",
           options: {
-            work_dir: "$srcWorkDir",
+            work_dir: "$srcPath",
           }
         }
       ''';
@@ -45,9 +42,8 @@ class CreateTaskController extends GetxController {
     return '''
       {
         type: $srcType,
-        path: "$srcPath",
         options: {
-          work_dir: "$srcWorkDir",
+          work_dir: "$srcPath",
           bucket_name: "$srcBucketName",
           credential: "$srcCredential",
         }
@@ -60,9 +56,8 @@ class CreateTaskController extends GetxController {
       return '''
         {
           type: $dstType,
-          path: "$dstPath",
           options: {
-            work_dir: "$dstWorkDir",
+            work_dir: "$dstPath",
           }
         }
       ''';
@@ -71,9 +66,8 @@ class CreateTaskController extends GetxController {
     return '''
       {
         type: $dstType,
-        path: "$dstPath",
         options: {
-          work_dir: "$dstWorkDir",
+          work_dir: "$dstPath",
           bucket_name: "$dstBucketName",
           credential: "$dstCredential",
         }

@@ -113,53 +113,11 @@ class DestinationFormFields extends GetView<CreateTaskController> {
                 style: TextStyle(fontSize: 12),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.text,
+                initialValue: '/',
                 validator: ValidationBuilder()
                     .minLength(1, 'Please enter destination path')
                     .build(),
                 onSaved: controller.dstPath,
-              ),
-            ),
-          ]),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 30.0),
-          margin: EdgeInsets.only(bottom: 32.0),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            SizedBox(
-              width: 124,
-              child: RichText(
-                text: TextSpan(
-                  text: 'Work dir'.tr,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 2.67,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '*',
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  contentPadding: EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 10.0),
-                ),
-                maxLines: 1,
-                style: TextStyle(fontSize: 12),
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                validator: ValidationBuilder()
-                    .minLength(1, 'Please enter work dir')
-                    .build(),
-                onSaved: controller.dstWorkDir,
               ),
             ),
           ]),
