@@ -7,8 +7,8 @@ import 'form.dart';
 
 import 'controller.dart';
 
-class CreateTaskDialog extends GetView<CreateTaskController> {
-  final CreateTaskController c = Get.put(CreateTaskController());
+class CreateTaskDialog extends StatelessWidget {
+  final CreateTaskController controller = Get.put(CreateTaskController());
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final Function getTasks;
 
@@ -61,7 +61,7 @@ class CreateTaskDialog extends GetView<CreateTaskController> {
                 style: Theme.of(context).textTheme.bodyText1,
               ),
               type: ButtonType.defaults,
-              onPressed: () => Get.back(),
+              onPressed: controller.closeDialog,
             ),
             SizedBox(width: 12),
             Button(
