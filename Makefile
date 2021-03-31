@@ -60,8 +60,7 @@ release: generate tidy check build-frontend
 
 test:
 	@echo "run test"
-	@go test -gcflags=-l -race -coverprofile=coverage.txt -covermode=atomic -v ./...
-	@go tool cover -html="coverage.txt" -o "coverage.html"
+	@go test -race -v -count=1 ./...
 	@echo "ok"
 
 tidy:

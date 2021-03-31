@@ -3,7 +3,7 @@
 package graphql
 
 import (
-	"github.com/aos-dev/noah/task"
+	"github.com/aos-dev/dm/task"
 
 	"github.com/aos-dev/dm/models"
 )
