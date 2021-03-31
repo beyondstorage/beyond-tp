@@ -6,9 +6,8 @@ package graphql
 import (
 	"context"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
-
 	"github.com/aos-dev/dm/models"
+	"github.com/aos-dev/go-toolbox/zapcontext"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*models.Task, error) {

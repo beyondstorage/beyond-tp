@@ -32,12 +32,12 @@ build-frontend:
 	@cp -r ui/build/web/* api/ui
 	@echo "ok"
 
-build: tidy check build-frontend
+build: generate tidy check build-frontend
 	@echo "build dm"
 	go build ${GO_BUILD_OPTION} -race -o ./bin/dm ./cmd/dm
 	@echo "ok"
 
-release: tidy check build-frontend
+release: generate tidy check build-frontend
 	@echo "release dm"
 	@-rm ./releases/*
 	@mkdir -p ./releases
