@@ -1,0 +1,54 @@
+syntax = "proto3";
+package staff;
+
+option go_package = "github.com/aos-dev/dm/proto";
+
+service Staff {
+    rpc Register (RegisterRequest) returns (RegisterReply) {
+    }
+    rpc Elect (ElectRequest) returns (ElectReply) {
+    }
+}
+
+message RegisterRequest {
+    string id = 1;
+    string addr = 2;
+}
+
+message RegisterReply {
+    string addr = 1;
+    string subject = 2;
+}
+
+message ElectRequest {
+    string staff_id = 1;
+    string task_id = 2;
+}
+
+message ElectReply {
+    string addr = 1;
+    string subject = 2;
+    string leader_id = 3;
+    repeated string worker_ids = 4;
+}
+
+message ClockinRequest {
+    string staff_id = 1;
+    string task_id = 2;
+}
+
+message ClockinReply {
+
+}
+
+message ClockoutRequest {
+    string staff_id = 1;
+    string task_id = 2;
+}
+
+message ClockoutReply {
+
+}
+
+message Acknowledgement {
+}
