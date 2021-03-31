@@ -8,20 +8,19 @@ enum ButtonType {
   defaults,
 }
 
-class Button extends StatelessWidget{
+class Button extends StatelessWidget {
   final IconData icon;
   final Widget child;
   final Function onPressed;
   final ButtonType type;
   final bool disabled;
 
-  Button({
-    this.icon,
-    this.child,
-    this.onPressed,
-    this.disabled = false,
-    this.type = ButtonType.defaults
-  });
+  Button(
+      {this.icon,
+      this.child,
+      this.onPressed,
+      this.disabled = false,
+      this.type = ButtonType.defaults});
 
   Color getColor(Set<MaterialState> states) {
     // const Set<MaterialState> interactiveStates = <MaterialState>{
@@ -32,7 +31,7 @@ class Button extends StatelessWidget{
 
     double opacity = disabled ? 0.5 : 1.00;
 
-    switch(type) {
+    switch (type) {
       case ButtonType.error:
         return rgba(202, 38, 33, 1);
       case ButtonType.primary:

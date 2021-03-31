@@ -41,13 +41,11 @@ input CreateTask {
 
 input EndpointInput {
   type: ServiceType!
-  path: String!
   options: Any
 }
 
 type Endpoint {
   type: ServiceType!
-  path: String!
   options: Any
 }
 

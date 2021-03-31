@@ -23,9 +23,7 @@ class DashboardController extends GetxController {
   void getTasks() {
     loading(true);
 
-    queryGraphQL(
-      QueryOptions(document: gql(query))
-    ).then((result) {
+    queryGraphQL(QueryOptions(document: gql(query))).then((result) {
       loading(false);
 
       if (result.data != null) {
@@ -43,16 +41,24 @@ class DashboardController extends GetxController {
       }
     ''';
 
-    return queryGraphQL(
-      QueryOptions(document: gql(_query))
-    ).then((result) {
+    return queryGraphQL(QueryOptions(document: gql(_query))).then((result) {
       getTasks();
 
       return result;
     });
   }
 
-  void onPressedNew() {
-    print("click new button");
+  Future<QueryResult> runTask(String id) {
+    String _query = '''
+      mutation {
+        runTask(id: "$id") { id }
+      }
+    ''';
+
+    return queryGraphQL(QueryOptions(document: gql(_query))).then((result) {
+      getTasks();
+
+      return result;
+    });
   }
 }

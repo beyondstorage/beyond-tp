@@ -117,7 +117,6 @@ type Task struct {
 // Endpoint contains info to create an endpoint
 type Endpoint struct {
 	Type    ServiceType `json:"type"`
-	Path    string      `json:"path"`
 	Options interface{} `json:"options,omitempty"`
 }
 
@@ -135,9 +134,6 @@ func (e Endpoint) parse() *proto.Endpoint {
 	for k, v := range opt {
 		pairs = append(pairs, &proto.Pair{Key: k, Value: v.(string)})
 	}
-
-	// inject work dir into pairs with given path
-	pairs = append(pairs, &proto.Pair{Key: "work_dir", Value: e.Path})
 
 	return &proto.Endpoint{Type: e.Type.String(), Pairs: pairs}
 }

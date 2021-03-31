@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../widgets/button/index.dart';
 import '../../widgets/toolbar/index.dart';
+import './create_task_dialog/index.dart';
 
 import 'controller.dart';
 
@@ -16,10 +17,10 @@ class Toolbar extends GetView<DashboardController> {
           icon: Icons.add,
           child: Text("New task".tr),
           type: ButtonType.primary,
-          onPressed: controller.onPressedNew,
+          onPressed: () =>
+              Get.dialog(CreateTaskDialog(getTasks: controller.getTasks)),
         ),
       ],
     );
   }
 }
-
