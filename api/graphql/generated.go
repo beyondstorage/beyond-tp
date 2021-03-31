@@ -47,7 +47,6 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Endpoint struct {
 		Options func(childComplexity int) int
-		Path    func(childComplexity int) int
 		Type    func(childComplexity int) int
 	}
 
@@ -109,13 +108,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Endpoint.Options(childComplexity), true
-
-	case "Endpoint.path":
-		if e.complexity.Endpoint.Path == nil {
-			break
-		}
-
-		return e.complexity.Endpoint.Path(childComplexity), true
 
 	case "Endpoint.type":
 		if e.complexity.Endpoint.Type == nil {
@@ -349,13 +341,11 @@ input CreateTask {
 
 input EndpointInput {
   type: ServiceType!
-  path: String!
   options: Any
 }
 
 type Endpoint {
   type: ServiceType!
-  path: String!
   options: Any
 }
 
@@ -531,41 +521,6 @@ func (ec *executionContext) _Endpoint_type(ctx context.Context, field graphql.Co
 	res := resTmp.(models.ServiceType)
 	fc.Result = res
 	return ec.marshalNServiceType2githubᚗcomᚋaosᚑdevᚋdmᚋmodelsᚐServiceType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Endpoint_path(ctx context.Context, field graphql.CollectedField, obj *models.Endpoint) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Endpoint",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Path, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Endpoint_options(ctx context.Context, field graphql.CollectedField, obj *models.Endpoint) (ret graphql.Marshaler) {
@@ -2359,14 +2314,6 @@ func (ec *executionContext) unmarshalInputEndpointInput(ctx context.Context, obj
 			if err != nil {
 				return it, err
 			}
-		case "path":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("path"))
-			it.Path, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "options":
 			var err error
 
@@ -2402,11 +2349,6 @@ func (ec *executionContext) _Endpoint(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = graphql.MarshalString("Endpoint")
 		case "type":
 			out.Values[i] = ec._Endpoint_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "path":
-			out.Values[i] = ec._Endpoint_path(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
