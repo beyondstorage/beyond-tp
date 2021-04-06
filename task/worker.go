@@ -2,130 +2,95 @@ package task
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"sync"
-	"time"
 
 	"github.com/aos-dev/go-storage/v3/types"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/google/uuid"
-	"github.com/nats-io/nats.go"
-	natsproto "github.com/nats-io/nats.go/encoders/protobuf"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 
-	"github.com/aos-dev/dm/proto"
+	"github.com/aos-dev/dm/models"
 )
 
 type Worker struct {
-	id      string
-	subject string
+	id string
 
-	queue    *nats.EncodedConn
-	storages []types.Storager
+	grpcClient models.WorkerClient
+	storages   []types.Storager
 
 	ctx    context.Context
-	cond   *sync.Cond
 	logger *zap.Logger
 }
 
-func NewWorker(ctx context.Context, addr, subject string, storages []types.Storager) (*Worker, error) {
+func NewWorker(ctx context.Context, addr string, storages []types.Storager) (w *Worker, err error) {
 	logger := zapcontext.From(ctx)
 
-	w := &Worker{
+	w = &Worker{
 		id:       uuid.NewString(),
-		subject:  subject,
 		storages: storages,
 
 		ctx:    ctx,
-		cond:   sync.NewCond(&sync.Mutex{}),
 		logger: logger,
 	}
-	w.cond.L.Lock()
 
-	// Connect to queue
-	queueConn, err := nats.Connect(addr)
+	grpcConn, err := grpc.DialContext(ctx, addr,
+		grpc.WithInsecure(),
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff: backoff.DefaultConfig,
+		}),
+		grpc.WithUnaryInterceptor(grpc_zap.UnaryClientInterceptor(logger)),
+	)
 	if err != nil {
+		logger.Error("dial manager", zap.Error(err))
 		return nil, err
 	}
-	w.queue, err = nats.NewEncodedConn(queueConn, natsproto.PROTOBUF_ENCODER)
-	if err != nil {
-		return nil, fmt.Errorf("nats encoded connect: %w", err)
-	}
+	w.grpcClient = models.NewWorkerClient(grpcConn)
 
 	logger.Info("worker has been setup", zap.String("id", w.id))
 	return w, nil
 }
 
-func (w *Worker) clockin() {
-	w.logger.Info("worker start clockin", zap.String("id", w.id))
+func (w *Worker) Serve(ctx context.Context) (err error) {
+	logger := zapcontext.From(ctx)
 
-	reply := &proto.ClockinReply{}
+	jc, err := w.grpcClient.NextJob(ctx, &models.NextJobRequest{})
+	if err != nil {
+		logger.Error("next job", zap.Error(err))
+		return err
+	}
 
 	for {
-		err := w.queue.RequestWithContext(w.ctx, SubjectClockin(w.subject),
-			&proto.ClockinRequest{}, reply)
-		if err != nil && errors.Is(err, nats.ErrNoResponders) {
-			time.Sleep(25 * time.Millisecond)
-			continue
-		}
+		j, err := jc.Recv()
 		if err != nil {
-			w.logger.Error("worker clockin", zap.String("id", w.id), zap.Error(err))
-			return
+			logger.Error("receive next job", zap.Error(err))
+			return err
 		}
-		break
-	}
-}
 
-func (w *Worker) clockout() {
-	w.logger.Info("worker start waiting for clockout", zap.String("id", w.id))
-
-	_, err := w.queue.Subscribe(SubjectClockoutNotify(w.subject),
-		func(subject, reply string, req *proto.ClockoutRequest) {
-			err := w.queue.Publish(reply, &proto.Acknowledgement{})
+		go func() {
+			rn, err := newRunner(w, j.Job)
 			if err != nil {
-				w.logger.Error("publish ack", zap.Error(err))
+				w.logger.Error("create new runner", zap.Error(err))
 				return
 			}
-
-			w.cond.Signal()
-		})
-	if err != nil {
-		return
+			rn.Handle()
+		}()
 	}
 }
 
-func (w *Worker) Handle(ctx context.Context) (err error) {
-	go w.clockout()
+func HandleAsWorker(ctx context.Context, addr string, storages []types.Storager) {
+	logger := zapcontext.From(ctx)
 
-	// Worker must setup before clockin.
-	_, err = w.queue.QueueSubscribe(w.subject, w.subject,
-		func(subject, reply string, job *proto.Job) {
-			go func() {
-				rn, err := NewRunner(w, job)
-				if err != nil {
-					w.logger.Error("create new runner", zap.Error(err))
-					return
-				}
-				rn.Handle(reply)
-			}()
-		})
+	w, err := NewWorker(ctx, addr, storages)
 	if err != nil {
-		return fmt.Errorf("nats subscribe: %w", err)
+		return
 	}
 
-	// TODO: we can clockout directly if the task has been finished.
-	w.clockin()
-
-	w.cond.Wait()
+	err = w.Serve(ctx)
+	if err != nil {
+		logger.Error("worker serve", zap.Error(err))
+		return
+	}
 	return
-}
-
-func HandleAsWorker(ctx context.Context, addr, subject string, storages []types.Storager) (err error) {
-	w, err := NewWorker(ctx, addr, subject, storages)
-	if err != nil {
-		return
-	}
-
-	return w.Handle(ctx)
 }

@@ -1,69 +1,73 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
 scalar Time
 scalar Any
 
-type Task {
-  id: String!
-  name: String!
-  type: TaskType!
-  status: TaskStatus!
-  created_at: Time!
-  updated_at: Time!
-  src: Endpoint!
-  dst: Endpoint!
-  options: Any
-}
-
-enum TaskStatus {
-  unknown
-  created
-  running
-  finished
-  stopped
-  error
-}
-
 type Query {
-  task(id: String!): Task!
-  tasks: [Task!]!
-}
-
-input CreateTask {
-  name: String!
-  type: TaskType!
-  src: EndpointInput!
-  dst: EndpointInput!
-  options: Any
-}
-
-input EndpointInput {
-  type: ServiceType!
-  options: Any
-}
-
-type Endpoint {
-  type: ServiceType!
-  options: Any
-}
-
-input DeleteTask {
-  id: String!
+    task(id: String!): Task!
+    tasks: [Task!]!
 }
 
 type Mutation {
-  createTask(input: CreateTask): Task!
-  deleteTask(input: DeleteTask): Task!
-  runTask(id: String!): Task!
+    createTask(input: CreateTask): Task!
+    deleteTask(input: DeleteTask): Task!
+    runTask(id: String!): Task!
+}
+
+type Task {
+    id: String!
+    name: String!
+    type: TaskType!
+    status: TaskStatus!
+    created_at: Time!
+    updated_at: Time!
+    storages: [Storage!]!
+    options: [Pair!]!
 }
 
 enum TaskType {
-  copyDir
+    copyDir
 }
 
-enum ServiceType {
-  fs
-  qingstor
+enum TaskStatus {
+    Created
+    Ready
+    Running
+    Finished
+    Stopped
+    Error
+}
+
+input CreateTask {
+    name: String!
+    type: TaskType!
+    storages: [StorageInput!]!
+    options: [PairInput!]!
+}
+
+input DeleteTask {
+    id: String!
+}
+
+input StorageInput {
+    type: StorageType!
+    options: [PairInput!]!
+}
+
+type Storage {
+    type: StorageType!
+    options: [Pair!]!
+}
+
+enum StorageType {
+    Fs
+    Qingstor
+}
+
+input PairInput {
+    key: String!
+    value: String!
+}
+
+type Pair {
+    key: String!
+    value: String!
 }

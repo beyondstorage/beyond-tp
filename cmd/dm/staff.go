@@ -44,7 +44,7 @@ func staffRun(c *cobra.Command, _ []string) error {
 		logger.Error("new staff", zap.Error(err))
 		return err
 	}
-	err = w.Connect(c.Context())
+	err = w.Start(c.Context())
 	if err != nil {
 		logger.Error("staff connect manager", zap.Error(err), zap.String("manager", staffFlag.managerAddr))
 		return err

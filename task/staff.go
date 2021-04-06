@@ -2,40 +2,31 @@ package task
 
 import (
 	"context"
-	"fmt"
-	"github.com/aos-dev/go-storage/v3/types"
-	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"time"
+	"net"
+	"path/filepath"
 
-	"github.com/aos-dev/go-toolbox/natszap"
+	"github.com/aos-dev/go-storage/v3/types"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/google/uuid"
-	"github.com/nats-io/nats-server/v2/server"
-	"github.com/nats-io/nats.go"
-	natsproto "github.com/nats-io/nats.go/encoders/protobuf"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/aos-dev/dm/proto"
+	"github.com/aos-dev/dm/models"
 )
 
 type Staff struct {
-	id   string
-	addr string
-	cfg  StaffConfig
+	id  string
+	cfg StaffConfig
 
-	logger *zap.Logger
-	ctx    context.Context
-
-	grpcClient proto.StaffClient
-	queueSrv   *server.Server
-
-	queue *nats.EncodedConn
-	sub   *nats.Subscription
+	ctx        context.Context
+	logger     *zap.Logger
+	grpcClient models.StaffClient
 }
 
 type StaffConfig struct {
-	Host string
+	Host     string
+	DataPath string
 
 	ManagerAddr string
 }
@@ -50,31 +41,11 @@ func NewStaff(ctx context.Context, cfg StaffConfig) (s *Staff, err error) {
 		ctx:    ctx,
 		logger: logger,
 	}
-
-	// Setup NATS server.
-	s.queueSrv, err = server.NewServer(&server.Options{
-		Host: cfg.Host,
-		Port: server.RANDOM_PORT,
-	})
-	if err != nil {
-		return
-	}
-
-	go func() {
-		s.queueSrv.SetLoggerV2(natszap.NewLog(logger), false, false, false)
-
-		s.queueSrv.Start()
-	}()
-
-	if !s.queueSrv.ReadyForConnections(10 * time.Second) {
-		panic(fmt.Errorf("server start too slow"))
-	}
-	s.addr = s.queueSrv.ClientURL()
 	return
 }
 
 // Connect will connect to portal task queue.
-func (s *Staff) Connect(ctx context.Context) (err error) {
+func (s *Staff) Start(ctx context.Context) (err error) {
 	logger := s.logger
 
 	// FIXME: we need to use ssl/tls to encrypt our channel.
@@ -83,87 +54,67 @@ func (s *Staff) Connect(ctx context.Context) (err error) {
 		grpc.WithUnaryInterceptor(grpc_zap.UnaryClientInterceptor(logger)),
 	)
 	if err != nil {
+		logger.Error("dial manager", zap.Error(err))
 		return
 	}
-	s.grpcClient = proto.NewStaffClient(grpcConn)
+	s.grpcClient = models.NewStaffClient(grpcConn)
 
-	reply, err := s.grpcClient.Register(ctx, &proto.RegisterRequest{
-		Id:   s.id,
-		Addr: s.addr,
-	})
-	if err != nil {
-		return
-	}
-
-	logger.Info("connect to task queue",
-		zap.String("addr", reply.Addr),
-		zap.String("subject", reply.Subject))
-
-	conn, err := nats.Connect(reply.Addr)
-	if err != nil {
-		return
-	}
-
-	s.queue, err = nats.NewEncodedConn(conn, natsproto.PROTOBUF_ENCODER)
-	if err != nil {
-		return
-	}
-	s.sub, err = s.queue.Subscribe(reply.Subject,
-		func(subject, reply string, task *proto.Task) {
-			s.logger.Info("start handle task",
-				zap.String("subject", subject),
-				zap.String("id", task.Id),
-				zap.String("staff_id", s.id))
-
-			go s.Handle(reply, task)
-		})
-	if err != nil {
-		return
-	}
-	return nil
-}
-
-// Handle will create a new agent to handle task.
-func (s *Staff) Handle(reply string, task *proto.Task) {
-	// Parse storage
-	storages := make([]types.Storager, 0)
-	for _, ep := range task.Endpoints {
-		store, err := ep.ParseStorager()
-		if err != nil {
-			s.logger.Error("parse storager", zap.Error(err))
-			return
-		}
-		storages = append(storages, store)
-	}
-
-	// Send upgrade
-	electReply, err := s.grpcClient.Elect(s.ctx, &proto.ElectRequest{
+	_, err = s.grpcClient.Register(ctx, &models.RegisterRequest{
 		StaffId: s.id,
-		TaskId:  task.Id,
 	})
 	if err != nil {
-		s.logger.Error("staff elect", zap.String("id", s.id), zap.Error(err))
+		logger.Error("register", zap.Error(err))
 		return
 	}
 
-	tr := &proto.TaskReply{Id: task.Id, StaffId: s.id}
-
-	if electReply.LeaderId == s.id {
-		err = HandleAsLeader(s.ctx, electReply.Addr, electReply.Subject, electReply.WorkerIds, task.Job)
-	} else {
-		err = HandleAsWorker(s.ctx, electReply.Addr, electReply.Subject, storages)
-	}
-	if err == nil {
-		tr.Status = JobStatusSucceed
-	} else {
-		tr.Status = JobStatusFailed
-		tr.Message = fmt.Sprintf("task handle: %v", err)
-	}
-	err = nil
-
-	err = s.queue.Publish(reply, tr)
+	tc, err := s.grpcClient.NextTask(ctx, &models.NextTaskRequest{StaffId: s.id})
 	if err != nil {
-		s.logger.Error("staff reply",
-			zap.String("id", s.id), zap.Error(err))
+		logger.Error("next task", zap.Error(err))
+		return err
+	}
+
+	for {
+		t, err := tc.Recv()
+		if err != nil {
+			logger.Error("receive next task", zap.Error(err))
+			return err
+		}
+
+		l, err := net.Listen("tcp", s.cfg.Host)
+		if err != nil {
+			logger.Error("grpc server listen", zap.Error(err))
+			return err
+		}
+
+		reply, err := s.grpcClient.Elect(ctx, &models.ElectRequest{
+			StaffId:   s.id,
+			StaffAddr: l.Addr().String(),
+			TaskId:    t.Task.Id,
+		})
+		if err != nil {
+			logger.Error("grpc elect", zap.Error(err))
+			return err
+		}
+
+		if reply.LeaderId == s.id {
+			dp := filepath.Join(s.cfg.DataPath, t.Task.Id)
+			go HandleAsLeader(ctx, l, dp)
+		} else {
+			// Close listener as we don't need it anymore.
+			l.Close()
+
+			sts := make([]types.Storager, 0, len(t.Task.Storages))
+			for _, v := range t.Task.Storages {
+				store, err := models.FormatStorage(v)
+				if err != nil {
+					logger.Error("format storage", zap.Error(err))
+					return err
+				}
+
+				sts = append(sts, store)
+			}
+
+			go HandleAsWorker(ctx, reply.LeaderAddr, sts)
+		}
 	}
 }

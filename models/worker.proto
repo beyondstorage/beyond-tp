@@ -1,0 +1,53 @@
+syntax = "proto3";
+package worker;
+
+import "job.proto";
+
+option go_package = "github.com/aos-dev/dm/models";
+
+service Worker {
+    rpc NextJob (NextJobRequest) returns (stream NextJobReply) {
+    }
+    rpc CreateJob (CreateJobRequest) returns (CreateJobReply) {
+    }
+    rpc WaitJob (WaitJobRequest) returns (WaitJobReply) {
+    }
+    rpc FinishJob (FinishJobRequest) returns (FinishJobReply) {
+    }
+}
+
+message NextJobRequest {
+    string staff_id = 1;
+}
+
+message NextJobReply {
+    uint32 status = 1;
+    job.Job job = 2;
+}
+
+message CreateJobRequest {
+    string staff_id = 1;
+    job.Job job = 2;
+}
+
+message CreateJobReply {
+    uint32 status = 1;
+}
+
+message FinishJobRequest {
+    string job_id = 1;
+    job.JobStatus status = 2;
+    string message = 3;
+}
+
+message FinishJobReply {
+}
+
+message WaitJobRequest {
+    string job_id = 1;
+}
+
+message WaitJobReply {
+    uint32 status = 1;
+    string message = 2;
+}

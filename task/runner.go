@@ -7,66 +7,40 @@ import (
 
 	"github.com/aos-dev/go-storage/v3/types"
 	protobuf "github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/proto"
+	"github.com/aos-dev/dm/models"
 )
 
-type Runner struct {
+type runner struct {
 	agent *Worker
-	j     *proto.Job
+	j     *models.Job
 
-	queue    *nats.EncodedConn
-	subject  string // All runner will share the same task subject
-	storages []types.Storager
+	grpcClient models.WorkerClient
+	storages   []types.Storager
+	wg         *sync.WaitGroup
 
-	wg     *sync.WaitGroup
-	sub    *nats.Subscription
 	logger *zap.Logger
 }
 
-func NewRunner(a *Worker, j *proto.Job) (*Runner, error) {
-	rn := &Runner{
+func newRunner(a *Worker, j *models.Job) (*runner, error) {
+	rn := &runner{
 		j:     j,
 		agent: a,
 
-		queue:    a.queue,
-		subject:  a.subject, // Copy task subject from agent.
-		storages: a.storages,
-		wg:       &sync.WaitGroup{},
-		logger:   a.logger,
+		grpcClient: a.grpcClient,
+		storages:   a.storages,
+		wg:         &sync.WaitGroup{},
+		logger:     a.logger,
 	}
 
-	var err error
-	// Wait for all JobReply sending to the reply subject.
-	rn.sub, err = rn.queue.Subscribe(SubjectJobReply(rn.j.Id), func(job *proto.JobReply) {
-		defer rn.wg.Done()
-
-		switch job.Status {
-		case JobStatusSucceed:
-			rn.logger.Info("job succeed",
-				zap.String("id", job.Id),
-				zap.String("job", rn.j.Id))
-		default:
-			rn.logger.Error("job failed",
-				zap.String("id", job.Id),
-				zap.String("job", rn.j.Id),
-				zap.String("error", job.Message),
-			)
-		}
-	})
-	if err != nil {
-		rn.logger.Error("runner subscribe job reply", zap.Error(err))
-		return nil, err
-	}
 	return rn, nil
 }
 
-func (rn *Runner) Handle(reply string) {
+func (rn *runner) Handle() {
 	rn.logger.Info("runner start job",
 		zap.String("id", rn.j.Id),
-		zap.Uint32("type", rn.j.Type))
+		zap.Uint32("type", uint32(rn.j.Type)))
 
 	ctx := context.Background()
 
@@ -74,20 +48,20 @@ func (rn *Runner) Handle(reply string) {
 	var t protobuf.Message
 
 	switch rn.j.Type {
-	case TypeCopyDir:
-		t = &proto.CopyDir{}
+	case models.JobType_CopyDir:
+		t = &models.CopyDirJob{}
 		fn = rn.HandleCopyDir
-	case TypeCopyFile:
-		t = &proto.CopyFile{}
+	case models.JobType_CopyFile:
+		t = &models.CopyFileJob{}
 		fn = rn.HandleCopyFile
-	case TypeCopySingleFile:
-		t = &proto.CopySingleFile{}
+	case models.JobType_CopySingleFile:
+		t = &models.CopySingleFileJob{}
 		fn = rn.HandleCopySingleFile
-	case TypeCopyMultipartFile:
-		t = &proto.CopyMultipartFile{}
+	case models.JobType_CopyMultipartFile:
+		t = &models.CopyMultipartFileJob{}
 		fn = rn.HandleCopyMultipartFile
-	case TypeCopyMultipart:
-		t = &proto.CopyMultipart{}
+	case models.JobType_CopyMultipart:
+		t = &models.CopyMultipartJob{}
 		fn = rn.HandleCopyMultipart
 	default:
 		panic("not support job type")
@@ -101,36 +75,36 @@ func (rn *Runner) Handle(reply string) {
 	err = fn(ctx, t)
 
 	// Send JobReply after the job has been handled.
-	err = rn.Finish(ctx, reply, err)
+	err = rn.Finish(ctx, err)
 	if err != nil {
 		rn.logger.Error("runner finish", zap.Error(err))
 	}
 }
 
-func (rn *Runner) Async(ctx context.Context, job *proto.Job) (err error) {
+func (rn *runner) Async(ctx context.Context, job *models.Job) (err error) {
 	logger := rn.logger
 
 	rn.wg.Add(1)
 
-	// Publish new job with the specific reply subject on the task subject.
-	// After this job finished, the runner will send a JobReply to the reply subject.
-	err = rn.queue.PublishRequest(rn.subject, SubjectJobReply(rn.j.Id), job)
+	_, err = rn.grpcClient.CreateJob(ctx, &models.CreateJobRequest{Job: job})
 	if err != nil {
-		logger.Error("runner publish", zap.Error(err))
-		return fmt.Errorf("nats publish: %w", err)
+		return
 	}
+	go func() {
+		defer rn.wg.Done()
+
+		_, err = rn.grpcClient.WaitJob(ctx, &models.WaitJobRequest{JobId: job.Id})
+		if err != nil {
+			logger.Error("wait job", zap.Error(err))
+		}
+	}()
 
 	logger.Info("runner publish async job",
-		zap.String("subject", rn.subject),
-		zap.String("job", rn.j.Id),
-		zap.String("id", job.Id))
+		zap.String("job", job.Id))
 	return
 }
 
-func (rn *Runner) Await(ctx context.Context) (err error) {
-	rn.logger.Info("runner start await job",
-		zap.String("job", rn.j.Id))
-
+func (rn *runner) Await(ctx context.Context) (err error) {
 	rn.wg.Wait()
 
 	rn.logger.Info("runner finish await job",
@@ -138,54 +112,42 @@ func (rn *Runner) Await(ctx context.Context) (err error) {
 	return
 }
 
-func (rn *Runner) Sync(ctx context.Context, job *proto.Job) (err error) {
+func (rn *runner) Sync(ctx context.Context, job *models.Job) (err error) {
 	logger := rn.logger
 
-	var reply proto.JobReply
-
-	logger.Info("runner start sync job",
-		zap.String("subject", rn.subject),
-		zap.String("job", rn.j.Id),
-		zap.String("id", job.Id))
-
-	// NATS provides the builtin request-response style API, so that we don't need to
-	// care about the reply id.
-	err = rn.queue.RequestWithContext(ctx, rn.subject, job, &reply)
+	_, err = rn.grpcClient.CreateJob(ctx, &models.CreateJobRequest{Job: job})
 	if err != nil {
-		logger.Error("runner request", zap.Error(err))
-		return fmt.Errorf("nats request: %w", err)
+		return
 	}
 
-	if reply.Status != JobStatusSucceed {
-		logger.Error("job synced",
-			zap.String("job", reply.Id),
-			zap.String("error", reply.Message))
-		return fmt.Errorf("job failed: %v", reply.Message)
+	_, err = rn.grpcClient.WaitJob(ctx, &models.WaitJobRequest{JobId: job.Id})
+	if err != nil {
+		logger.Error("wait job", zap.Error(err))
 	}
 
 	logger.Info("runner synced job",
-		zap.String("subject", rn.subject),
-		zap.String("job", rn.j.Id),
-		zap.String("id", job.Id))
+		zap.String("job", job.Id))
 	return
 }
 
-func (rn *Runner) Finish(ctx context.Context, reply string, err error) error {
+func (rn *runner) Finish(ctx context.Context, err error) error {
 	logger := rn.logger
 
-	logger.Info("runner reply",
-		zap.String("job", rn.j.Id),
-		zap.String("reply", reply))
+	logger.Info("runner finish job", zap.String("job", rn.j.Id))
 
-	jp := &proto.JobReply{
-		Id: rn.j.Id, // Make sure JobReply sends to the parent job.
+	jp := &models.FinishJobRequest{
+		JobId: rn.j.Id,
 	}
 
 	if err == nil {
-		jp.Status = JobStatusSucceed
+		jp.Status = models.JobStatus_Succeed
 	} else {
-		jp.Status = JobStatusFailed
+		jp.Status = models.JobStatus_Failed
 		jp.Message = err.Error()
 	}
-	return rn.queue.Publish(reply, jp)
+	_, err = rn.grpcClient.FinishJob(ctx, jp)
+	if err != nil {
+		return err
+	}
+	return nil
 }

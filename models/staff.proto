@@ -1,0 +1,44 @@
+syntax = "proto3";
+package staff;
+
+import "task.proto";
+
+option go_package = "github.com/aos-dev/dm/models";
+
+service Staff {
+    rpc Register (RegisterRequest) returns (RegisterReply) {
+    }
+    rpc NextTask (NextTaskRequest) returns (stream NextTaskReply) {
+    }
+    rpc Elect (ElectRequest) returns (ElectReply) {
+    }
+}
+
+message RegisterRequest {
+    string staff_id = 1;
+}
+
+message RegisterReply {
+}
+
+message NextTaskRequest {
+    string staff_id = 1;
+}
+
+message NextTaskReply {
+    // We will use this to mark task queue's status.
+    uint32 status = 1;
+    task.Task task = 2;
+}
+
+message ElectRequest {
+    string task_id = 1;
+    string staff_id = 2;
+    string staff_addr = 3;
+}
+
+message ElectReply {
+    string leader_id = 1;
+    string leader_addr = 2;
+}
+

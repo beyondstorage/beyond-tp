@@ -1,0 +1,70 @@
+syntax = "proto3";
+package task;
+
+option go_package = "github.com/aos-dev/dm/models";
+
+import "google/protobuf/timestamp.proto";
+
+message Task {
+    // Task related metadata
+    string id = 1;
+    string name = 2;
+    TaskType type = 3;
+    TaskStatus status = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
+
+    repeated Storage storages = 100;
+    repeated Pair options = 101;
+}
+
+enum TaskType {
+    InvalidTaskType = 0;
+
+    CopyDir = 1;
+}
+
+enum TaskStatus {
+    InvalidTaskStatus = 0;
+
+    Created = 1;
+    Ready = 2;
+    Running = 3;
+    Finished = 4;
+    Stopped = 5;
+    Error = 6;
+}
+
+message TaskReply {
+    string id = 1;
+    string staff_id = 2;
+    uint32 status = 3;
+    string message = 4;
+}
+
+message Storage {
+    StorageType type = 1;
+    repeated Pair options = 2;
+}
+
+enum StorageType {
+    InvalidStorageType = 0;
+
+    Fs = 1;
+    Qingstor = 2;
+}
+
+message Pair {
+    string key = 1;
+    string value = 2;
+}
+
+message Staff {
+    string Id = 1;
+}
+
+message TaskLeader {
+    string TaskId = 1;
+    string StaffId = 2;
+    string StaffAddr = 3;
+}

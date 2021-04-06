@@ -10,28 +10,22 @@ import (
 	"github.com/aos-dev/go-toolbox/zapcontext"
 )
 
-func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*models.Task, error) {
+func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*Task, error) {
 	gc := GinContextFrom(ctx)
 	_ = zapcontext.FromGin(gc)
 	db := r.DB
 
-	task := models.NewTask()
-	task.Name = input.Name
-	task.Type = input.Type
-	if input.Options != nil {
-		task.Options = input.Options.(map[string]interface{})
-	}
-	// src and dst in input always not nil
-	task.Src = *input.Src
-	task.Dst = *input.Dst
+	task := models.NewTask(input.Name, parseTaskType(input.Type))
+	task.Options = parsePairsInput(input.Options)
+	task.Storages = parseStoragesInput(input.Storages)
 
 	if err := db.SaveTask(task); err != nil {
 		return nil, err
 	}
-	return task, nil
+	return formatTask(task), nil
 }
 
-func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*models.Task, error) {
+func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*Task, error) {
 	// try to get task first
 	task, err := r.DB.GetTask(input.ID)
 	if err != nil {
@@ -41,10 +35,10 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*
 	if err = r.DB.DeleteTask(input.ID); err != nil {
 		return nil, err
 	}
-	return task, nil
+	return formatTask(task), nil
 }
 
-func (r *mutationResolver) RunTask(ctx context.Context, id string) (*models.Task, error) {
+func (r *mutationResolver) RunTask(ctx context.Context, id string) (*Task, error) {
 	// try to get task first
 	task, err := r.DB.GetTask(id)
 	if err != nil {
@@ -54,19 +48,23 @@ func (r *mutationResolver) RunTask(ctx context.Context, id string) (*models.Task
 	if err = r.runTask(ctx, task); err != nil {
 		return nil, err
 	}
-	return task, nil
+	return formatTask(task), nil
 }
 
-func (r *queryResolver) Task(ctx context.Context, id string) (*models.Task, error) {
-	return r.DB.GetTask(id)
+func (r *queryResolver) Task(ctx context.Context, id string) (*Task, error) {
+	t, err := r.DB.GetTask(id)
+	if err != nil {
+		return nil, err
+	}
+	return formatTask(t), nil
 }
 
-func (r *queryResolver) Tasks(ctx context.Context) ([]*models.Task, error) {
-	return r.DB.ListTasks()
-}
-
-func (r *taskResolver) Options(ctx context.Context, obj *models.Task) (interface{}, error) {
-	return obj.Options, nil
+func (r *queryResolver) Tasks(ctx context.Context) ([]*Task, error) {
+	ts, err := r.DB.ListTasks()
+	if err != nil {
+		return nil, err
+	}
+	return formatTasks(ts), nil
 }
 
 // Mutation returns MutationResolver implementation.
@@ -75,9 +73,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-// Task returns TaskResolver implementation.
-func (r *Resolver) Task() TaskResolver { return &taskResolver{r} }
-
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-type taskResolver struct{ *Resolver }

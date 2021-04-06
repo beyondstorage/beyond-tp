@@ -2,23 +2,22 @@ package task
 
 import (
 	"context"
-	"github.com/aos-dev/dm/proto"
+	"github.com/aos-dev/dm/models"
 	"github.com/aos-dev/go-toolbox/zapcontext"
-	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	"testing"
 )
 
 func setupPortal(t *testing.T) *Manager {
 	p, err := NewManager(context.Background(), ManagerConfig{
-		Host:      "localhost",
-		GrpcPort:  7000,
-		QueuePort: 7010,
+		Host:     "localhost",
+		GrpcPort: 7000,
 	})
 	if err != nil {
 		t.Error(err)
 	}
 
+	go p.Serve(context.Background())
 	return p
 }
 
@@ -37,45 +36,18 @@ func TestWorker(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		err = w.Connect(ctx)
-		if err != nil {
-			t.Error(err)
-		}
+		w.Start(ctx)
 	}
 
-	copyFileJob := &proto.CopyDir{
-		Src:       0,
-		Dst:       1,
-		SrcPath:   "",
-		DstPath:   "",
-		Recursive: true,
-	}
-	content, err := protobuf.Marshal(copyFileJob)
-	if err != nil {
-		t.Error(err)
-	}
-
-	copyFileTask := &proto.Task{
-		Id: uuid.NewString(),
-		Endpoints: []*proto.Endpoint{
-			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/b/"}}},
-			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/c/"}}},
-		},
-		Job: &proto.Job{
-			Id:      uuid.NewString(),
-			Type:    TypeCopyDir,
-			Content: content,
+	copyFileTask := &models.Task{
+		Id:     uuid.NewString(),
+		Type:   models.TaskType_CopyDir,
+		Status: models.TaskStatus_Ready,
+		Storages: []*models.Storage{
+			{Type: models.StorageType_Fs, Options: []*models.Pair{{Key: "work_dir", Value: "/tmp/b/"}}},
+			{Type: models.StorageType_Fs, Options: []*models.Pair{{Key: "work_dir", Value: "/tmp/c/"}}},
 		},
 	}
 
-	t.Log("Start publish")
-	err = p.Publish(ctx, copyFileTask)
-	if err != nil {
-		t.Error(err)
-	}
-
-	err = p.Wait(ctx, copyFileTask)
-	if err != nil {
-		t.Error(err)
-	}
+	p.db.SaveTask(copyFileTask)
 }

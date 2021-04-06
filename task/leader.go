@@ -2,133 +2,153 @@ package task
 
 import (
 	"context"
-	"sync"
+	"net"
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/google/uuid"
-	"github.com/nats-io/nats.go"
-	natsproto "github.com/nats-io/nats.go/encoders/protobuf"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
-	"github.com/aos-dev/dm/proto"
+	"github.com/aos-dev/dm/models"
 )
 
 type Leader struct {
-	id        string
-	addr      string
-	subject   string
-	workerIds []string
+	id string
 
-	queue *nats.EncodedConn
+	db      *models.DB
+	jobCh   chan *models.Job
+	grpcSrv models.WorkerServer
 
-	logger      *zap.Logger
-	workerClock *sync.WaitGroup
+	logger *zap.Logger
+
+	models.UnimplementedWorkerServer
 }
 
-func NewLeader(ctx context.Context, addr, subject string, workerIds []string) (l *Leader, err error) {
+func NewLeader(ctx context.Context,
+	nl net.Listener,
+	databasePath string,
+) (l *Leader, err error) {
 	logger := zapcontext.From(ctx)
 
 	l = &Leader{
-		id:        uuid.NewString(),
-		addr:      addr,
-		subject:   subject,
-		workerIds: workerIds,
+		id: uuid.NewString(),
 
-		logger:      logger,
-		workerClock: &sync.WaitGroup{},
+		logger: logger,
 	}
 
-	conn, err := nats.Connect(addr)
+	l.db, err = models.NewDB(databasePath)
 	if err != nil {
+		logger.Error("create db", zap.Error(err))
 		return
 	}
-	l.queue, err = nats.NewEncodedConn(conn, natsproto.PROTOBUF_ENCODER)
-	if err != nil {
-		return
-	}
+
+	grpcSrv := grpc.NewServer(grpc.UnaryInterceptor(
+		grpc_middleware.ChainUnaryServer(
+			grpc_zap.UnaryServerInterceptor(logger),
+			grpc_recovery.UnaryServerInterceptor(),
+		)),
+	)
+	models.RegisterWorkerServer(grpcSrv, l)
+	go func() {
+		err = grpcSrv.Serve(nl)
+		if err != nil {
+			logger.Error("grpc server serve", zap.Error(err))
+			return
+		}
+	}()
 
 	logger.Info("leader has been setup", zap.String("id", l.id))
 	return
 }
 
-// clockinWorkers will subscribe on clockin queue.
-func (l *Leader) clockinWorkers() {
-	l.workerClock.Add(len(l.workerIds))
-
-	// TODO: we need to unsubscribe after we finished this task.
-	_, err := l.queue.Subscribe(
-		SubjectClockin(l.subject),
-		func(subject, reply string, arg *proto.ClockinRequest) {
-			defer l.workerClock.Done()
-
-			err := l.queue.Publish(reply, &proto.ClockinReply{})
-			if err != nil {
-				l.logger.Error("publish clockin reply", zap.Error(err))
-				return
-			}
-		},
-	)
-	if err != nil {
-		l.logger.Error("subscribe clockin",
-			zap.String("id", l.id),
-			zap.String("subject", SubjectClockin(l.subject)),
-			zap.Error(err),
-		)
-	}
-
-	l.workerClock.Wait()
-	return
-}
-
-// clockoutWorkers will subcriibe on clockout queue.
-func (l *Leader) clockoutWorkers() {
-	l.workerClock.Add(len(l.workerIds))
-
-	_, err := l.queue.Subscribe(SubjectClockout(l.subject),
-		func(subject, reply string, arg *proto.Acknowledgement) {
-			l.workerClock.Done()
-		})
-	if err != nil {
-		l.logger.Error("subscribe clockout",
-			zap.String("id", l.id),
-			zap.String("subject", SubjectClockin(l.subject)),
-			zap.Error(err),
-		)
-	}
-
-	err = l.queue.PublishRequest(SubjectClockoutNotify(l.subject), SubjectClockout(l.subject), &proto.ClockoutRequest{})
-	if err != nil {
-		l.logger.Error("publish chock out notify", zap.Error(err))
-		return
-	}
-
-	l.workerClock.Wait()
-	return
-}
-
-func (l *Leader) Handle(ctx context.Context, job *proto.Job) (err error) {
-	l.clockinWorkers()
-	defer l.clockoutWorkers()
-
-	reply := &proto.JobReply{}
-	err = l.queue.RequestWithContext(ctx, l.subject, job, reply)
-	if err != nil {
-		l.logger.Error("leader request",
-			zap.String("subject", l.subject),
-			zap.Error(err))
-		return
-	}
-	return
-}
-
-func HandleAsLeader(ctx context.Context, addr, subject string, workerIds []string, job *proto.Job) (err error) {
+func (l *Leader) Serve(ctx context.Context) (err error) {
 	logger := zapcontext.From(ctx)
 
-	l, err := NewLeader(ctx, addr, subject, workerIds)
+	defer close(l.jobCh)
+
+	err = l.db.SubscribeJob(ctx, func(t *models.Job) {
+		l.jobCh <- t
+	})
+	if err != nil {
+		logger.Error("subscribe job", zap.Error(err))
+		return
+	}
+	return
+}
+
+func (l *Leader) NextJob(request *models.NextJobRequest, srv models.Worker_NextJobServer) (err error) {
+	logger := l.logger
+
+	for j := range l.jobCh {
+		err = srv.Send(&models.NextJobReply{
+			Status: 0,
+			Job:    j,
+		})
+		if err != nil {
+			logger.Error("send next job", zap.Error(err))
+			return
+		}
+	}
+	return
+}
+
+func (l *Leader) CreateJob(ctx context.Context, req *models.CreateJobRequest) (reply *models.CreateJobReply, err error) {
+	logger := zapcontext.From(ctx)
+
+	reply = &models.CreateJobReply{
+		Status: 0,
+	}
+
+	err = l.db.InsertJob(req.Job)
+	if err != nil {
+		logger.Error("insert job", zap.Error(err))
+		return
+	}
+	return
+}
+
+func (l *Leader) WaitJob(ctx context.Context, req *models.WaitJobRequest) (reply *models.WaitJobReply, err error) {
+	logger := zapcontext.From(ctx)
+
+	reply = &models.WaitJobReply{
+		Status: 0,
+	}
+
+	err = l.db.WaitJob(ctx, req.JobId)
+	if err != nil {
+		logger.Error("wait job", zap.Error(err))
+		return
+	}
+	return
+}
+
+func (l *Leader) FinishJob(ctx context.Context, req *models.FinishJobRequest) (reply *models.FinishJobReply, err error) {
+	logger := zapcontext.From(ctx)
+
+	reply = &models.FinishJobReply{}
+
+	err = l.db.DeleteJob(ctx, req.JobId)
+	if err != nil {
+		logger.Error("delete job", zap.Error(err))
+		return
+	}
+	return
+}
+
+func HandleAsLeader(ctx context.Context, nl net.Listener, dp string) {
+	logger := zapcontext.From(ctx)
+
+	l, err := NewLeader(ctx, nl, dp)
 	if err != nil {
 		logger.Error("create new leader", zap.Error(err))
 		return
 	}
 
-	return l.Handle(ctx, job)
+	err = l.Serve(ctx)
+	if err != nil {
+		logger.Error("leader serve", zap.Error(err))
+	}
 }

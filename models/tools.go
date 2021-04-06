@@ -1,6 +1,6 @@
 //+build tools
 
-package proto
+package models
 
 import (
 	_ "github.com/golang/protobuf/protoc-gen-go/grpc"
