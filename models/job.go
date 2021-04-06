@@ -43,7 +43,7 @@ func (d *DB) InsertJob(j *Job) error {
 		return err
 	}
 
-	err = txn.Set(FormatJobKey(j.Id), bs)
+	err = txn.Set(JobKey(j.Id), bs)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (d *DB) GetJob(ctx context.Context, jobId string) (j *Job, err error) {
 	txn := d.db.NewTransaction(false)
 	defer txn.Discard()
 
-	item, err := txn.Get(FormatJobKey(jobId))
+	item, err := txn.Get(JobKey(jobId))
 	if err != nil {
 		// handle not found error manually
 		if errors.Is(err, badger.ErrKeyNotFound) {
@@ -88,7 +88,7 @@ func (d *DB) DeleteJob(ctx context.Context, jobId string) (err error) {
 	txn := d.db.NewTransaction(true)
 	defer txn.Discard()
 
-	err = txn.Delete(FormatJobKey(jobId))
+	err = txn.Delete(JobKey(jobId))
 	if err != nil {
 		return
 	}
@@ -112,7 +112,7 @@ func (d *DB) WaitJob(ctx context.Context, jobId string) (err error) {
 			}
 		}
 		return nil
-	}, FormatJobKey(jobId))
+	}, JobKey(jobId))
 	if err == JobDone {
 		return nil
 	}

@@ -21,6 +21,7 @@ type Task {
     updated_at: Time!
     storages: [Storage!]!
     options: [Pair!]!
+    staffs: [Staff!]!
 }
 
 enum TaskType {
@@ -41,6 +42,7 @@ input CreateTask {
     type: TaskType!
     storages: [StorageInput!]!
     options: [PairInput!]!
+    staffs: [StaffInput!]!
 }
 
 input DeleteTask {
@@ -70,4 +72,12 @@ input PairInput {
 type Pair {
     key: String!
     value: String!
+}
+
+input StaffInput {
+    id: String!
+}
+
+type Staff {
+    id: String!
 }

@@ -14,6 +14,7 @@ type CreateTask struct {
 	Type     TaskType        `json:"type"`
 	Storages []*StorageInput `json:"storages"`
 	Options  []*PairInput    `json:"options"`
+	Staffs   []*StaffInput   `json:"staffs"`
 }
 
 type DeleteTask struct {
@@ -28,6 +29,14 @@ type Pair struct {
 type PairInput struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
+}
+
+type Staff struct {
+	ID string `json:"id"`
+}
+
+type StaffInput struct {
+	ID string `json:"id"`
 }
 
 type Storage struct {
@@ -49,6 +58,7 @@ type Task struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 	Storages  []*Storage `json:"storages"`
 	Options   []*Pair    `json:"options"`
+	Staffs    []*Staff   `json:"staffs"`
 }
 
 type StorageType string

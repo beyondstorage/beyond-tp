@@ -6,7 +6,7 @@ import "job.proto";
 option go_package = "github.com/aos-dev/dm/models";
 
 service Worker {
-    rpc NextJob (NextJobRequest) returns (stream NextJobReply) {
+    rpc PollJob (PollJobRequest) returns (stream PollJobReply) {
     }
     rpc CreateJob (CreateJobRequest) returns (CreateJobReply) {
     }
@@ -16,12 +16,19 @@ service Worker {
     }
 }
 
-message NextJobRequest {
+enum PollJobStatus {
+    InvalidPollJobStatus = 0;
+
+    Valid = 1;
+    Terminated = 100;
+}
+
+message PollJobRequest {
     string staff_id = 1;
 }
 
-message NextJobReply {
-    uint32 status = 1;
+message PollJobReply {
+    PollJobStatus status = 1;
     job.Job job = 2;
 }
 

@@ -8,9 +8,11 @@ option go_package = "github.com/aos-dev/dm/models";
 service Staff {
     rpc Register (RegisterRequest) returns (RegisterReply) {
     }
-    rpc NextTask (NextTaskRequest) returns (stream NextTaskReply) {
-    }
     rpc Elect (ElectRequest) returns (ElectReply) {
+    }
+    rpc Poll (PollRequest) returns (PollReply) {
+    }
+    rpc Finish (FinishRequest) returns (FinishReply) {
     }
 }
 
@@ -19,16 +21,6 @@ message RegisterRequest {
 }
 
 message RegisterReply {
-}
-
-message NextTaskRequest {
-    string staff_id = 1;
-}
-
-message NextTaskReply {
-    // We will use this to mark task queue's status.
-    uint32 status = 1;
-    task.Task task = 2;
 }
 
 message ElectRequest {
@@ -42,3 +34,27 @@ message ElectReply {
     string leader_addr = 2;
 }
 
+message PollRequest {
+    string staff_id = 1;
+}
+
+enum PollStatus {
+    InvalidPollStatus = 0;
+
+    Valid = 1;
+    Empty = 2;
+    Terminated = 100;
+}
+
+message PollReply {
+    PollStatus status = 1;
+    task.Task task = 2;
+}
+
+message FinishRequest {
+    string task_id = 1;
+    string staff_id = 2;
+}
+
+message FinishReply {
+}

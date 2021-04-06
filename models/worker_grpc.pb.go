@@ -18,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerClient interface {
-	NextJob(ctx context.Context, in *NextJobRequest, opts ...grpc.CallOption) (Worker_NextJobClient, error)
+	PollJob(ctx context.Context, in *PollJobRequest, opts ...grpc.CallOption) (Worker_PollJobClient, error)
 	CreateJob(ctx context.Context, in *CreateJobRequest, opts ...grpc.CallOption) (*CreateJobReply, error)
 	WaitJob(ctx context.Context, in *WaitJobRequest, opts ...grpc.CallOption) (*WaitJobReply, error)
 	FinishJob(ctx context.Context, in *FinishJobRequest, opts ...grpc.CallOption) (*FinishJobReply, error)
@@ -32,12 +32,12 @@ func NewWorkerClient(cc grpc.ClientConnInterface) WorkerClient {
 	return &workerClient{cc}
 }
 
-func (c *workerClient) NextJob(ctx context.Context, in *NextJobRequest, opts ...grpc.CallOption) (Worker_NextJobClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Worker_ServiceDesc.Streams[0], "/worker.Worker/NextJob", opts...)
+func (c *workerClient) PollJob(ctx context.Context, in *PollJobRequest, opts ...grpc.CallOption) (Worker_PollJobClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Worker_ServiceDesc.Streams[0], "/worker.Worker/PollJob", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &workerNextJobClient{stream}
+	x := &workerPollJobClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -47,17 +47,17 @@ func (c *workerClient) NextJob(ctx context.Context, in *NextJobRequest, opts ...
 	return x, nil
 }
 
-type Worker_NextJobClient interface {
-	Recv() (*NextJobReply, error)
+type Worker_PollJobClient interface {
+	Recv() (*PollJobReply, error)
 	grpc.ClientStream
 }
 
-type workerNextJobClient struct {
+type workerPollJobClient struct {
 	grpc.ClientStream
 }
 
-func (x *workerNextJobClient) Recv() (*NextJobReply, error) {
-	m := new(NextJobReply)
+func (x *workerPollJobClient) Recv() (*PollJobReply, error) {
+	m := new(PollJobReply)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (c *workerClient) FinishJob(ctx context.Context, in *FinishJobRequest, opts
 // All implementations must embed UnimplementedWorkerServer
 // for forward compatibility
 type WorkerServer interface {
-	NextJob(*NextJobRequest, Worker_NextJobServer) error
+	PollJob(*PollJobRequest, Worker_PollJobServer) error
 	CreateJob(context.Context, *CreateJobRequest) (*CreateJobReply, error)
 	WaitJob(context.Context, *WaitJobRequest) (*WaitJobReply, error)
 	FinishJob(context.Context, *FinishJobRequest) (*FinishJobReply, error)
@@ -106,8 +106,8 @@ type WorkerServer interface {
 type UnimplementedWorkerServer struct {
 }
 
-func (UnimplementedWorkerServer) NextJob(*NextJobRequest, Worker_NextJobServer) error {
-	return status.Errorf(codes.Unimplemented, "method NextJob not implemented")
+func (UnimplementedWorkerServer) PollJob(*PollJobRequest, Worker_PollJobServer) error {
+	return status.Errorf(codes.Unimplemented, "method PollJob not implemented")
 }
 func (UnimplementedWorkerServer) CreateJob(context.Context, *CreateJobRequest) (*CreateJobReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateJob not implemented")
@@ -131,24 +131,24 @@ func RegisterWorkerServer(s grpc.ServiceRegistrar, srv WorkerServer) {
 	s.RegisterService(&Worker_ServiceDesc, srv)
 }
 
-func _Worker_NextJob_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(NextJobRequest)
+func _Worker_PollJob_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PollJobRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(WorkerServer).NextJob(m, &workerNextJobServer{stream})
+	return srv.(WorkerServer).PollJob(m, &workerPollJobServer{stream})
 }
 
-type Worker_NextJobServer interface {
-	Send(*NextJobReply) error
+type Worker_PollJobServer interface {
+	Send(*PollJobReply) error
 	grpc.ServerStream
 }
 
-type workerNextJobServer struct {
+type workerPollJobServer struct {
 	grpc.ServerStream
 }
 
-func (x *workerNextJobServer) Send(m *NextJobReply) error {
+func (x *workerPollJobServer) Send(m *PollJobReply) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -228,8 +228,8 @@ var Worker_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "NextJob",
-			Handler:       _Worker_NextJob_Handler,
+			StreamName:    "PollJob",
+			Handler:       _Worker_PollJob_Handler,
 			ServerStreams: true,
 		},
 	},

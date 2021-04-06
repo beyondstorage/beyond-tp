@@ -17,7 +17,7 @@ func (r *mutationResolver) runTask(ctx context.Context, task *models.Task) error
 
 	task.UpdatedAt = timestamppb.Now()
 	task.Status = models.TaskStatus_Ready
-	err := r.DB.SaveTask(task)
+	err := r.DB.UpdateTask(task)
 	if err != nil {
 		logger.Error("save task", zap.String("id", task.Id), zap.Error(err))
 		return err

@@ -19,7 +19,6 @@ type Manager struct {
 
 	logger *zap.Logger
 	db     *models.DB
-	taskCh chan *models.Task
 
 	models.UnimplementedStaffServer
 }
@@ -43,13 +42,12 @@ func NewManager(ctx context.Context, cfg ManagerConfig) (p *Manager, err error) 
 	logger := zapcontext.From(ctx)
 
 	p = &Manager{
-		cfg:    cfg,
-		taskCh: make(chan *models.Task),
+		cfg: cfg,
 
 		logger: logger,
 	}
 
-	p.db, err = models.NewDB(p.cfg.DatabasePath)
+	p.db, err = models.NewDB(p.cfg.DatabasePath, logger)
 	if err != nil {
 		logger.Error("create db", zap.String("path", p.cfg.DatabasePath), zap.Error(err))
 		return
@@ -63,12 +61,14 @@ func NewManager(ctx context.Context, cfg ManagerConfig) (p *Manager, err error) 
 		)),
 	)
 	models.RegisterStaffServer(grpcSrv, p)
+
+	l, err := net.Listen("tcp", cfg.GrpcAddr())
+	if err != nil {
+		logger.Error("grpc server listen", zap.Error(err))
+		return
+	}
+
 	go func() {
-		l, err := net.Listen("tcp", cfg.GrpcAddr())
-		if err != nil {
-			logger.Error("grpc server listen", zap.Error(err))
-			return
-		}
 		err = grpcSrv.Serve(l)
 		if err != nil {
 			logger.Error("grpc server serve", zap.Error(err))
@@ -76,23 +76,8 @@ func NewManager(ctx context.Context, cfg ManagerConfig) (p *Manager, err error) 
 		}
 	}()
 
+	logger.Info("manager has been setup", zap.String("addr", cfg.GrpcAddr()))
 	return p, nil
-}
-
-func (p *Manager) Serve(ctx context.Context) {
-	logger := zapcontext.From(ctx)
-
-	defer close(p.taskCh)
-
-	err := p.db.SubscribeTask(ctx, func(t *models.Task) {
-		if t.Status == models.TaskStatus_Ready {
-			p.taskCh <- t
-		}
-	})
-	if err != nil {
-		logger.Error("subscribe task", zap.Error(err))
-		return
-	}
 }
 
 func (p *Manager) Register(ctx context.Context, req *models.RegisterRequest) (reply *models.RegisterReply, err error) {
@@ -126,18 +111,48 @@ func (p *Manager) Elect(ctx context.Context, req *models.ElectRequest) (reply *m
 	}, nil
 }
 
-func (p *Manager) NextTask(req *models.NextTaskRequest, srv models.Staff_NextTaskServer) (err error) {
+func (p *Manager) Poll(ctx context.Context, req *models.PollRequest) (reply *models.PollReply, err error) {
 	logger := p.logger
 
-	for t := range p.taskCh {
-		err = srv.Send(&models.NextTaskReply{
-			Status: 0,
-			Task:   t,
-		})
-		if err != nil {
-			logger.Error("send next task", zap.Error(err))
-			return
-		}
+	reply = &models.PollReply{}
+
+	// TODO: we need to add status for staff task.
+	taskId, err := p.db.NextStaffTask(nil, req.StaffId)
+	if err != nil {
+		logger.Error("next staff task", zap.Error(err))
+		return
+	}
+	logger.Debug("got task",
+		zap.String("id", taskId),
+		zap.String("staff_id", req.StaffId))
+
+	if taskId == "" {
+		reply.Status = models.PollStatus_Empty
+		return
+	}
+
+	task, err := p.db.GetTask(taskId)
+	if err != nil {
+		logger.Error("get task", zap.Error(err))
+		return
+	}
+
+	reply.Status = models.PollStatus_Valid
+	reply.Task = task
+
+	logger.Info("polled task", zap.String("id", task.Id))
+	return
+}
+
+func (p *Manager) Finish(ctx context.Context, req *models.FinishRequest) (reply *models.FinishReply, err error) {
+	logger := p.logger
+
+	reply = &models.FinishReply{}
+
+	err = p.db.DeleteStaffTask(nil, req.StaffId, req.TaskId)
+	if err != nil {
+		logger.Error("delete staff task", zap.Error(err))
+		return
 	}
 	return
 }

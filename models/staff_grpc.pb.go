@@ -19,8 +19,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StaffClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error)
-	NextTask(ctx context.Context, in *NextTaskRequest, opts ...grpc.CallOption) (Staff_NextTaskClient, error)
 	Elect(ctx context.Context, in *ElectRequest, opts ...grpc.CallOption) (*ElectReply, error)
+	Poll(ctx context.Context, in *PollRequest, opts ...grpc.CallOption) (*PollReply, error)
+	Finish(ctx context.Context, in *FinishRequest, opts ...grpc.CallOption) (*FinishReply, error)
 }
 
 type staffClient struct {
@@ -40,41 +41,27 @@ func (c *staffClient) Register(ctx context.Context, in *RegisterRequest, opts ..
 	return out, nil
 }
 
-func (c *staffClient) NextTask(ctx context.Context, in *NextTaskRequest, opts ...grpc.CallOption) (Staff_NextTaskClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Staff_ServiceDesc.Streams[0], "/staff.Staff/NextTask", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &staffNextTaskClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Staff_NextTaskClient interface {
-	Recv() (*NextTaskReply, error)
-	grpc.ClientStream
-}
-
-type staffNextTaskClient struct {
-	grpc.ClientStream
-}
-
-func (x *staffNextTaskClient) Recv() (*NextTaskReply, error) {
-	m := new(NextTaskReply)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 func (c *staffClient) Elect(ctx context.Context, in *ElectRequest, opts ...grpc.CallOption) (*ElectReply, error) {
 	out := new(ElectReply)
 	err := c.cc.Invoke(ctx, "/staff.Staff/Elect", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *staffClient) Poll(ctx context.Context, in *PollRequest, opts ...grpc.CallOption) (*PollReply, error) {
+	out := new(PollReply)
+	err := c.cc.Invoke(ctx, "/staff.Staff/Poll", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *staffClient) Finish(ctx context.Context, in *FinishRequest, opts ...grpc.CallOption) (*FinishReply, error) {
+	out := new(FinishReply)
+	err := c.cc.Invoke(ctx, "/staff.Staff/Finish", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +73,9 @@ func (c *staffClient) Elect(ctx context.Context, in *ElectRequest, opts ...grpc.
 // for forward compatibility
 type StaffServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterReply, error)
-	NextTask(*NextTaskRequest, Staff_NextTaskServer) error
 	Elect(context.Context, *ElectRequest) (*ElectReply, error)
+	Poll(context.Context, *PollRequest) (*PollReply, error)
+	Finish(context.Context, *FinishRequest) (*FinishReply, error)
 	mustEmbedUnimplementedStaffServer()
 }
 
@@ -98,11 +86,14 @@ type UnimplementedStaffServer struct {
 func (UnimplementedStaffServer) Register(context.Context, *RegisterRequest) (*RegisterReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedStaffServer) NextTask(*NextTaskRequest, Staff_NextTaskServer) error {
-	return status.Errorf(codes.Unimplemented, "method NextTask not implemented")
-}
 func (UnimplementedStaffServer) Elect(context.Context, *ElectRequest) (*ElectReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Elect not implemented")
+}
+func (UnimplementedStaffServer) Poll(context.Context, *PollRequest) (*PollReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Poll not implemented")
+}
+func (UnimplementedStaffServer) Finish(context.Context, *FinishRequest) (*FinishReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Finish not implemented")
 }
 func (UnimplementedStaffServer) mustEmbedUnimplementedStaffServer() {}
 
@@ -135,27 +126,6 @@ func _Staff_Register_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Staff_NextTask_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(NextTaskRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(StaffServer).NextTask(m, &staffNextTaskServer{stream})
-}
-
-type Staff_NextTaskServer interface {
-	Send(*NextTaskReply) error
-	grpc.ServerStream
-}
-
-type staffNextTaskServer struct {
-	grpc.ServerStream
-}
-
-func (x *staffNextTaskServer) Send(m *NextTaskReply) error {
-	return x.ServerStream.SendMsg(m)
-}
-
 func _Staff_Elect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ElectRequest)
 	if err := dec(in); err != nil {
@@ -170,6 +140,42 @@ func _Staff_Elect_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(StaffServer).Elect(ctx, req.(*ElectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Staff_Poll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PollRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StaffServer).Poll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/staff.Staff/Poll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StaffServer).Poll(ctx, req.(*PollRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Staff_Finish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FinishRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StaffServer).Finish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/staff.Staff/Finish",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StaffServer).Finish(ctx, req.(*FinishRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -189,13 +195,15 @@ var Staff_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Elect",
 			Handler:    _Staff_Elect_Handler,
 		},
-	},
-	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "NextTask",
-			Handler:       _Staff_NextTask_Handler,
-			ServerStreams: true,
+			MethodName: "Poll",
+			Handler:    _Staff_Poll_Handler,
+		},
+		{
+			MethodName: "Finish",
+			Handler:    _Staff_Finish_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "staff.proto",
 }

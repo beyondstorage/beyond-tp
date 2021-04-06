@@ -14,8 +14,10 @@ message Task {
     google.protobuf.Timestamp created_at = 5;
     google.protobuf.Timestamp updated_at = 6;
 
-    repeated Storage storages = 100;
-    repeated Pair options = 101;
+    repeated Storage storages = 101;
+    repeated Pair options = 102;
+
+    repeated string staff_ids = 201;
 }
 
 enum TaskType {

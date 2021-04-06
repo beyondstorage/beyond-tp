@@ -3,6 +3,7 @@ package task
 import (
 	"context"
 	"net"
+	"sync"
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/google/uuid"
@@ -18,11 +19,13 @@ import (
 type Leader struct {
 	id string
 
-	db      *models.DB
-	jobCh   chan *models.Job
-	grpcSrv models.WorkerServer
+	db       *models.DB
+	cancelFn context.CancelFunc
+	jobCh    chan *models.Job
+	grpcSrv  models.WorkerServer
 
-	logger *zap.Logger
+	rootJobId string
+	logger    *zap.Logger
 
 	models.UnimplementedWorkerServer
 }
@@ -30,20 +33,29 @@ type Leader struct {
 func NewLeader(ctx context.Context,
 	nl net.Listener,
 	databasePath string,
+	job *models.Job,
 ) (l *Leader, err error) {
 	logger := zapcontext.From(ctx)
 
 	l = &Leader{
 		id: uuid.NewString(),
 
-		logger: logger,
+		jobCh:     make(chan *models.Job, 1),
+		rootJobId: job.Id,
+		logger:    logger,
 	}
 
-	l.db, err = models.NewDB(databasePath)
+	l.db, err = models.NewDB(databasePath, logger)
 	if err != nil {
 		logger.Error("create db", zap.Error(err))
 		return
 	}
+	err = l.db.InsertJob(job)
+	if err != nil {
+		logger.Error("insert job", zap.Error(err))
+		return
+	}
+	l.jobCh <- job
 
 	grpcSrv := grpc.NewServer(grpc.UnaryInterceptor(
 		grpc_middleware.ChainUnaryServer(
@@ -67,7 +79,7 @@ func NewLeader(ctx context.Context,
 func (l *Leader) Serve(ctx context.Context) (err error) {
 	logger := zapcontext.From(ctx)
 
-	defer close(l.jobCh)
+	ctx, l.cancelFn = context.WithCancel(ctx)
 
 	err = l.db.SubscribeJob(ctx, func(t *models.Job) {
 		l.jobCh <- t
@@ -79,18 +91,26 @@ func (l *Leader) Serve(ctx context.Context) (err error) {
 	return
 }
 
-func (l *Leader) NextJob(request *models.NextJobRequest, srv models.Worker_NextJobServer) (err error) {
+func (l *Leader) PollJob(req *models.PollJobRequest, srv models.Worker_PollJobServer) (err error) {
 	logger := l.logger
 
 	for j := range l.jobCh {
-		err = srv.Send(&models.NextJobReply{
-			Status: 0,
+		err = srv.Send(&models.PollJobReply{
+			Status: models.PollJobStatus_Valid,
 			Job:    j,
 		})
 		if err != nil {
 			logger.Error("send next job", zap.Error(err))
 			return
 		}
+	}
+
+	// If job channel has been closed, that means no more new jobs will be added.
+	err = srv.Send(&models.PollJobReply{
+		Status: models.PollJobStatus_Terminated,
+	})
+	if err != nil {
+		logger.Error("send terminate job", zap.Error(err))
 	}
 	return
 }
@@ -135,13 +155,20 @@ func (l *Leader) FinishJob(ctx context.Context, req *models.FinishJobRequest) (r
 		logger.Error("delete job", zap.Error(err))
 		return
 	}
+
+	if req.JobId == l.rootJobId {
+		logger.Debug("root job finished", zap.String("id", req.JobId))
+
+		close(l.jobCh)
+		l.cancelFn()
+	}
 	return
 }
 
-func HandleAsLeader(ctx context.Context, nl net.Listener, dp string) {
+func HandleAsLeader(ctx context.Context, nl net.Listener, dp string, cond *sync.Cond, job *models.Job) {
 	logger := zapcontext.From(ctx)
 
-	l, err := NewLeader(ctx, nl, dp)
+	l, err := NewLeader(ctx, nl, dp, job)
 	if err != nil {
 		logger.Error("create new leader", zap.Error(err))
 		return
@@ -151,4 +178,6 @@ func HandleAsLeader(ctx context.Context, nl net.Listener, dp string) {
 	if err != nil {
 		logger.Error("leader serve", zap.Error(err))
 	}
+
+	cond.Signal()
 }

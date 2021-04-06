@@ -59,6 +59,10 @@ type ComplexityRoot struct {
 		Tasks func(childComplexity int) int
 	}
 
+	Staff struct {
+		ID func(childComplexity int) int
+	}
+
 	Storage struct {
 		Options func(childComplexity int) int
 		Type    func(childComplexity int) int
@@ -69,6 +73,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
 		Options   func(childComplexity int) int
+		Staffs    func(childComplexity int) int
 		Status    func(childComplexity int) int
 		Storages  func(childComplexity int) int
 		Type      func(childComplexity int) int
@@ -170,6 +175,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Tasks(childComplexity), true
 
+	case "Staff.id":
+		if e.complexity.Staff.ID == nil {
+			break
+		}
+
+		return e.complexity.Staff.ID(childComplexity), true
+
 	case "Storage.options":
 		if e.complexity.Storage.Options == nil {
 			break
@@ -211,6 +223,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Task.Options(childComplexity), true
+
+	case "Task.staffs":
+		if e.complexity.Task.Staffs == nil {
+			break
+		}
+
+		return e.complexity.Task.Staffs(childComplexity), true
 
 	case "Task.status":
 		if e.complexity.Task.Status == nil {
@@ -327,6 +346,7 @@ type Task {
     updated_at: Time!
     storages: [Storage!]!
     options: [Pair!]!
+    staffs: [Staff!]!
 }
 
 enum TaskType {
@@ -347,6 +367,7 @@ input CreateTask {
     type: TaskType!
     storages: [StorageInput!]!
     options: [PairInput!]!
+    staffs: [StaffInput!]!
 }
 
 input DeleteTask {
@@ -376,6 +397,14 @@ input PairInput {
 type Pair {
     key: String!
     value: String!
+}
+
+input StaffInput {
+    id: String!
+}
+
+type Staff {
+    id: String!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -841,6 +870,41 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Staff_id(ctx context.Context, field graphql.CollectedField, obj *Staff) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Staff",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Storage_type(ctx context.Context, field graphql.CollectedField, obj *Storage) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1189,6 +1253,41 @@ func (ec *executionContext) _Task_options(ctx context.Context, field graphql.Col
 	res := resTmp.([]*Pair)
 	fc.Result = res
 	return ec.marshalNPair2ᚕᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐPairᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Task_staffs(ctx context.Context, field graphql.CollectedField, obj *Task) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Task",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Staffs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Staff)
+	fc.Result = res
+	return ec.marshalNStaff2ᚕᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2316,6 +2415,14 @@ func (ec *executionContext) unmarshalInputCreateTask(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
+		case "staffs":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("staffs"))
+			it.Staffs, err = ec.unmarshalNStaffInput2ᚕᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2361,6 +2468,26 @@ func (ec *executionContext) unmarshalInputPairInput(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
 			it.Value, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStaffInput(ctx context.Context, obj interface{}) (StaffInput, error) {
+	var it StaffInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2537,6 +2664,33 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
+var staffImplementors = []string{"Staff"}
+
+func (ec *executionContext) _Staff(ctx context.Context, sel ast.SelectionSet, obj *Staff) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, staffImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Staff")
+		case "id":
+			out.Values[i] = ec._Staff_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var storageImplementors = []string{"Storage"}
 
 func (ec *executionContext) _Storage(ctx context.Context, sel ast.SelectionSet, obj *Storage) graphql.Marshaler {
@@ -2617,6 +2771,11 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "options":
 			out.Values[i] = ec._Task_options(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "staffs":
+			out.Values[i] = ec._Task_staffs(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2961,6 +3120,79 @@ func (ec *executionContext) unmarshalNPairInput2ᚕᚖgithubᚗcomᚋaosᚑdev�
 
 func (ec *executionContext) unmarshalNPairInput2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐPairInput(ctx context.Context, v interface{}) (*PairInput, error) {
 	res, err := ec.unmarshalInputPairInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStaff2ᚕᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffᚄ(ctx context.Context, sel ast.SelectionSet, v []*Staff) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNStaff2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaff(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNStaff2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaff(ctx context.Context, sel ast.SelectionSet, v *Staff) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Staff(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNStaffInput2ᚕᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffInputᚄ(ctx context.Context, v interface{}) ([]*StaffInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*StaffInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNStaffInput2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNStaffInput2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffInput(ctx context.Context, v interface{}) (*StaffInput, error) {
+	res, err := ec.unmarshalInputStaffInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

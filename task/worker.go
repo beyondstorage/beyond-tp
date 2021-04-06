@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"sync"
 
 	"github.com/aos-dev/go-storage/v3/types"
 	"github.com/aos-dev/go-toolbox/zapcontext"
@@ -55,7 +56,7 @@ func NewWorker(ctx context.Context, addr string, storages []types.Storager) (w *
 func (w *Worker) Serve(ctx context.Context) (err error) {
 	logger := zapcontext.From(ctx)
 
-	jc, err := w.grpcClient.NextJob(ctx, &models.NextJobRequest{})
+	jc, err := w.grpcClient.PollJob(ctx, &models.PollJobRequest{})
 	if err != nil {
 		logger.Error("next job", zap.Error(err))
 		return err
@@ -66,6 +67,12 @@ func (w *Worker) Serve(ctx context.Context) (err error) {
 		if err != nil {
 			logger.Error("receive next job", zap.Error(err))
 			return err
+		}
+		if j.Status == models.PollJobStatus_InvalidPollJobStatus {
+			panic("invalid poll job status")
+		}
+		if j.Status == models.PollJobStatus_Terminated {
+			return nil
 		}
 
 		go func() {
@@ -79,7 +86,7 @@ func (w *Worker) Serve(ctx context.Context) (err error) {
 	}
 }
 
-func HandleAsWorker(ctx context.Context, addr string, storages []types.Storager) {
+func HandleAsWorker(ctx context.Context, addr string, cond *sync.Cond, storages []types.Storager) {
 	logger := zapcontext.From(ctx)
 
 	w, err := NewWorker(ctx, addr, storages)
@@ -92,5 +99,7 @@ func HandleAsWorker(ctx context.Context, addr string, storages []types.Storager)
 		logger.Error("worker serve", zap.Error(err))
 		return
 	}
+
+	cond.Signal()
 	return
 }

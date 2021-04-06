@@ -18,7 +18,8 @@ var (
 	JobPrefix   = []byte{jobPrefix, ':'}
 )
 
-func FormatTaskKey(taskId string) []byte {
+// Style: t:<task_id>
+func TaskKey(taskId string) []byte {
 	b := pool.Get()
 	defer b.Free()
 
@@ -26,10 +27,25 @@ func FormatTaskKey(taskId string) []byte {
 	b.AppendByte(':')
 	b.AppendString(taskId)
 
-	return b.Bytes()
+	return b.BytesCopy()
 }
 
-func FormatStaffKey(staffId string) []byte {
+// Style: t_leader:<task_id>
+func TaskLeaderKey(taskId string) []byte {
+	b := pool.Get()
+	defer b.Free()
+
+	b.AppendByte(taskPrefix)
+	b.AppendByte('_')
+	b.AppendString("leader")
+	b.AppendByte(':')
+	b.AppendString(taskId)
+
+	return b.BytesCopy()
+}
+
+// Style: s:<staff_id>
+func StaffKey(staffId string) []byte {
 	b := pool.Get()
 	defer b.Free()
 
@@ -37,10 +53,41 @@ func FormatStaffKey(staffId string) []byte {
 	b.AppendByte(':')
 	b.AppendString(staffId)
 
-	return b.Bytes()
+	return b.BytesCopy()
 }
 
-func FormatJobKey(jobId string) []byte {
+// Style: s_t:<staff_id>:<task_id>
+func StaffTaskPrefix(staffId string) []byte {
+	b := pool.Get()
+	defer b.Free()
+
+	b.AppendByte(staffPrefix)
+	b.AppendByte('_')
+	b.AppendByte(taskPrefix)
+	b.AppendByte(':')
+	b.AppendString(staffId)
+	b.AppendByte(':')
+
+	return b.BytesCopy()
+}
+
+// Style: st:<staff_id>:<task_id>
+func StaffTaskKey(staffId, taskId string) []byte {
+	b := pool.Get()
+	defer b.Free()
+
+	b.AppendByte(staffPrefix)
+	b.AppendByte('_')
+	b.AppendByte(taskPrefix)
+	b.AppendByte(':')
+	b.AppendString(staffId)
+	b.AppendByte(':')
+	b.AppendString(taskId)
+
+	return b.BytesCopy()
+}
+
+func JobKey(jobId string) []byte {
 	b := pool.Get()
 	defer b.Free()
 
@@ -48,7 +95,7 @@ func FormatJobKey(jobId string) []byte {
 	b.AppendByte(':')
 	b.AppendString(jobId)
 
-	return b.Bytes()
+	return b.BytesCopy()
 }
 
 func init() {

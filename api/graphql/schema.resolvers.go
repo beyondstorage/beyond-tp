@@ -18,8 +18,12 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*
 	task := models.NewTask(input.Name, parseTaskType(input.Type))
 	task.Options = parsePairsInput(input.Options)
 	task.Storages = parseStoragesInput(input.Storages)
+	// TODO: we need to check the staffs status.
+	for _, v := range input.Staffs {
+		task.StaffIds = append(task.StaffIds, v.ID)
+	}
 
-	if err := db.SaveTask(task); err != nil {
+	if err := db.InsertTask(nil, task); err != nil {
 		return nil, err
 	}
 	return formatTask(task), nil
