@@ -2,18 +2,23 @@ package task
 
 import (
 	"context"
-	"github.com/aos-dev/dm/proto"
-	"github.com/aos-dev/go-toolbox/zapcontext"
-	protobuf "github.com/golang/protobuf/proto"
-	"github.com/google/uuid"
+	"os"
 	"testing"
+
+	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
+
+	"github.com/aos-dev/dm/models"
 )
 
-func setupPortal(t *testing.T) *Manager {
+func setupManager(t *testing.T) *Manager {
+	os.RemoveAll("/tmp/badger")
+
 	p, err := NewManager(context.Background(), ManagerConfig{
-		Host:      "localhost",
-		GrpcPort:  7000,
-		QueuePort: 7010,
+		Host:         "localhost",
+		GrpcPort:     7000,
+		DatabasePath: "/tmp/badger",
 	})
 	if err != nil {
 		t.Error(err)
@@ -24,58 +29,56 @@ func setupPortal(t *testing.T) *Manager {
 
 // This is not a really unit test, just for developing, SHOULD be removed.
 func TestWorker(t *testing.T) {
-	p := setupPortal(t)
+	zapcontext.SetFactoryFunction(func() *zap.Logger {
+		logger, _ := zap.NewDevelopment()
+		return logger
+	})
+
+	p := setupManager(t)
 
 	ctx := context.Background()
 	_ = zapcontext.From(ctx)
 
+	staffIds := make([]string, 0, 3)
 	for i := 0; i < 3; i++ {
 		w, err := NewStaff(ctx, StaffConfig{
 			Host:        "localhost",
 			ManagerAddr: "localhost:7000",
+			DataPath:    "/tmp",
 		})
 		if err != nil {
 			t.Error(err)
 		}
-		err = w.Connect(ctx)
-		if err != nil {
-			t.Error(err)
-		}
+
+		staffIds = append(staffIds, w.id)
+
+		go w.Start(ctx)
 	}
 
-	copyFileJob := &proto.CopyDir{
-		Src:       0,
-		Dst:       1,
-		SrcPath:   "",
-		DstPath:   "",
-		Recursive: true,
-	}
-	content, err := protobuf.Marshal(copyFileJob)
-	if err != nil {
-		t.Error(err)
-	}
-
-	copyFileTask := &proto.Task{
-		Id: uuid.NewString(),
-		Endpoints: []*proto.Endpoint{
-			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/b/"}}},
-			{Type: "fs", Pairs: []*proto.Pair{{Key: "work_dir", Value: "/tmp/c/"}}},
-		},
-		Job: &proto.Job{
-			Id:      uuid.NewString(),
-			Type:    TypeCopyDir,
-			Content: content,
+	copyFileTask := &models.Task{
+		Id:       uuid.NewString(),
+		Type:     models.TaskType_CopyDir,
+		Status:   models.TaskStatus_Ready,
+		StaffIds: staffIds,
+		Storages: []*models.Storage{
+			{Type: models.StorageType_Fs, Options: []*models.Pair{{Key: "work_dir", Value: "/tmp/b/"}}},
+			{Type: models.StorageType_Fs, Options: []*models.Pair{{Key: "work_dir", Value: "/tmp/c/"}}},
 		},
 	}
 
-	t.Log("Start publish")
-	err = p.Publish(ctx, copyFileTask)
+	err := p.db.InsertTask(nil, copyFileTask)
 	if err != nil {
-		t.Error(err)
+		t.Errorf("insert task: %v", err)
 	}
 
-	err = p.Wait(ctx, copyFileTask)
+	err = p.db.WaitTask(ctx, copyFileTask.Id)
 	if err != nil {
-		t.Error(err)
+		t.Errorf("wait task: %v", err)
+	}
+	t.Logf("task has been finished")
+
+	err = p.Stop(ctx)
+	if err != nil {
+		t.Errorf("stop: %v", err)
 	}
 }

@@ -1,208 +1,78 @@
 package models
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"errors"
-	"fmt"
-	"io"
-	"strconv"
-	"strings"
-	"time"
 
-	"github.com/aos-dev/dm/proto"
-	"github.com/aos-dev/dm/task"
 	"github.com/dgraph-io/badger/v3"
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const (
-	StatusUnknown = iota
-	StatusCreated
-	StatusRunning
-	StatusFinished
-	StatusStopped
-	StatusError
-)
-
-const taskPrefix = "t"
-
-// TaskStatus represent status of task
-type TaskStatus int
-
-func (ts TaskStatus) MarshalGQL(w io.Writer) {
-	_, err := w.Write([]byte(strconv.Quote(ts.String())))
-	// handle error as panic
-	if err != nil {
-		panic(err)
-	}
-}
-
-func (ts *TaskStatus) UnmarshalGQL(v interface{}) error {
-	switch v := v.(type) {
-	case string:
-		ts.Parse(strings.ToLower(v))
-		return nil
-	case int:
-		*ts = TaskStatus(v)
-		return nil
-	case TaskStatus:
-		*ts = v
-		return nil
-	default:
-		return fmt.Errorf("%T is not a int or string", v)
-	}
-}
-
-// String implement Stringer for TaskStatus
-func (ts TaskStatus) String() string {
-	switch ts {
-	case StatusCreated:
-		return "created"
-	case StatusRunning:
-		return "running"
-	case StatusFinished:
-		return "finished"
-	case StatusStopped:
-		return "stopped"
-	case StatusError:
-		return "error"
-	default:
-		return "unknown"
-	}
-}
-
-// Parse status string into TaskStatus
-func (ts *TaskStatus) Parse(status string) {
-	var res TaskStatus
-	switch strings.ToLower(status) {
-	case "created":
-		res = StatusCreated
-	case "running":
-		res = StatusRunning
-	case "finished":
-		res = StatusFinished
-	case "stopped":
-		res = StatusStopped
-	case "error":
-		res = StatusError
-	default:
-		res = StatusUnknown
-	}
-	*ts = res
-}
-
-// IsRunning assert whether task status is running
-func (ts *TaskStatus) IsRunning() bool {
-	if ts == nil {
-		return false
-	}
-	return *ts == StatusRunning
-}
-
-// Task contains info of data migration task
-type Task struct {
-	ID        string                 `json:"id"`
-	Name      string                 `json:"name"`
-	Type      TaskType               `json:"type"`
-	Status    TaskStatus             `json:"status"`
-	CreatedAt time.Time              `json:"created_at"`
-	UpdatedAt time.Time              `json:"updated_at"`
-	Src       Endpoint               `json:"src"`
-	Dst       Endpoint               `json:"dst"`
-	Options   map[string]interface{} `json:"options,omitempty"`
-}
-
-// Endpoint contains info to create an endpoint
-type Endpoint struct {
-	Type    ServiceType `json:"type"`
-	Options interface{} `json:"options,omitempty"`
-}
-
-// parse Endpoint into *proto.Endpoint
-func (e Endpoint) parse() *proto.Endpoint {
-	// ensure handle e.Option as map[string]interface{}
-	opt := make(map[string]interface{})
-	if e.Options != nil {
-		opt = e.Options.(map[string]interface{})
-	}
-
-	pairs := make([]*proto.Pair, 0, len(opt)+1) // +1 for work dir inject
-
-	// conduct pairs with endpoint's options
-	for k, v := range opt {
-		pairs = append(pairs, &proto.Pair{Key: k, Value: v.(string)})
-	}
-
-	return &proto.Endpoint{Type: e.Type.String(), Pairs: pairs}
-}
-
-// FormatKey format db key for task
-func (t Task) FormatKey() []byte {
-	b := new(bytes.Buffer)
-	b.WriteString(taskPrefix)
-	b.WriteString(":")
-	b.WriteString(t.ID)
-	return b.Bytes()
-}
+var TaskDone = errors.New("task done")
 
 // NewTask created a task with default value
-func NewTask() *Task {
-	now := time.Now()
+func NewTask(name string, ty TaskType) *Task {
+	now := timestamppb.Now()
 	t := Task{
-		ID:        uuid.NewString(),
-		Status:    StatusCreated, // set StatusCreated as default value
+		Id:        uuid.NewString(),
+		Name:      name,
+		Type:      ty,
+		Status:    TaskStatus_Created,
 		CreatedAt: now,
 		UpdatedAt: now,
-		Src:       Endpoint{Options: make(map[string]interface{})},
-		Dst:       Endpoint{Options: make(map[string]interface{})},
-		Options:   make(map[string]interface{}),
 	}
 	return &t
 }
 
-// FormatProtoTask conduct task into *proto.Task
-func (t Task) FormatProtoTask() (*proto.Task, error) {
-	// TODO: conduct other tasks, such as move or sync
-	copyFileJob := &proto.CopyDir{
-		Src:       0,
-		Dst:       1,
-		SrcPath:   "",
-		DstPath:   "",
-		Recursive: t.Options["recursive"].(bool),
-	}
-	content, err := protobuf.Marshal(copyFileJob)
+func NewTaskFromBytes(bs []byte) *Task {
+	t := &Task{}
+	err := protobuf.Unmarshal(bs, t)
 	if err != nil {
-		return nil, err
+		panic("invalid task")
 	}
-
-	copyFileTask := &proto.Task{
-		Id: uuid.NewString(),
-		Endpoints: []*proto.Endpoint{
-			t.Src.parse(),
-			t.Dst.parse(),
-		},
-		Job: &proto.Job{
-			Id:      uuid.NewString(),
-			Type:    uint32(t.Type),
-			Content: content,
-		},
-	}
-	return copyFileTask, nil
+	return t
 }
 
-// SaveTask save a task into DB
-func (d *DB) SaveTask(t *Task) error {
-	txn := d.db.NewTransaction(true)
-	defer txn.Discard()
+// Insert will insert task and update all staffs task queue.
+func (d *DB) InsertTask(txn *badger.Txn, t *Task) (err error) {
+	if txn == nil {
+		txn = d.db.NewTransaction(true)
+		defer func() {
+			err = d.CloseTxn(txn, err)
+		}()
+	}
 
-	res, err := json.Marshal(t)
+	for _, v := range t.StaffIds {
+		err = d.InsertStaffTask(txn, v, t.Id)
+		if err != nil {
+			return
+		}
+	}
+
+	bs, err := protobuf.Marshal(t)
 	if err != nil {
 		return err
 	}
 
-	if err = txn.Set(t.FormatKey(), res); err != nil {
+	if err = txn.Set(TaskKey(t.Id), bs); err != nil {
+		return err
+	}
+	return
+}
+
+func (d *DB) UpdateTask(t *Task) error {
+	txn := d.db.NewTransaction(true)
+	defer txn.Discard()
+
+	bs, err := protobuf.Marshal(t)
+	if err != nil {
+		return err
+	}
+
+	// TODO: we need to check task before update it.
+	if err = txn.Set(TaskKey(t.Id), bs); err != nil {
 		return err
 	}
 	return txn.Commit()
@@ -212,21 +82,20 @@ func (d *DB) SaveTask(t *Task) error {
 func (d *DB) DeleteTask(id string) error {
 	txn := d.db.NewTransaction(true)
 	defer txn.Discard()
-	// try to get task first
-	t := Task{ID: id}
-	if err := txn.Delete(t.FormatKey()); err != nil {
+
+	// TODO: we will need to check task first.
+	if err := txn.Delete(TaskKey(id)); err != nil {
 		return err
 	}
 	return txn.Commit()
 }
 
 // GetTask get task from db and parsed into struct with specific ID
-func (d *DB) GetTask(id string) (*Task, error) {
+func (d *DB) GetTask(id string) (t *Task, err error) {
 	txn := d.db.NewTransaction(false)
 	defer txn.Discard()
 
-	t := &Task{ID: id}
-	item, err := txn.Get(t.FormatKey())
+	item, err := txn.Get(TaskKey(id))
 	if err != nil {
 		// handle not found error manually
 		if errors.Is(err, badger.ErrKeyNotFound) {
@@ -235,9 +104,10 @@ func (d *DB) GetTask(id string) (*Task, error) {
 		return nil, err
 	}
 	err = item.Value(func(val []byte) error {
-		return json.Unmarshal(val, t)
+		t = NewTaskFromBytes(val)
+		return nil
 	})
-	return t, err
+	return
 }
 
 // ListTasks create a db iterator and conduct result tasks
@@ -248,16 +118,11 @@ func (d *DB) ListTasks() ([]*Task, error) {
 	defer it.Close()
 
 	tasks := make([]*Task, 0)
-	prefix := []byte(taskPrefix)
-	for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+
+	for it.Seek(TaskPrefix); it.ValidForPrefix(TaskPrefix); it.Next() {
 		item := it.Item()
 		err := item.Value(func(v []byte) error {
-			t := &Task{}
-			err := json.Unmarshal(v, &t)
-			if err != nil {
-				return err
-			}
-			tasks = append(tasks, t)
+			tasks = append(tasks, NewTaskFromBytes(v))
 			return nil
 		})
 		if err != nil {
@@ -267,85 +132,97 @@ func (d *DB) ListTasks() ([]*Task, error) {
 	return tasks, nil
 }
 
-type TaskType uint32
-
-// String implement Stringer for TaskType
-func (tt TaskType) String() string {
-	switch uint32(tt) {
-	case task.TypeCopyDir:
-		return "copy_dir"
-	case task.TypeCopyFile:
-		return "copy_file"
-	default:
-		return "unknown"
-	}
+func (d *DB) SubscribeTask(ctx context.Context, fn func(t *Task)) (err error) {
+	return d.db.Subscribe(ctx, func(kv *badger.KVList) error {
+		for _, v := range kv.Kv {
+			fn(NewTaskFromBytes(v.Value))
+		}
+		return nil
+	}, TaskPrefix)
 }
 
-// Parse type string into TaskType
-func (tt *TaskType) Parse(t string) {
-	var res uint32
-	switch strings.ToLower(t) {
-	case "copy_file":
-		res = task.TypeCopyFile
-	default: // copy dir as default
-		res = task.TypeCopyDir
+func (d *DB) WaitTask(ctx context.Context, taskId string) (err error) {
+	_, err = d.GetTask(taskId)
+	// If job doesn't exist, we can return directly.
+	if err != nil && errors.Is(err, ErrNotFound) {
+		return nil
 	}
-	*tt = TaskType(res)
-}
-
-func (tt TaskType) MarshalGQL(w io.Writer) {
-	_, err := w.Write([]byte(strconv.Quote(tt.String())))
-	// handle error as panic
 	if err != nil {
-		panic(err)
+		return
 	}
-}
 
-func (tt *TaskType) UnmarshalGQL(v interface{}) error {
-	switch v := v.(type) {
-	case string:
-		tt.Parse(strings.ToLower(v))
+	err = d.db.Subscribe(ctx, func(kv *badger.KVList) error {
+		for _, v := range kv.Kv {
+			t := NewTaskFromBytes(v.Value)
+			if t.Status == TaskStatus_Finished {
+				return TaskDone
+			}
+		}
 		return nil
-	case uint32:
-		*tt = TaskType(v)
+	}, TaskKey(taskId))
+	if err == TaskDone {
 		return nil
-	case TaskType:
-		*tt = v
-		return nil
-	default:
-		return fmt.Errorf("%T is not a uint32 or string", v)
 	}
+	return err
 }
 
-type ServiceType string
+// This function will be used to elect task leader.
+// If there is no leader here, we will use input staff as leader.
+// TODO: This logic could be changed.
+func (d *DB) ElectTaskLeader(taskId, staffId, staffAddr string) (electedStaffId, electedStaffAddr string, err error) {
+	txn := d.db.NewTransaction(true)
 
-// String implement Stringer for ServiceType
-func (st ServiceType) String() string {
-	return string(st)
-}
+	sid, saddr, err := d.getTaskLeader(txn, taskId)
+	// We do get a task leader.
+	if err == nil {
+		return sid, saddr, nil
+	}
+	// If err is not key not found, other error happened.
+	if err != badger.ErrKeyNotFound {
+		return "", "", err
+	}
 
-// Parse type string into ServiceType
-func (st *ServiceType) Parse(t string) {
-	*st = ServiceType(t)
-}
-
-func (st ServiceType) MarshalGQL(w io.Writer) {
-	_, err := w.Write([]byte(strconv.Quote(st.String())))
-	// handle error as panic
+	bs, err := protobuf.Marshal(&TaskLeader{
+		TaskId:    taskId,
+		StaffId:   staffId,
+		StaffAddr: staffAddr,
+	})
 	if err != nil {
-		panic(err)
+		panic("invalid task leader")
 	}
+
+	err = txn.Set(TaskLeaderKey(taskId), bs)
+	if err != nil {
+		return
+	}
+
+	err = txn.Commit()
+	// Task leader has been updated by other txn, we should discard our changes.
+	if err == badger.ErrConflict {
+		txn.Discard()
+		return d.getTaskLeader(d.db.NewTransaction(false), taskId)
+	}
+	return staffId, staffAddr, nil
 }
 
-func (st *ServiceType) UnmarshalGQL(v interface{}) error {
-	switch v := v.(type) {
-	case string:
-		st.Parse(strings.ToLower(v))
-		return nil
-	case ServiceType:
-		*st = v
-		return nil
-	default:
-		return fmt.Errorf("%T is not a string", v)
+func (d *DB) getTaskLeader(txn *badger.Txn, taskId string) (electedStaffId, electedStaffAddr string, err error) {
+	item, err := txn.Get(TaskLeaderKey(taskId))
+	if err != nil {
+		return "", "", err
 	}
+
+	tl := &TaskLeader{}
+
+	err = item.Value(func(val []byte) error {
+		err = protobuf.Unmarshal(val, tl)
+		if err != nil {
+			panic("invalid task leader")
+		}
+		return nil
+	})
+	if err != nil {
+		return
+	}
+
+	return tl.StaffId, tl.StaffAddr, nil
 }
