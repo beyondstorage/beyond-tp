@@ -72,6 +72,7 @@ class CreateTaskDialog extends StatelessWidget {
           ],
         ),
       ),
+      onClose: controller.closeDialog,
     );
   }
 }
