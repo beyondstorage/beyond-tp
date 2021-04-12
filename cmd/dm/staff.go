@@ -5,10 +5,11 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/aos-dev/dm/task"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+
+	"github.com/aos-dev/dm/task"
 )
 
 // staffFlags handle flags for staff command

@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"errors"
+
 	"github.com/dgraph-io/badger/v3"
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"

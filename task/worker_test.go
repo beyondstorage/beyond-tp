@@ -2,12 +2,14 @@ package task
 
 import (
 	"context"
-	"github.com/aos-dev/dm/models"
+	"os"
+	"testing"
+
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"os"
-	"testing"
+
+	"github.com/aos-dev/dm/models"
 )
 
 func setupManager(t *testing.T) *Manager {

@@ -3,9 +3,9 @@ package models
 import (
 	"errors"
 	"fmt"
-	"github.com/99designs/gqlgen/graphql"
 	"io"
 
+	"github.com/99designs/gqlgen/graphql"
 	fs "github.com/aos-dev/go-service-fs/v2"
 	qingstor "github.com/aos-dev/go-service-qingstor/v2"
 	"github.com/aos-dev/go-storage/v3/types"

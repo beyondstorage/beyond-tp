@@ -3,6 +3,10 @@ package task
 import (
 	"context"
 	"fmt"
+	"net"
+	"path/filepath"
+	"sync"
+
 	"github.com/aos-dev/go-storage/v3/types"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	protobuf "github.com/golang/protobuf/proto"
@@ -11,9 +15,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
-	"net"
-	"path/filepath"
-	"sync"
 
 	"github.com/aos-dev/dm/models"
 )

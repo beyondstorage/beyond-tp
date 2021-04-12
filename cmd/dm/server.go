@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aos-dev/dm/api"
-	"github.com/aos-dev/dm/task"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/spf13/cobra"
+
+	"github.com/aos-dev/dm/api"
+	"github.com/aos-dev/dm/task"
 )
 
 // serverFlags handle flags for server command

@@ -3,19 +3,19 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/aos-dev/dm/api/ui"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/aos-dev/dm/task"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/api/graphql"
+	"github.com/aos-dev/dm/api/ui"
 	"github.com/aos-dev/dm/models"
+	"github.com/aos-dev/dm/task"
 )
 
 // Server handle configs to start a server

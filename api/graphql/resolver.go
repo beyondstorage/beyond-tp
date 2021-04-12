@@ -1,9 +1,8 @@
 package graphql
 
 import (
-	"github.com/aos-dev/dm/task"
-
 	"github.com/aos-dev/dm/models"
+	"github.com/aos-dev/dm/task"
 )
 
 type Resolver struct {
