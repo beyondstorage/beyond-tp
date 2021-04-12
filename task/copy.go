@@ -10,7 +10,7 @@ import (
 	protobuf "github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/proto"
+	"github.com/aos-dev/dm/models"
 )
 
 const (
@@ -18,18 +18,18 @@ const (
 	defaultMultipartPartSize  int64 = 128 * 1024 * 1024  // 128M
 )
 
-func (rn *Runner) HandleCopyDir(ctx context.Context, msg protobuf.Message) error {
+func (rn *runner) HandleCopyDir(ctx context.Context, msg protobuf.Message) error {
 	logger := rn.logger
-	arg := msg.(*proto.CopyDir)
+	arg := msg.(*models.CopyDirJob)
 
 	store := rn.storages[arg.Src]
 
 	it, err := store.List(arg.SrcPath)
 	if err != nil {
-		logger.Error("storage list failed",
-			zap.Error(err),
+		logger.Error("storage list",
 			zap.String("store", store.String()),
-			zap.String("path", arg.SrcPath))
+			zap.String("path", arg.SrcPath),
+			zap.Error(err))
 		return err
 	}
 
@@ -39,9 +39,9 @@ func (rn *Runner) HandleCopyDir(ctx context.Context, msg protobuf.Message) error
 			break
 		}
 		if err != nil {
-			logger.Error("get next object failed",
-				zap.Error(err),
-				zap.String("store", store.String()))
+			logger.Error("get next object",
+				zap.String("store", store.String()),
+				zap.Error(err))
 			return err
 		}
 
@@ -50,50 +50,40 @@ func (rn *Runner) HandleCopyDir(ctx context.Context, msg protobuf.Message) error
 			continue
 		}
 
-		job := proto.NewJob()
+		var job *models.Job
 		// set job attr separately for dir and file
 		if o.GetMode().IsDir() {
-			content, err := protobuf.Marshal(&proto.CopyDir{
+			job = models.NewJob(models.JobType_CopyDir, &models.CopyDirJob{
 				Src:       arg.Src,
 				Dst:       arg.Dst,
 				SrcPath:   o.Path,
 				DstPath:   o.Path,
 				Recursive: true,
 			})
-			if err != nil {
-				panic("marshal failed")
-			}
-			job.Type = TypeCopyDir
-			job.Content = content
 		} else {
-			content, err := protobuf.Marshal(&proto.CopyFile{
+			job = models.NewJob(models.JobType_CopyFile, &models.CopyFileJob{
 				Src:     arg.Src,
 				Dst:     arg.Dst,
 				SrcPath: o.Path,
 				DstPath: o.Path,
 			})
-			if err != nil {
-				panic("marshal failed")
-			}
-			job.Type = TypeCopyFile
-			job.Content = content
 		}
 
-		err = rn.Async(ctx, &job)
+		err = rn.Async(ctx, job)
 		if err != nil {
-			logger.Error("async copy dir job failed",
-				zap.Error(err),
-				zap.String("object ID", o.ID),
-				zap.String("store", store.String()))
+			logger.Error("async new job",
+				zap.String("object_id", o.ID),
+				zap.String("store", store.String()),
+				zap.Error(err))
 			return err
 		}
 	}
 
 	if err = rn.Await(ctx); err != nil {
-		logger.Error("await copy dir job failed",
-			zap.Error(err),
+		logger.Error("await copy dir job",
 			zap.String("parent job", rn.j.Id),
-			zap.String("store", store.String()))
+			zap.String("store", store.String()),
+			zap.Error(err))
 		return err
 	}
 
@@ -101,9 +91,9 @@ func (rn *Runner) HandleCopyDir(ctx context.Context, msg protobuf.Message) error
 	return nil
 }
 
-func (rn *Runner) HandleCopyFile(ctx context.Context, msg protobuf.Message) error {
+func (rn *runner) HandleCopyFile(ctx context.Context, msg protobuf.Message) error {
 	logger := rn.logger
-	arg := msg.(*proto.CopyFile)
+	arg := msg.(*models.CopyFileJob)
 
 	src := rn.storages[arg.Src]
 	dst := rn.storages[arg.Dst]
@@ -117,43 +107,31 @@ func (rn *Runner) HandleCopyFile(ctx context.Context, msg protobuf.Message) erro
 		return fmt.Errorf("object %s size not set", arg.SrcPath)
 	}
 
-	job := proto.NewJob()
+	var job *models.Job
 	if _, ok := dst.(types.Multiparter); ok && size > defaultMultipartThreshold {
-		content, err := protobuf.Marshal(&proto.CopyMultipartFile{
+		job = models.NewJob(models.JobType_CopyMultipartFile, &models.CopyMultipartFileJob{
 			Src:     arg.Src,
 			Dst:     arg.Dst,
 			SrcPath: arg.SrcPath,
 			DstPath: arg.DstPath,
 			Size:    size,
 		})
-		if err != nil {
-			panic("marshal failed")
-		}
-
-		job.Type = TypeCopyMultipartFile
-		job.Content = content
 	} else {
-		content, err := protobuf.Marshal(&proto.CopySingleFile{
+		job = models.NewJob(models.JobType_CopySingleFile, &models.CopySingleFileJob{
 			Src:     arg.Src,
 			Dst:     arg.Dst,
 			SrcPath: arg.SrcPath,
 			DstPath: arg.DstPath,
 			Size:    size,
 		})
-		if err != nil {
-			panic("marshal failed")
-		}
-
-		job.Type = TypeCopySingleFile
-		job.Content = content
 	}
 
 	logger.Info("copy file",
 		zap.String("from", arg.SrcPath),
 		zap.String("to", arg.DstPath))
 
-	if err := rn.Sync(ctx, &job); err != nil {
-		logger.Error("sync copy file job failed",
+	if err := rn.Sync(ctx, job); err != nil {
+		logger.Error("copy file job",
 			zap.Error(err),
 			zap.String("parent job", rn.j.Id),
 			zap.String("src", src.String()),
@@ -164,10 +142,10 @@ func (rn *Runner) HandleCopyFile(ctx context.Context, msg protobuf.Message) erro
 	return nil
 }
 
-func (rn *Runner) HandleCopySingleFile(ctx context.Context, msg protobuf.Message) error {
+func (rn *runner) HandleCopySingleFile(ctx context.Context, msg protobuf.Message) error {
 	logger := rn.logger
 
-	arg := msg.(*proto.CopySingleFile)
+	arg := msg.(*models.CopySingleFileJob)
 
 	src := rn.storages[arg.Src]
 	dst := rn.storages[arg.Dst]
@@ -199,22 +177,24 @@ func (rn *Runner) HandleCopySingleFile(ctx context.Context, msg protobuf.Message
 		zap.String("to", arg.DstPath))
 	return nil
 }
-func (rn *Runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Message) error {
+
+func (rn *runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Message) error {
 	logger := rn.logger
 
-	arg := msg.(*proto.CopyMultipartFile)
+	arg := msg.(*models.CopyMultipartFileJob)
 
 	dst := rn.storages[arg.Dst]
 	multiparter := dst.(types.Multiparter)
 	obj, err := multiparter.CreateMultipartWithContext(ctx, arg.DstPath)
 	if err != nil {
-		logger.Error("create multipart failed", zap.Error(err), zap.String("dst", dst.String()))
+		logger.Error("create multipart",
+			zap.String("dst", dst.String()), zap.Error(err))
 		return err
 	}
 
 	partSize, err := calculatePartSize(obj, arg.Size)
 	if err != nil {
-		logger.Error("calculate part size failed", zap.Error(err))
+		logger.Error("calculate part size", zap.Error(err))
 		return err
 	}
 
@@ -227,8 +207,7 @@ func (rn *Runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 			partSize = arg.Size - offset
 		}
 
-		job := proto.NewJob()
-		content, err := protobuf.Marshal(&proto.CopyMultipart{
+		job := models.NewJob(models.JobType_CopyMultipart, &models.CopyMultipartJob{
 			Src:         arg.Src,
 			Dst:         arg.Dst,
 			SrcPath:     arg.SrcPath,
@@ -238,15 +217,10 @@ func (rn *Runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 			Offset:      offset,
 			MultipartId: obj.MustGetMultipartID(),
 		})
-		if err != nil {
-			panic("marshal failed")
-		}
 
-		job.Type = TypeCopyMultipart
-		job.Content = content
-
-		if err = rn.Async(ctx, &job); err != nil {
-			logger.Error("async copy multipart failed", zap.Error(err), zap.String("parent job", rn.j.Id))
+		if err = rn.Async(ctx, job); err != nil {
+			logger.Error("async copy multipart",
+				zap.String("parent job", rn.j.Id), zap.Error(err))
 			return err
 		}
 
@@ -263,7 +237,8 @@ func (rn *Runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 	}
 
 	if err := rn.Await(ctx); err != nil {
-		logger.Error("await copy multipart file failed", zap.Error(err), zap.String("parent job", rn.j.Id))
+		logger.Error("await copy multipart file",
+			zap.String("parent job", rn.j.Id), zap.Error(err))
 		return err
 	}
 
@@ -278,10 +253,10 @@ func (rn *Runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 	return nil
 }
 
-func (rn *Runner) HandleCopyMultipart(ctx context.Context, msg protobuf.Message) error {
+func (rn *runner) HandleCopyMultipart(ctx context.Context, msg protobuf.Message) error {
 	logger := rn.logger
 
-	arg := msg.(*proto.CopyMultipart)
+	arg := msg.(*models.CopyMultipartJob)
 
 	src := rn.storages[arg.Src]
 	dst := rn.storages[arg.Dst]
@@ -297,14 +272,16 @@ func (rn *Runner) HandleCopyMultipart(ctx context.Context, msg protobuf.Message)
 	go func() {
 		_, err := src.Read(arg.SrcPath, w, ps.WithSize(arg.Size), ps.WithOffset(arg.Offset))
 		if err != nil {
-			logger.Error("src read failed", zap.Error(err), zap.String("src", arg.SrcPath))
+			logger.Error("src read",
+				zap.String("src", arg.SrcPath), zap.Error(err))
 		}
 	}()
 
 	o := dst.Create(arg.DstPath, ps.WithMultipartID(arg.MultipartId))
 	_, err := multipart.WriteMultipart(o, r, arg.Size, int(arg.Index))
 	if err != nil {
-		logger.Error("write multipart failed", zap.Error(err), zap.String("dst", arg.DstPath))
+		logger.Error("write multipart",
+			zap.String("dst", arg.DstPath), zap.Error(err))
 		return err
 	}
 

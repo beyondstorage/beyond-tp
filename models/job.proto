@@ -1,21 +1,32 @@
 syntax = "proto3";
 package job;
 
-option go_package = "github.com/aos-dev/dm/proto";
+option go_package = "github.com/aos-dev/dm/models";
 
 message Job {
     string id = 1;
-    uint32 type = 2;
+    JobType type = 2;
     bytes content = 3;
 }
 
-message JobReply {
-    string id = 1;
-    uint32 status = 2;
-    string message = 3;
+enum JobType {
+    InvalidJobType = 0;
+
+    CopyDir = 1;
+    CopyFile = 2;
+    CopySingleFile = 3;
+    CopyMultipartFile = 4;
+    CopyMultipart = 5;
 }
 
-message CopyDir {
+enum JobStatus {
+    InvalidJobStatus = 0;
+
+    Succeed = 1;
+    Failed = 2;
+}
+
+message CopyDirJob {
     uint32 src = 1;
     uint32 dst = 2;
     string src_path = 3;
@@ -23,22 +34,14 @@ message CopyDir {
     bool recursive = 5;
 }
 
-message CopyFile {
+message CopyFileJob {
     uint32 src = 1;
     uint32 dst = 2;
     string src_path = 3;
     string dst_path = 4;
 }
 
-message CopySingleFile {
-    uint32 src = 1;
-    uint32 dst = 2;
-    string src_path = 3;
-    string dst_path = 4;
-    int64 size = 5;
-}
-
-message CopyMultipartFile {
+message CopySingleFileJob {
     uint32 src = 1;
     uint32 dst = 2;
     string src_path = 3;
@@ -46,7 +49,15 @@ message CopyMultipartFile {
     int64 size = 5;
 }
 
-message CopyMultipart {
+message CopyMultipartFileJob {
+    uint32 src = 1;
+    uint32 dst = 2;
+    string src_path = 3;
+    string dst_path = 4;
+    int64 size = 5;
+}
+
+message CopyMultipartJob {
     uint32 src = 1;
     uint32 dst = 2;
     string src_path = 3;
@@ -56,4 +67,3 @@ message CopyMultipart {
     uint32 index = 7;
     int64 offset = 8;
 }
-

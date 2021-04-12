@@ -5,10 +5,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/aos-dev/dm/task"
 	"github.com/gin-gonic/gin"
 
 	"github.com/aos-dev/dm/models"
+	"github.com/aos-dev/dm/task"
 )
 
 const ginCtxKey = "gin_in_ctx"

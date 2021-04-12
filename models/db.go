@@ -2,32 +2,41 @@ package models
 
 import (
 	"github.com/dgraph-io/badger/v3"
-	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type DB struct {
-	db *badger.DB
+	db     *badger.DB
+	logger *zap.Logger
 }
 
-const dbGinCtxKey = "db_in_gin"
+func NewDB(path string, logger *zap.Logger) (*DB, error) {
+	ops := badger.DefaultOptions(path).
+		WithLoggingLevel(badger.ERROR) // Set log level to error
 
-func NewDB(path string) (*DB, error) {
-	db, err := badger.Open(badger.DefaultOptions(path))
+	db, err := badger.Open(ops)
 	if err != nil {
 		return nil, err
 	}
-	return &DB{db: db}, nil
+	return &DB{db: db, logger: logger}, nil
 }
 
-// DbIntoGin inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
-func DbIntoGin(db *DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set(dbGinCtxKey, db)
-		c.Next()
+func (d *DB) Close() (err error) {
+	return d.db.Close()
+}
+
+func (d *DB) CloseTxn(txn *badger.Txn, err error) error {
+	// Discard all changes and return input error.
+	if err != nil {
+		txn.Discard()
+		return err
 	}
-}
 
-// DBFromGin inspired from `https://gqlgen.com/recipes/gin/#accessing-gincontext`
-func DBFromGin(c *gin.Context) *DB {
-	return c.MustGet(dbGinCtxKey).(*DB)
+	// Commit all changes and return error during commit.
+	err = txn.Commit()
+	if err != nil {
+		d.logger.Error("txn commit", zap.Error(err))
+		return err
+	}
+	return nil
 }

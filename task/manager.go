@@ -4,220 +4,195 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"sync"
 	"time"
 
-	"github.com/aos-dev/go-toolbox/natszap"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"github.com/nats-io/nats-server/v2/server"
-	"github.com/nats-io/nats.go"
-	natsproto "github.com/nats-io/nats.go/encoders/protobuf"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/aos-dev/dm/proto"
+	"github.com/aos-dev/dm/models"
 )
 
 type Manager struct {
-	queue *nats.EncodedConn
+	cfg ManagerConfig
 
-	staffLock  sync.RWMutex
-	staffIds   []string
-	staffAddrs map[string]string
+	logger     *zap.Logger
+	db         *models.DB
+	grpcServer *grpc.Server
 
-	taskLock sync.RWMutex
-	tasks    map[string]*taskMeta
-
-	config ManagerConfig
-
-	proto.UnimplementedStaffServer
+	models.UnimplementedStaffServer
 }
 
-type taskMeta struct {
-	sub *nats.Subscription
-	wg  *sync.WaitGroup
+func (p *Manager) DB() *models.DB {
+	return p.db
 }
 
 type ManagerConfig struct {
 	Host     string
 	GrpcPort int
 
-	// Queue related config.
-	QueuePort int
+	DatabasePath string
 }
 
 func (p ManagerConfig) GrpcAddr() string {
 	return fmt.Sprintf("%s:%d", p.Host, p.GrpcPort)
 }
 
-func (p ManagerConfig) QueueAddr() string {
-	return fmt.Sprintf("%s:%d", p.Host, p.QueuePort)
-}
-
 func NewManager(ctx context.Context, cfg ManagerConfig) (p *Manager, err error) {
 	logger := zapcontext.From(ctx)
 
 	p = &Manager{
-		config: cfg,
+		cfg: cfg,
 
-		staffAddrs: make(map[string]string),
-		tasks:      make(map[string]*taskMeta),
+		logger: logger,
+	}
+
+	p.db, err = models.NewDB(p.cfg.DatabasePath, logger)
+	if err != nil {
+		logger.Error("create db", zap.String("path", p.cfg.DatabasePath), zap.Error(err))
+		return
 	}
 
 	// Setup grpc server.
-	grpcSrv := grpc.NewServer(grpc.UnaryInterceptor(
+	p.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(
 		grpc_middleware.ChainUnaryServer(
 			grpc_zap.UnaryServerInterceptor(logger),
 			grpc_recovery.UnaryServerInterceptor(),
 		)),
 	)
-	proto.RegisterStaffServer(grpcSrv, p)
+	models.RegisterStaffServer(p.grpcServer, p)
+
+	l, err := net.Listen("tcp", cfg.GrpcAddr())
+	if err != nil {
+		logger.Error("grpc server listen", zap.Error(err))
+		return
+	}
+
 	go func() {
-		l, err := net.Listen("tcp", cfg.GrpcAddr())
-		if err != nil {
-			logger.Error("grpc server listen", zap.Error(err))
-			return
-		}
-		err = grpcSrv.Serve(l)
+		err = p.grpcServer.Serve(l)
 		if err != nil {
 			logger.Error("grpc server serve", zap.Error(err))
 			return
 		}
 	}()
 
-	// Setup queue server.
-	srv, err := server.NewServer(&server.Options{
-		Host: cfg.Host,
-		Port: cfg.QueuePort,
-	})
-	if err != nil {
-		logger.Error("create nats server", zap.Error(err))
-		return
-	}
-
-	go func() {
-		srv.SetLoggerV2(natszap.NewLog(logger), false, false, false)
-
-		srv.Start()
-	}()
-
-	if !srv.ReadyForConnections(10 * time.Second) {
-		panic(fmt.Errorf("server start too slow"))
-	}
-
-	conn, err := nats.Connect(srv.ClientURL())
-	if err != nil {
-		logger.Error("connect nats queue",
-			zap.String("addr", srv.ClientURL()), zap.Error(err))
-		return
-	}
-	p.queue, err = nats.NewEncodedConn(conn, natsproto.PROTOBUF_ENCODER)
-	if err != nil {
-		logger.Error("connect encoded nats queue",
-			zap.String("addr", srv.ClientURL()), zap.Error(err))
-		return
-	}
-
+	logger.Info("manager has been setup", zap.String("addr", cfg.GrpcAddr()))
 	return p, nil
 }
 
-func (p *Manager) Register(ctx context.Context, request *proto.RegisterRequest) (*proto.RegisterReply, error) {
-	_ = zapcontext.From(ctx)
-
-	p.staffLock.Lock()
-	defer p.staffLock.Unlock()
-	p.staffIds = append(p.staffIds, request.Id)
-	p.staffAddrs[request.Id] = request.Addr
-
-	return &proto.RegisterReply{
-		Addr:    p.config.QueueAddr(),
-		Subject: SubjectTasks(),
-	}, nil
-}
-
-func (p *Manager) Elect(ctx context.Context, request *proto.ElectRequest) (*proto.ElectReply, error) {
-	_ = zapcontext.From(ctx)
-
-	p.staffLock.RLock()
-	defer p.staffLock.RUnlock()
-
-	return &proto.ElectReply{
-		Addr:      p.staffAddrs[p.staffIds[0]],
-		Subject:   SubjectTask(request.TaskId),
-		LeaderId:  p.staffIds[0],
-		WorkerIds: p.staffIds[1:],
-	}, nil
-}
-
-// Publish will publish a task on "tasks" queue.
-func (p *Manager) Publish(ctx context.Context, task *proto.Task) (err error) {
+func (p *Manager) Register(ctx context.Context, req *models.RegisterRequest) (reply *models.RegisterReply, err error) {
 	logger := zapcontext.From(ctx)
 
-	// TODO: We need to maintain all tasks in db maybe.
-	logger.Info("manager publish task", zap.String("id", task.Id))
+	reply = &models.RegisterReply{}
 
-	tm := &taskMeta{
-		wg: &sync.WaitGroup{},
+	_, err = p.db.CreateStaff(req.StaffId)
+	if err != nil {
+		logger.Error("create staff", zap.Error(err))
+		return
 	}
 
-	tm.wg.Add(len(p.staffIds))
-	// Subscribe task reply before we publish our request.
-	tm.sub, err = p.queue.Subscribe(SubjectTaskReply(task.Id), func(tr *proto.TaskReply) {
-		defer tm.wg.Done()
+	return reply, nil
+}
 
-		switch tr.Status {
-		case JobStatusSucceed:
-			logger.Info("task succeed",
-				zap.String("id", tr.Id),
-				zap.String("staff_id", tr.StaffId))
-		default:
-			logger.Error("task failed",
-				zap.String("id", tr.Id),
-				zap.String("staff_id", tr.StaffId),
-				zap.String("error", tr.Message),
-			)
+func (p *Manager) Elect(ctx context.Context, req *models.ElectRequest) (reply *models.ElectReply, err error) {
+	logger := zapcontext.From(ctx)
+
+	reply = &models.ElectReply{}
+
+	id, addr, err := p.db.ElectTaskLeader(req.TaskId, req.StaffId, req.StaffAddr)
+	if err != nil {
+		logger.Error("elect task leader", zap.Error(err))
+		return
+	}
+
+	return &models.ElectReply{
+		LeaderId:   id,
+		LeaderAddr: addr,
+	}, nil
+}
+
+func (p *Manager) Poll(req *models.PollRequest, srv models.Staff_PollServer) (err error) {
+	logger := p.logger
+
+	for {
+		reply := &models.PollReply{}
+
+		taskId, err := p.db.NextStaffTask(nil, req.StaffId)
+		if err != nil {
+			logger.Error("next staff task", zap.Error(err))
+			return err
 		}
-	})
+
+		// task_id == "" means there is no task for out staff.
+		if taskId == "" {
+			reply.Status = models.PollStatus_Empty
+
+			err = srv.Send(reply)
+			if err != nil {
+				return err
+			}
+
+			// FIXME: we need to find a way to watch staff task changes.
+			time.Sleep(60 * time.Second)
+			return err
+		}
+
+		task, err := p.db.GetTask(taskId)
+		if err != nil {
+			logger.Error("get task", zap.Error(err))
+			return err
+		}
+
+		reply.Status = models.PollStatus_Valid
+		reply.Task = task
+
+		err = srv.Send(reply)
+		if err != nil {
+			return err
+		}
+
+		logger.Info("polled task", zap.String("id", task.Id))
+
+		err = p.db.DeleteStaffTask(nil, req.StaffId, taskId)
+		if err != nil {
+			return err
+		}
+	}
+}
+
+func (p *Manager) Finish(ctx context.Context, req *models.FinishRequest) (reply *models.FinishReply, err error) {
+	logger := p.logger
+
+	reply = &models.FinishReply{}
+
+	t, err := p.db.GetTask(req.TaskId)
 	if err != nil {
-		return err
+		logger.Error("get task", zap.String("id", req.TaskId))
+		return
 	}
 
-	p.taskLock.Lock()
-	p.tasks[task.Id] = tm
-	p.taskLock.Unlock()
+	t.Status = models.TaskStatus_Finished
 
-	// Send task on tasks and wait for reply.
-	err = p.queue.PublishRequest(SubjectTasks(), SubjectTaskReply(task.Id), task)
+	err = p.db.UpdateTask(t)
 	if err != nil {
+		logger.Error("update task", zap.String("id", req.TaskId))
 		return
 	}
 	return
 }
 
-// Wait will wait for all staffAddrs' replies on specific task.
-func (p *Manager) Wait(ctx context.Context, task *proto.Task) (err error) {
-	logger := zapcontext.From(ctx)
+func (p *Manager) Stop(ctx context.Context) (err error) {
+	p.grpcServer.Stop()
+	p.grpcServer = nil
 
-	p.taskLock.RLock()
-	tm := p.tasks[task.Id]
-	p.taskLock.RUnlock()
-
-	logger.Info("manager wait task to be finished",
-		zap.String("id", task.Id))
-
-	tm.wg.Wait()
-	err = tm.sub.Unsubscribe()
+	err = p.db.Close()
 	if err != nil {
-		return
+		p.logger.Error("close database", zap.Error(err))
 	}
+	p.db = nil
 
-	logger.Info("manager finished task", zap.String("id", task.Id))
-
-	p.taskLock.Lock()
-	delete(p.tasks, task.Id)
-	p.taskLock.Unlock()
-	return
+	return err
 }
