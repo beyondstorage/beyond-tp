@@ -183,7 +183,7 @@ func (p *Manager) Finish(ctx context.Context, req *models.FinishRequest) (reply 
 }
 
 func (p *Manager) Stop(ctx context.Context) (err error) {
-	p.grpcServer.GracefulStop()
+	p.grpcServer.Stop()
 	p.grpcServer = nil
 
 	err = p.db.Close()

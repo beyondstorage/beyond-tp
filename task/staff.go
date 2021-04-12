@@ -84,6 +84,7 @@ func (s *Staff) Start(ctx context.Context) (err error) {
 
 	for {
 		t, err := srv.Recv()
+		// TODO: we need to handle the graceful stop from server.
 		if err != nil {
 			logger.Error("receive next task", zap.Error(err))
 			return err

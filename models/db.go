@@ -11,7 +11,10 @@ type DB struct {
 }
 
 func NewDB(path string, logger *zap.Logger) (*DB, error) {
-	db, err := badger.Open(badger.DefaultOptions(path))
+	ops := badger.DefaultOptions(path).
+		WithLoggingLevel(badger.ERROR) // Set log level to error
+
+	db, err := badger.Open(ops)
 	if err != nil {
 		return nil, err
 	}

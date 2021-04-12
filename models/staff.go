@@ -140,7 +140,7 @@ func (d *DB) ListStaffTasks(txn *badger.Txn, staffId string) (taskIds []string, 
 
 func (d *DB) DeleteStaffTask(txn *badger.Txn, staffId, taskId string) (err error) {
 	if txn == nil {
-		txn = d.db.NewTransaction(false)
+		txn = d.db.NewTransaction(true)
 		defer func() {
 			err = d.CloseTxn(txn, err)
 		}()

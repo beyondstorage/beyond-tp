@@ -73,6 +73,7 @@ func TestWorker(t *testing.T) {
 	if err != nil {
 		t.Errorf("wait task: %v", err)
 	}
+	t.Logf("task has been finished")
 
 	err = p.Stop(ctx)
 	if err != nil {

@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"errors"
 	"net"
 	"sync"
 
@@ -19,10 +20,10 @@ import (
 type Leader struct {
 	id string
 
-	db       *models.DB
-	cancelFn context.CancelFunc
-	jobCh    chan *models.Job
-	grpcSrv  models.WorkerServer
+	db      *models.DB
+	jobCh   chan *models.Job
+	doneCh  chan struct{}
+	grpcSrv models.WorkerServer
 
 	rootJobId string
 	logger    *zap.Logger
@@ -41,6 +42,7 @@ func NewLeader(ctx context.Context,
 		id: uuid.NewString(),
 
 		jobCh:     make(chan *models.Job, 1),
+		doneCh:    make(chan struct{}),
 		rootJobId: job.Id,
 		logger:    logger,
 	}
@@ -79,11 +81,22 @@ func NewLeader(ctx context.Context,
 func (l *Leader) Serve(ctx context.Context) (err error) {
 	logger := zapcontext.From(ctx)
 
-	ctx, l.cancelFn = context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(ctx)
+
+	go func() {
+		for range l.doneCh {
+			break
+		}
+		cancel()
+	}()
 
 	err = l.db.SubscribeJob(ctx, func(t *models.Job) {
 		l.jobCh <- t
 	})
+	if err != nil && errors.Is(err, context.Canceled) {
+		logger.Info("subscribe job canceled")
+		return nil
+	}
 	if err != nil {
 		logger.Error("subscribe job", zap.Error(err))
 		return
@@ -159,8 +172,8 @@ func (l *Leader) FinishJob(ctx context.Context, req *models.FinishJobRequest) (r
 	if req.JobId == l.rootJobId {
 		logger.Debug("root job finished", zap.String("id", req.JobId))
 
+		close(l.doneCh)
 		close(l.jobCh)
-		l.cancelFn()
 	}
 	return
 }
