@@ -3,19 +3,17 @@ package task
 import (
 	"context"
 	"fmt"
-	protobuf "github.com/golang/protobuf/proto"
-	"google.golang.org/grpc/backoff"
-	"net"
-	"path/filepath"
-	"sync"
-	"time"
-
 	"github.com/aos-dev/go-storage/v3/types"
 	"github.com/aos-dev/go-toolbox/zapcontext"
+	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
+	"net"
+	"path/filepath"
+	"sync"
 
 	"github.com/aos-dev/dm/models"
 )
@@ -78,12 +76,14 @@ func (s *Staff) Start(ctx context.Context) (err error) {
 	// TODO: we will support multi tasks later, for now, we only support one task.
 	var currentTaskId string
 
-	// FIXME: we need to increase the tick time.
-	timeCh := time.NewTicker(10 * time.Second)
-	defer timeCh.Stop()
+	srv, err := s.grpcClient.Poll(ctx, &models.PollRequest{StaffId: s.id})
+	if err != nil {
+		logger.Error("receive next task", zap.Error(err))
+		return err
+	}
 
-	for range timeCh.C {
-		t, err := s.grpcClient.Poll(ctx, &models.PollRequest{StaffId: s.id})
+	for {
+		t, err := srv.Recv()
 		if err != nil {
 			logger.Error("receive next task", zap.Error(err))
 			return err
@@ -120,13 +120,22 @@ func (s *Staff) Start(ctx context.Context) (err error) {
 		}
 		logger.Debug("elect leader", zap.String("staff_id", reply.LeaderId))
 
-		cond := sync.NewCond(&sync.Mutex{})
-		cond.L.Lock()
-
 		if reply.LeaderId == s.id {
 			dp := filepath.Join(s.cfg.DataPath, t.Task.Id)
 			job := mapTaskToRootJob(t.Task)
 
+			cond := sync.NewCond(&sync.Mutex{})
+			cond.L.Lock()
+
+			go func() {
+				cond.Wait()
+
+				err = s.FinishTask(ctx, t.Task.Id)
+				if err != nil {
+					logger.Error("finish task", zap.String("id", t.Task.Id))
+				}
+				logger.Info("finish task", zap.String("id", t.Task.Id))
+			}()
 			go HandleAsLeader(ctx, l, dp, cond, job)
 		} else {
 			// Close listener as we don't need it anymore.
@@ -143,26 +152,14 @@ func (s *Staff) Start(ctx context.Context) (err error) {
 				sts = append(sts, store)
 			}
 
-			go HandleAsWorker(ctx, reply.LeaderAddr, cond, sts)
+			go HandleAsWorker(ctx, reply.LeaderAddr, sts)
 		}
-
-		go func() {
-			cond.Wait()
-
-			err = s.FinishTask(ctx, t.Task.Id)
-			if err != nil {
-				logger.Error("finish task", zap.String("id", t.Task.Id))
-			}
-			logger.Info("finish task", zap.String("id", t.Task.Id))
-		}()
 	}
-	return
 }
 
 func (s *Staff) FinishTask(ctx context.Context, taskId string) (err error) {
 	_, err = s.grpcClient.Finish(ctx, &models.FinishRequest{
-		TaskId:  taskId,
-		StaffId: s.id,
+		TaskId: taskId,
 	})
 	return
 }

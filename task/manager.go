@@ -3,6 +3,7 @@ package task
 import (
 	"context"
 	"fmt"
+	"github.com/aos-dev/dm/models"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -10,15 +11,15 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"net"
-
-	"github.com/aos-dev/dm/models"
+	"time"
 )
 
 type Manager struct {
 	cfg ManagerConfig
 
-	logger *zap.Logger
-	db     *models.DB
+	logger     *zap.Logger
+	db         *models.DB
+	grpcServer *grpc.Server
 
 	models.UnimplementedStaffServer
 }
@@ -54,13 +55,13 @@ func NewManager(ctx context.Context, cfg ManagerConfig) (p *Manager, err error) 
 	}
 
 	// Setup grpc server.
-	grpcSrv := grpc.NewServer(grpc.UnaryInterceptor(
+	p.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(
 		grpc_middleware.ChainUnaryServer(
 			grpc_zap.UnaryServerInterceptor(logger),
 			grpc_recovery.UnaryServerInterceptor(),
 		)),
 	)
-	models.RegisterStaffServer(grpcSrv, p)
+	models.RegisterStaffServer(p.grpcServer, p)
 
 	l, err := net.Listen("tcp", cfg.GrpcAddr())
 	if err != nil {
@@ -69,7 +70,7 @@ func NewManager(ctx context.Context, cfg ManagerConfig) (p *Manager, err error) 
 	}
 
 	go func() {
-		err = grpcSrv.Serve(l)
+		err = p.grpcServer.Serve(l)
 		if err != nil {
 			logger.Error("grpc server serve", zap.Error(err))
 			return
@@ -111,37 +112,53 @@ func (p *Manager) Elect(ctx context.Context, req *models.ElectRequest) (reply *m
 	}, nil
 }
 
-func (p *Manager) Poll(ctx context.Context, req *models.PollRequest) (reply *models.PollReply, err error) {
+func (p *Manager) Poll(req *models.PollRequest, srv models.Staff_PollServer) (err error) {
 	logger := p.logger
 
-	reply = &models.PollReply{}
+	for {
+		reply := &models.PollReply{}
 
-	// TODO: we need to add status for staff task.
-	taskId, err := p.db.NextStaffTask(nil, req.StaffId)
-	if err != nil {
-		logger.Error("next staff task", zap.Error(err))
-		return
+		taskId, err := p.db.NextStaffTask(nil, req.StaffId)
+		if err != nil {
+			logger.Error("next staff task", zap.Error(err))
+			return err
+		}
+
+		// task_id == "" means there is no task for out staff.
+		if taskId == "" {
+			reply.Status = models.PollStatus_Empty
+
+			err = srv.Send(reply)
+			if err != nil {
+				return err
+			}
+
+			// FIXME: we need to find a way to watch staff task changes.
+			time.Sleep(60 * time.Second)
+			return err
+		}
+
+		task, err := p.db.GetTask(taskId)
+		if err != nil {
+			logger.Error("get task", zap.Error(err))
+			return err
+		}
+
+		reply.Status = models.PollStatus_Valid
+		reply.Task = task
+
+		err = srv.Send(reply)
+		if err != nil {
+			return err
+		}
+
+		logger.Info("polled task", zap.String("id", task.Id))
+
+		err = p.db.DeleteStaffTask(nil, req.StaffId, taskId)
+		if err != nil {
+			return err
+		}
 	}
-	logger.Debug("got task",
-		zap.String("id", taskId),
-		zap.String("staff_id", req.StaffId))
-
-	if taskId == "" {
-		reply.Status = models.PollStatus_Empty
-		return
-	}
-
-	task, err := p.db.GetTask(taskId)
-	if err != nil {
-		logger.Error("get task", zap.Error(err))
-		return
-	}
-
-	reply.Status = models.PollStatus_Valid
-	reply.Task = task
-
-	logger.Info("polled task", zap.String("id", task.Id))
-	return
 }
 
 func (p *Manager) Finish(ctx context.Context, req *models.FinishRequest) (reply *models.FinishReply, err error) {
@@ -149,10 +166,31 @@ func (p *Manager) Finish(ctx context.Context, req *models.FinishRequest) (reply 
 
 	reply = &models.FinishReply{}
 
-	err = p.db.DeleteStaffTask(nil, req.StaffId, req.TaskId)
+	t, err := p.db.GetTask(req.TaskId)
 	if err != nil {
-		logger.Error("delete staff task", zap.Error(err))
+		logger.Error("get task", zap.String("id", req.TaskId))
+		return
+	}
+
+	t.Status = models.TaskStatus_Finished
+
+	err = p.db.UpdateTask(t)
+	if err != nil {
+		logger.Error("update task", zap.String("id", req.TaskId))
 		return
 	}
 	return
+}
+
+func (p *Manager) Stop(ctx context.Context) (err error) {
+	p.grpcServer.GracefulStop()
+	p.grpcServer = nil
+
+	err = p.db.Close()
+	if err != nil {
+		p.logger.Error("close database", zap.Error(err))
+	}
+	p.db = nil
+
+	return err
 }

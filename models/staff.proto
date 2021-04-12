@@ -10,7 +10,7 @@ service Staff {
     }
     rpc Elect (ElectRequest) returns (ElectReply) {
     }
-    rpc Poll (PollRequest) returns (PollReply) {
+    rpc Poll (PollRequest) returns (stream PollReply) {
     }
     rpc Finish (FinishRequest) returns (FinishReply) {
     }
@@ -53,7 +53,6 @@ message PollReply {
 
 message FinishRequest {
     string task_id = 1;
-    string staff_id = 2;
 }
 
 message FinishReply {

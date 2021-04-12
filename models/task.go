@@ -152,7 +152,8 @@ func (d *DB) WaitTask(ctx context.Context, taskId string) (err error) {
 
 	err = d.db.Subscribe(ctx, func(kv *badger.KVList) error {
 		for _, v := range kv.Kv {
-			if v.Value == nil {
+			t := NewTaskFromBytes(v.Value)
+			if t.Status == TaskStatus_Finished {
 				return TaskDone
 			}
 		}

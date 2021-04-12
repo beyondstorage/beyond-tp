@@ -83,7 +83,6 @@ func (d *DB) InsertStaffTask(txn *badger.Txn, staffId, taskId string) (err error
 	return
 }
 
-// taskId == "" means there is no task any more.
 func (d *DB) NextStaffTask(txn *badger.Txn, staffId string) (taskId string, err error) {
 	if txn == nil {
 		txn = d.db.NewTransaction(false)

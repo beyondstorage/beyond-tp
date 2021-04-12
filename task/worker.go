@@ -2,8 +2,6 @@ package task
 
 import (
 	"context"
-	"sync"
-
 	"github.com/aos-dev/go-storage/v3/types"
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/google/uuid"
@@ -86,7 +84,7 @@ func (w *Worker) Serve(ctx context.Context) (err error) {
 	}
 }
 
-func HandleAsWorker(ctx context.Context, addr string, cond *sync.Cond, storages []types.Storager) {
+func HandleAsWorker(ctx context.Context, addr string, storages []types.Storager) {
 	logger := zapcontext.From(ctx)
 
 	w, err := NewWorker(ctx, addr, storages)
@@ -100,6 +98,5 @@ func HandleAsWorker(ctx context.Context, addr string, cond *sync.Cond, storages 
 		return
 	}
 
-	cond.Signal()
 	return
 }

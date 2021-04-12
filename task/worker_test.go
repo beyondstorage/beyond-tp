@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"testing"
-	"time"
 )
 
 func setupManager(t *testing.T) *Manager {
@@ -75,7 +74,8 @@ func TestWorker(t *testing.T) {
 		t.Errorf("wait task: %v", err)
 	}
 
-	// FIXME: we need to graceful stop here.
-	time.Sleep(20 * time.Second)
-	os.Exit(0)
+	err = p.Stop(ctx)
+	if err != nil {
+		t.Errorf("stop: %v", err)
+	}
 }

@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type StaffClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error)
 	Elect(ctx context.Context, in *ElectRequest, opts ...grpc.CallOption) (*ElectReply, error)
-	Poll(ctx context.Context, in *PollRequest, opts ...grpc.CallOption) (*PollReply, error)
+	Poll(ctx context.Context, in *PollRequest, opts ...grpc.CallOption) (Staff_PollClient, error)
 	Finish(ctx context.Context, in *FinishRequest, opts ...grpc.CallOption) (*FinishReply, error)
 }
 
@@ -50,13 +50,36 @@ func (c *staffClient) Elect(ctx context.Context, in *ElectRequest, opts ...grpc.
 	return out, nil
 }
 
-func (c *staffClient) Poll(ctx context.Context, in *PollRequest, opts ...grpc.CallOption) (*PollReply, error) {
-	out := new(PollReply)
-	err := c.cc.Invoke(ctx, "/staff.Staff/Poll", in, out, opts...)
+func (c *staffClient) Poll(ctx context.Context, in *PollRequest, opts ...grpc.CallOption) (Staff_PollClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Staff_ServiceDesc.Streams[0], "/staff.Staff/Poll", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &staffPollClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Staff_PollClient interface {
+	Recv() (*PollReply, error)
+	grpc.ClientStream
+}
+
+type staffPollClient struct {
+	grpc.ClientStream
+}
+
+func (x *staffPollClient) Recv() (*PollReply, error) {
+	m := new(PollReply)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *staffClient) Finish(ctx context.Context, in *FinishRequest, opts ...grpc.CallOption) (*FinishReply, error) {
@@ -74,7 +97,7 @@ func (c *staffClient) Finish(ctx context.Context, in *FinishRequest, opts ...grp
 type StaffServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterReply, error)
 	Elect(context.Context, *ElectRequest) (*ElectReply, error)
-	Poll(context.Context, *PollRequest) (*PollReply, error)
+	Poll(*PollRequest, Staff_PollServer) error
 	Finish(context.Context, *FinishRequest) (*FinishReply, error)
 	mustEmbedUnimplementedStaffServer()
 }
@@ -89,8 +112,8 @@ func (UnimplementedStaffServer) Register(context.Context, *RegisterRequest) (*Re
 func (UnimplementedStaffServer) Elect(context.Context, *ElectRequest) (*ElectReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Elect not implemented")
 }
-func (UnimplementedStaffServer) Poll(context.Context, *PollRequest) (*PollReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Poll not implemented")
+func (UnimplementedStaffServer) Poll(*PollRequest, Staff_PollServer) error {
+	return status.Errorf(codes.Unimplemented, "method Poll not implemented")
 }
 func (UnimplementedStaffServer) Finish(context.Context, *FinishRequest) (*FinishReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Finish not implemented")
@@ -144,22 +167,25 @@ func _Staff_Elect_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Staff_Poll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PollRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _Staff_Poll_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PollRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(StaffServer).Poll(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/staff.Staff/Poll",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StaffServer).Poll(ctx, req.(*PollRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(StaffServer).Poll(m, &staffPollServer{stream})
+}
+
+type Staff_PollServer interface {
+	Send(*PollReply) error
+	grpc.ServerStream
+}
+
+type staffPollServer struct {
+	grpc.ServerStream
+}
+
+func (x *staffPollServer) Send(m *PollReply) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _Staff_Finish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -196,14 +222,16 @@ var Staff_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Staff_Elect_Handler,
 		},
 		{
-			MethodName: "Poll",
-			Handler:    _Staff_Poll_Handler,
-		},
-		{
 			MethodName: "Finish",
 			Handler:    _Staff_Finish_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Poll",
+			Handler:       _Staff_Poll_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "staff.proto",
 }

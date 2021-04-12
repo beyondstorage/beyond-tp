@@ -18,6 +18,10 @@ func NewDB(path string, logger *zap.Logger) (*DB, error) {
 	return &DB{db: db, logger: logger}, nil
 }
 
+func (d *DB) Close() (err error) {
+	return d.db.Close()
+}
+
 func (d *DB) CloseTxn(txn *badger.Txn, err error) error {
 	// Discard all changes and return input error.
 	if err != nil {
