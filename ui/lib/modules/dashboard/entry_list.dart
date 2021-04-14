@@ -19,7 +19,7 @@ class EntryActions extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     String status = data["status"];
-    final startAble = status == "created" || status == "stopped";
+    final startAble = status == "Created" || status == "Stopped";
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
