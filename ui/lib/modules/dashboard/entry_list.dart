@@ -10,6 +10,7 @@ import '../../widgets/grid_table/model.dart';
 import '../../widgets/grid_table/index.dart';
 import '../../widgets/more_actions/index.dart';
 import '../../widgets/delete_dialog/index.dart';
+import './task_status.dart';
 
 class EntryActions extends GetView<DashboardController> {
   final Map<String, dynamic> data;
@@ -85,7 +86,11 @@ class EntryMoreActions extends GetView<DashboardController> {
 class EntryList extends GetView<DashboardController> {
   final List<GridTableCol> columns = [
     GridTableCol(title: "Name".tr, dataIndex: "name"),
-    GridTableCol(title: "Status".tr, dataIndex: "status"),
+    GridTableCol(
+      title: "Status".tr,
+      dataIndex: "status",
+      render: (value, data) => TaskStatus(value),
+    ),
     GridTableCol(title: "Created at".tr, dataIndex: "createdAt"),
     GridTableCol(title: "Updated at".tr, dataIndex: "updatedAt"),
     GridTableCol(
