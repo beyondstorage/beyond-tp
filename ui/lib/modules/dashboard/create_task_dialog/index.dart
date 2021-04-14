@@ -30,48 +30,29 @@ class CreateTaskDialog extends StatelessWidget {
     return CommonDialog(
       title: 'Create task'.tr,
       content: Container(
-        width: 600.0,
+        width: 600,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: CreateTaskForm(formKey, onSubmit),
         ),
       ),
-      footer: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 44,
+      buttons: [
+        Button(
+          child: Text(
+            "Cancel".tr,
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          type: ButtonType.defaults,
+          onPressed: controller.closeDialog,
         ),
-        decoration: new BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(3.0)),
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, -1),
-              color: Color.fromRGBO(3, 5, 7, 0.08),
-              blurRadius: 3.0,
-            )
-          ],
+        SizedBox(width: 12),
+        Button(
+          child: Text("Submit".tr),
+          type: ButtonType.primary,
+          onPressed: onSubmit,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Button(
-              child: Text(
-                "Cancel".tr,
-                style: Theme.of(context).textTheme.bodyText1,
-              ),
-              type: ButtonType.defaults,
-              onPressed: controller.closeDialog,
-            ),
-            SizedBox(width: 12),
-            Button(
-              child: Text("Submit".tr),
-              type: ButtonType.primary,
-              onPressed: onSubmit,
-            ),
-          ],
-        ),
-      ),
+      ],
+      onClose: controller.closeDialog,
     );
   }
 }
