@@ -8,7 +8,7 @@ import (
 const (
 	Name        = "dm"
 	Description = "Advanced tool for data migration."
-	Version     = "0.0.1"
+	Version     = "0.2.0"
 )
 
 // globalFlags handle flags for global command
