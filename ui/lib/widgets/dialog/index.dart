@@ -3,34 +3,71 @@ import 'package:flutter/material.dart';
 class CommonDialog extends StatelessWidget {
   final String title;
   final Widget content;
-  final Widget footer;
+  final List<Widget> buttons;
+  final Function onClose;
 
-  CommonDialog({this.title, this.content, this.footer});
+  CommonDialog({this.title, this.content, this.buttons, this.onClose});
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16,
-          height: 1.5,
-          color: Theme.of(context).textTheme.bodyText1.color,
-        ),
-      ),
-      titlePadding: EdgeInsets.only(top: 16, right: 20, bottom: 32, left: 20),
-      contentPadding: EdgeInsets.all(0),
-      children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 600),
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              child: content,
+    final size = MediaQuery.of(context).size;
+    final contentHeight = size.height - 60 - 60 - 90;
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          Expanded(
+            child: SelectableText(
+              title,
+              style: Theme.of(context).textTheme.headline4,
             ),
           ),
+          IconButton(
+            icon: Icon(Icons.close),
+            iconSize: 20,
+            padding: EdgeInsets.all(1.0),
+            splashRadius: 1.0,
+            onPressed: () => onClose(),
+          ),
+        ],
+      ),
+      titlePadding: EdgeInsets.only(top: 16, right: 20, bottom: 32, left: 20),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: contentHeight),
+        child: Scrollbar(
+          child: SingleChildScrollView(
+            child: content,
+          ),
         ),
-        footer,
+      ),
+      contentPadding: EdgeInsets.all(0),
+      actions: [
+        Container(
+          width: 600,
+          padding: EdgeInsets.symmetric(
+            vertical: 12,
+            horizontal: 44,
+          ),
+          decoration: new BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(3.0)),
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0, -1),
+                color: Color.fromRGBO(3, 5, 7, 0.08),
+                blurRadius: 3.0,
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: buttons,
+          ),
+        ),
       ],
+      actionsPadding: EdgeInsets.zero,
+      buttonPadding: EdgeInsets.zero,
+      insetPadding: EdgeInsets.zero,
     );
   }
 }
