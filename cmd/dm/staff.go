@@ -18,25 +18,37 @@ type staffFlags struct {
 	managerAddr string
 }
 
-var staffFlag = staffFlags{}
+// newStaffCmd conduct staff command
+func newStaffCmd() *cobra.Command {
+	staffCmd := &cobra.Command{
+		Use:     "staff",
+		Short:   fmt.Sprintf("start a task staff"),
+		Long:    fmt.Sprintf("dm staff can start a task staff to handle task job distribution"),
+		Example: "Start staff: dm staff",
+		Args:    cobra.ExactArgs(0),
+		PreRunE: func(c *cobra.Command, _ []string) error {
+			return validateStaffFlags(c)
+		},
+		RunE: staffRun,
+	}
 
-var staffCmd = &cobra.Command{
-	Use:     "staff",
-	Short:   fmt.Sprintf("start a task staff"),
-	Long:    fmt.Sprintf("dm staff can start a task staff to handle task job distribution"),
-	Example: "Start staff: dm staff",
-	Args:    cobra.ExactArgs(0),
-	PreRunE: func(c *cobra.Command, _ []string) error {
-		return validateStaffFlags(c)
-	},
-	RunE: staffRun,
+	staffCmd.Flags().StringP("host", "h", "localhost", "staff host")
+	staffCmd.Flags().String("manager", "", "manager server address")
+
+	return staffCmd
 }
 
 func staffRun(c *cobra.Command, _ []string) error {
 	logger := zapcontext.From(c.Context())
+
+	staffFlag, err := parseStaffFlags(c)
+	if err != nil {
+		logger.Error("parse flag for server command", zap.Error(err))
+		return err
+	}
+
 	logger.Info("staff info", zap.String("host", staffFlag.host),
 		zap.String("manager addr", staffFlag.managerAddr))
-
 	w, err := task.NewStaff(c.Context(), task.StaffConfig{
 		Host:        staffFlag.host,
 		ManagerAddr: staffFlag.managerAddr,
@@ -61,14 +73,26 @@ func staffRun(c *cobra.Command, _ []string) error {
 	return nil
 }
 
-func initStaffCmdFlags() {
-	staffCmd.Flags().StringVarP(&staffFlag.host, "host", "h", "localhost", "staff host")
-	staffCmd.Flags().StringVar(&staffFlag.managerAddr, "manager", "", "manager server address")
-}
-
 func validateStaffFlags(c *cobra.Command) error {
 	if manager := c.Flag("manager").Value.String(); manager == "" {
 		return fmt.Errorf("manager flag is required")
 	}
 	return nil
+}
+
+// parseStaffFlags get flag values from command flags
+func parseStaffFlags(c *cobra.Command) (staffFlags, error) {
+	flagSet := c.Flags()
+	host, err := flagSet.GetString("host")
+	if err != nil {
+		return staffFlags{}, err
+	}
+	managerAddr, err := flagSet.GetString("manager")
+	if err != nil {
+		return staffFlags{}, err
+	}
+	return staffFlags{
+		host:        host,
+		managerAddr: managerAddr,
+	}, nil
 }
