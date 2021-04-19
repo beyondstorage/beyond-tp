@@ -7,14 +7,14 @@ import 'thead.dart';
 import 'model.dart';
 
 class GridTable extends StatelessWidget {
-  final double maxHeight;
+  final double? maxHeight;
   final List<GridTableCol> columns;
   final List<Map<String, dynamic>> dataList;
 
   GridTable({
-    this.maxHeight = 0.0,
-    this.dataList,
-    @required this.columns,
+    this.maxHeight,
+    required this.dataList,
+    required this.columns,
   });
 
   List<TrackSize> get columnSizes {

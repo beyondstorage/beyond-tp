@@ -11,7 +11,7 @@ class SignInForm extends GetView<SigninController> {
   void onSubmit() {
     final form = _formKey.currentState;
 
-    if (!form.validate()) {
+    if (!form!.validate()) {
       controller.autoValidateMode(AutovalidateMode.always);
     } else {
       form.save();

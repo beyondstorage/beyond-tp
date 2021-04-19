@@ -6,7 +6,7 @@ import 'desktop.dart';
 class Layout extends StatelessWidget {
   final Widget child;
 
-  Layout({ this.child });
+  Layout({ required this.child });
 
   @override
   Widget build(BuildContext context) {

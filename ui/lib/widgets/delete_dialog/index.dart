@@ -11,10 +11,10 @@ class DeleteDialog extends StatelessWidget {
   final Function onDelete;
 
   DeleteDialog({
-    this.title,
-    this.child,
-    this.onClose,
-    this.onDelete,
+    required this.title,
+    required this.child,
+    required this.onClose,
+    required this.onDelete,
   });
 
   @override
