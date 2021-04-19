@@ -28,6 +28,7 @@ class SourceFormFields extends GetView<CreateTaskController> {
           padding: EdgeInsets.symmetric(horizontal: 30.0),
           margin: EdgeInsets.only(bottom: 24.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 124,
@@ -101,38 +102,41 @@ class SourceFormFields extends GetView<CreateTaskController> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 30.0),
           margin: EdgeInsets.only(bottom: 32.0),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              width: 124,
-              height: 32,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Source path'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).primaryColorLight,
-                  fontWeight: FontWeight.w500,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 124,
+                height: 32,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Source path'.tr,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).primaryColorLight,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  isDense: true,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  ),
+                  focusNode: srcFocusNode,
+                  maxLines: 1,
+                  style: TextStyle(fontSize: 12),
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.text,
+                  initialValue: '/',
+                  onSaved: controller.srcPath,
                 ),
-                focusNode: srcFocusNode,
-                maxLines: 1,
-                style: TextStyle(fontSize: 12),
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                initialValue: '/',
-                onSaved: controller.srcPath,
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
         Obx(
           () => Visibility(
