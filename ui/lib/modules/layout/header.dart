@@ -44,7 +44,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           // ),
           SelectableText(
             "Project name".tr,
-            style: Theme.of(context).appBarTheme.textTheme.headline4
+            style: Theme.of(context).appBarTheme.textTheme!.headline4
           ),
           Expanded(
             child: Text(""),
@@ -81,7 +81,7 @@ class MobileHeader extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(
         "Project name".tr,
-        style: Theme.of(context).appBarTheme.textTheme.headline4
+        style: Theme.of(context).appBarTheme.textTheme!.headline4
       ),
       actions: [
         IconButton(

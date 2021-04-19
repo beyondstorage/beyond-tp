@@ -9,13 +9,12 @@ class TaskStatus extends StatelessWidget {
     switch (status) {
       case "created":
         return rgba(255, 206, 52, 1);
-        break;
       case "stopped":
         return rgba(202, 38, 33, 1);
-        break;
       case "finished":
         return rgba(0, 170, 114, 1);
-        break;
+      default:
+        return rgba(0, 170, 114, 1);
     }
   }
 
@@ -23,13 +22,12 @@ class TaskStatus extends StatelessWidget {
     switch (status) {
       case "created":
         return Icons.more_horiz;
-        break;
       case "stopped":
         return Icons.pause;
-        break;
       case "finished":
         return Icons.done;
-        break;
+      default:
+        return Icons.done;
     }
   }
 
