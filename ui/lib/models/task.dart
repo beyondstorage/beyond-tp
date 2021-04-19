@@ -49,11 +49,6 @@ class Tasks {
   String toString() => json.encode(toList());
 }
 
-enum StorageType {
-  Fs,
-  Qingstor,
-}
-
 class StorageOption {
   String key;
   String value;
@@ -70,7 +65,7 @@ class StorageOption {
 }
 
 class Storage {
-  StorageType type;
+  String type;
   List<StorageOption> options;
 
   Storage({
