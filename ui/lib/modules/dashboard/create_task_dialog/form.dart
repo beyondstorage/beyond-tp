@@ -32,6 +32,7 @@ class CreateTaskForm extends GetView<CreateTaskController> {
                     style: TextStyle(
                       fontSize: 12,
                       height: 2.67,
+                      color: Theme.of(context).primaryColorLight,
                       fontWeight: FontWeight.w500,
                     ),
                     children: [
