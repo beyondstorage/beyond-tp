@@ -15,7 +15,7 @@ import './task_status.dart';
 class EntryActions extends GetView<DashboardController> {
   final Map<String, dynamic> data;
 
-  EntryActions({this.data});
+  EntryActions({ required this.data });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class EntryMoreActions extends GetView<DashboardController> {
   final dynamic value;
   final Map<String, dynamic> data;
 
-  EntryMoreActions({this.value, this.data});
+  EntryMoreActions({this.value, required this.data});
 
   @override
   Widget build(BuildContext context) {

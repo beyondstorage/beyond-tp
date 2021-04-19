@@ -66,7 +66,7 @@ class SourceFormFields extends GetView<CreateTaskController> {
                   validator: ValidationBuilder()
                       .minLength(1, 'Please select source type')
                       .build(),
-                  onChanged: (value) {
+                  onChanged: (String? value) {
                     controller.srcType(value);
                     srcFocusNode.requestFocus();
                   },
