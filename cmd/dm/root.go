@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -13,11 +14,11 @@ const (
 )
 
 // globalFlags handle flags for global command
-type globalFlags struct {
-	db       string
-	dev      bool
-	logLevel string
-}
+const (
+	flagDB       = "db"
+	flagDev      = "dev"
+	flagLogLevel = "log-level"
+)
 
 // newRootCmd conduct rootCmd
 func newRootCmd() *cobra.Command {
@@ -31,41 +32,20 @@ func newRootCmd() *cobra.Command {
 		Version: Version,
 	}
 
-	rootCmd.PersistentFlags().String("db", "", "path to locate badger db")
-	rootCmd.PersistentFlags().Bool("dev", false, "enable dev mode or not")
-	rootCmd.PersistentFlags().String("log-level", "info", "log level")
+	rootCmd.PersistentFlags().String(flagDB, "", "path to locate badger db")
+	rootCmd.PersistentFlags().Bool(flagDev, false, "enable dev mode or not")
+	rootCmd.PersistentFlags().String(flagLogLevel, "info", "log level")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
 
-	// bind log-level flag with env key log_level (with prefix dm)
-	viper.BindPFlag("log_level", rootCmd.Flag("log-level"))
-
 	rootCmd.AddCommand(newServerCmd())
 	rootCmd.AddCommand(newStaffCmd())
+
+	// use local flags to only handle flags for current command
+	rootCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+		key := formatKeyInViper(flag.Name)
+		viper.BindPFlag(key, flag)
+		viper.SetDefault(key, flag.DefValue)
+	})
 	return rootCmd
-}
-
-// parseGlobalFlag get flag values from command flags
-func parseGlobalFlag(c *cobra.Command) (globalFlags, error) {
-	flags := c.Flags()
-	db, err := flags.GetString("db")
-	if err != nil {
-		return globalFlags{}, err
-	}
-
-	dev, err := flags.GetBool("dev")
-	if err != nil {
-		return globalFlags{}, err
-	}
-
-	logLevel, err := flags.GetString("log-level")
-	if err != nil {
-		return globalFlags{}, err
-	}
-
-	return globalFlags{
-		db:       db,
-		dev:      dev,
-		logLevel: logLevel,
-	}, nil
 }

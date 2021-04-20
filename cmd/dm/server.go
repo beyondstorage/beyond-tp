@@ -6,19 +6,19 @@ import (
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	"github.com/aos-dev/dm/api"
 	"github.com/aos-dev/dm/task"
 )
 
 // serverFlags handle flags for server command
-type serverFlags struct {
-	host      string
-	port      int
-	rpcPort   int
-	queuePort int
-}
+const (
+	flagHost    = "host"
+	flagPort    = "port"
+	flagRPCPort = "rpc-port"
+)
 
 // newServerCmd conduct server command
 func newServerCmd() *cobra.Command {
@@ -29,15 +29,21 @@ func newServerCmd() *cobra.Command {
 		Example: "Start server: dm server",
 		Args:    cobra.ExactArgs(0),
 		PreRunE: func(c *cobra.Command, _ []string) error {
-			return validateServerFlags(c)
+			return validateServerFlags()
 		},
 		RunE: serverRun,
 	}
 
-	serverCmd.Flags().StringP("host", "h", "localhost", "server host")
-	serverCmd.Flags().IntP("port", "p", 7436, "web server port")
-	serverCmd.Flags().Int("rpc-port", 7000, "grpc server port")
-	serverCmd.Flags().Int("queue-port", 7010, "msg queue server port")
+	serverCmd.Flags().StringP(flagHost, "h", "localhost", "server host")
+	serverCmd.Flags().IntP(flagPort, "p", 7436, "web server port")
+	serverCmd.Flags().Int(flagRPCPort, 7000, "grpc server port")
+
+	// use local flags to only handle flags for current command
+	serverCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+		key := formatKeyInViper(flag.Name)
+		viper.BindPFlag(key, flag)
+		viper.SetDefault(key, flag.DefValue)
+	})
 
 	return serverCmd
 }
@@ -47,31 +53,19 @@ func serverRun(c *cobra.Command, _ []string) error {
 
 	logger.Info("start manager")
 
-	serverFlag, err := parseServerFlags(c)
-	if err != nil {
-		logger.Error("parse flag for server command", zap.Error(err))
-		return err
-	}
-
-	globalFlag, err := parseGlobalFlag(c)
-	if err != nil {
-		logger.Error("parse global flag", zap.Error(err))
-		return err
-	}
-
 	manager, err := task.NewManager(c.Context(), task.ManagerConfig{
-		Host:         serverFlag.host,
-		GrpcPort:     serverFlag.rpcPort,
-		DatabasePath: globalFlag.db,
+		Host:         viper.GetString(formatKeyInViper(flagHost)),
+		GrpcPort:     viper.GetInt(formatKeyInViper(flagRPCPort)),
+		DatabasePath: viper.GetString(formatKeyInViper(flagDB)),
 	})
 	if err != nil {
 		return err
 	}
 
 	srv := api.Server{
-		Host:    serverFlag.host,
-		Port:    serverFlag.port,
-		DevMode: globalFlag.dev,
+		Host:    viper.GetString(formatKeyInViper(flagHost)),
+		Port:    viper.GetInt(formatKeyInViper(flagPort)),
+		DevMode: viper.GetBool(formatKeyInViper(flagDev)),
 		Logger:  logger,
 		DB:      manager.DB(),
 		Manager: manager,
@@ -80,36 +74,10 @@ func serverRun(c *cobra.Command, _ []string) error {
 	return srv.Start()
 }
 
-func validateServerFlags(c *cobra.Command) error {
-	if db := c.Flag("db").Value.String(); db == "" {
+func validateServerFlags() error {
+	db := viper.GetString(formatKeyInViper(flagDB))
+	if db == "" {
 		return errors.New("db flag is required")
 	}
 	return nil
-}
-
-// parseServerFlags get flag values from command flags
-func parseServerFlags(c *cobra.Command) (serverFlags, error) {
-	flagSet := c.Flags()
-	host, err := flagSet.GetString("host")
-	if err != nil {
-		return serverFlags{}, err
-	}
-	port, err := flagSet.GetInt("port")
-	if err != nil {
-		return serverFlags{}, err
-	}
-	rpcPort, err := flagSet.GetInt("rpc-port")
-	if err != nil {
-		return serverFlags{}, err
-	}
-	queuePort, err := flagSet.GetInt("queue-port")
-	if err != nil {
-		return serverFlags{}, err
-	}
-	return serverFlags{
-		host:      host,
-		port:      port,
-		rpcPort:   rpcPort,
-		queuePort: queuePort,
-	}, nil
 }

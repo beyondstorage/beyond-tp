@@ -7,16 +7,17 @@ import (
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/aos-dev/dm/task"
 )
 
 // staffFlags handle flags for staff command
-type staffFlags struct {
-	host        string
-	managerAddr string
-}
+const (
+	flagManager = "manager"
+)
 
 // newStaffCmd conduct staff command
 func newStaffCmd() *cobra.Command {
@@ -27,31 +28,32 @@ func newStaffCmd() *cobra.Command {
 		Example: "Start staff: dm staff",
 		Args:    cobra.ExactArgs(0),
 		PreRunE: func(c *cobra.Command, _ []string) error {
-			return validateStaffFlags(c)
+			return validateStaffFlags()
 		},
 		RunE: staffRun,
 	}
 
-	staffCmd.Flags().StringP("host", "h", "localhost", "staff host")
-	staffCmd.Flags().String("manager", "", "manager server address")
+	staffCmd.Flags().StringP(flagHost, "h", "localhost", "staff host")
+	staffCmd.Flags().String(flagManager, "", "manager server address")
 
+	// use local flags to only handle flags for current command
+	staffCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+		key := formatKeyInViper(flag.Name)
+		viper.BindPFlag(key, flag)
+		viper.SetDefault(key, flag.DefValue)
+	})
 	return staffCmd
 }
 
 func staffRun(c *cobra.Command, _ []string) error {
 	logger := zapcontext.From(c.Context())
 
-	staffFlag, err := parseStaffFlags(c)
-	if err != nil {
-		logger.Error("parse flag for server command", zap.Error(err))
-		return err
-	}
-
-	logger.Info("staff info", zap.String("host", staffFlag.host),
-		zap.String("manager addr", staffFlag.managerAddr))
+	host, managerAddr := viper.GetString(formatKeyInViper(flagHost)), viper.GetString(formatKeyInViper(flagManager))
+	logger.Info("staff info", zap.String("host", host),
+		zap.String("manager addr", managerAddr))
 	w, err := task.NewStaff(c.Context(), task.StaffConfig{
-		Host:        staffFlag.host,
-		ManagerAddr: staffFlag.managerAddr,
+		Host:        host,
+		ManagerAddr: managerAddr,
 	})
 	if err != nil {
 		logger.Error("new staff", zap.Error(err))
@@ -59,7 +61,7 @@ func staffRun(c *cobra.Command, _ []string) error {
 	}
 	err = w.Start(c.Context())
 	if err != nil {
-		logger.Error("staff connect manager", zap.Error(err), zap.String("manager", staffFlag.managerAddr))
+		logger.Error("staff connect manager", zap.Error(err), zap.String("manager", managerAddr))
 		return err
 	}
 
@@ -73,26 +75,9 @@ func staffRun(c *cobra.Command, _ []string) error {
 	return nil
 }
 
-func validateStaffFlags(c *cobra.Command) error {
-	if manager := c.Flag("manager").Value.String(); manager == "" {
+func validateStaffFlags() error {
+	if manager := viper.GetString(formatKeyInViper(flagManager)); manager == "" {
 		return fmt.Errorf("manager flag is required")
 	}
 	return nil
-}
-
-// parseStaffFlags get flag values from command flags
-func parseStaffFlags(c *cobra.Command) (staffFlags, error) {
-	flagSet := c.Flags()
-	host, err := flagSet.GetString("host")
-	if err != nil {
-		return staffFlags{}, err
-	}
-	managerAddr, err := flagSet.GetString("manager")
-	if err != nil {
-		return staffFlags{}, err
-	}
-	return staffFlags{
-		host:        host,
-		managerAddr: managerAddr,
-	}, nil
 }
