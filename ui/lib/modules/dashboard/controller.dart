@@ -28,7 +28,7 @@ class DashboardController extends GetxController {
       loading(false);
 
       if (result.data != null) {
-        tasks(Tasks.fromList(result?.data["tasks"] ?? []));
+        tasks(Tasks.fromList(result.data["tasks"] ?? []));
       }
     }).catchError((error) {
       loading(false);

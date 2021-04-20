@@ -66,7 +66,7 @@ class DestinationFormFields extends GetView<CreateTaskController> {
                   validator: ValidationBuilder()
                       .minLength(1, 'Please select destination type')
                       .build(),
-                  onChanged: (value) {
+                  onChanged: (String? value) {
                     controller.dstType(value);
                     dstFocusNode.requestFocus();
                   },

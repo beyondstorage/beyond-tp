@@ -6,7 +6,12 @@ class CommonDialog extends StatelessWidget {
   final List<Widget> buttons;
   final Function onClose;
 
-  CommonDialog({this.title, this.content, this.buttons, this.onClose});
+  CommonDialog({
+    required this.title,
+    required this.content,
+    required this.buttons,
+    required this.onClose
+  });
 
   @override
   Widget build(BuildContext context) {

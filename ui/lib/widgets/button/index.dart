@@ -9,16 +9,16 @@ enum ButtonType {
 }
 
 class Button extends StatelessWidget {
-  final IconData icon;
+  final IconData?icon;
   final Widget child;
-  final Function onPressed;
+  final VoidCallback onPressed;
   final ButtonType type;
   final bool disabled;
 
   Button(
       {this.icon,
-      this.child,
-      this.onPressed,
+      required this.child,
+      required this.onPressed,
       this.disabled = false,
       this.type = ButtonType.defaults});
 
@@ -53,6 +53,7 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unnecessary_null_comparison
     if (icon == null) {
       return ElevatedButton(
         child: child,

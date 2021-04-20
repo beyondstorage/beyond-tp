@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class GridTableTD extends StatelessWidget {
   final dynamic value;
-  final TextStyle style;
+  final TextStyle? style;
 
   GridTableTD({ this.value, this.style });
 

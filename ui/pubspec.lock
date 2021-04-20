@@ -124,7 +124,7 @@ packages:
       name: flutter_layout_grid
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.11.6"
+    version: "0.11.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -148,7 +148,7 @@ packages:
       name: get
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.26.0"
+    version: "4.1.4"
   gql:
     dependency: transitive
     description:
@@ -468,7 +468,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.5"
   xdg_directories:
     dependency: transitive
     description:

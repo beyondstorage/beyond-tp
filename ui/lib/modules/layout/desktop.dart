@@ -6,7 +6,7 @@ import 'navigators.dart';
 class DesktopLayout extends StatelessWidget {
   final Widget child;
 
-  DesktopLayout({ this.child });
+  DesktopLayout({ required this.child });
 
   @override
   Widget build(BuildContext context) {

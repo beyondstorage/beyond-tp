@@ -8,11 +8,11 @@ class Task {
   String updatedAt;
 
   Task({
-    this.id,
-    this.name,
-    this.status,
-    this.createdAt,
-    this.updatedAt,
+    required this.id,
+    required this.name,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory Task.fromMap(Map<String, dynamic> json) => Task(
@@ -37,10 +37,11 @@ class Task {
 class Tasks {
   List<Task> tasks;
 
-  Tasks({this.tasks});
+  Tasks({ required this.tasks });
 
-  factory Tasks.fromList(List<Object> tasks) =>
-      Tasks(tasks: List<Task>.from(tasks.map((x) => Task.fromMap(x))));
+  factory Tasks.fromList(List<Object> tasks) => Tasks(
+    tasks: List<Task>.from(tasks.map((x) => Task.fromMap(x as Map<String, dynamic>)))
+  );
 
   List<Map<String, dynamic>> toList() {
     return tasks.map((task) => task.toMap()).toList();

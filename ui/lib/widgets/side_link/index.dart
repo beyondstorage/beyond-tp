@@ -17,9 +17,9 @@ class SideLink extends StatelessWidget {
   final IconData icon;
 
   SideLink({
-    this.title,
-    this.icon,
-    @required this.path,
+    required this.title,
+    required this.icon,
+    required this.path,
   });
 
   bool get isCurrentPage {
@@ -63,7 +63,7 @@ class SideLink extends StatelessWidget {
                 size: 16,
                 color: c.hovered.value || isCurrentPage
                   ? Theme.of(context).primaryColor
-                  : Theme.of(context).textTheme.headline6.color
+                  : Theme.of(context).textTheme.headline6!.color
               ),
               Padding(
                 padding: EdgeInsets.only(left: 8.0),

@@ -4,7 +4,7 @@ class PageToolbar extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  PageToolbar({ this.title, this.children });
+  PageToolbar({ required this.title, required this.children });
 
   @override
   Widget build(BuildContext context) {
