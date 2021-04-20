@@ -55,8 +55,8 @@ class StorageOption {
   String value;
 
   StorageOption({
-    this.key,
-    this.value,
+    required this.key,
+    required this.value,
   });
 
   factory StorageOption.fromMap(Map<String, dynamic> json) => StorageOption(
@@ -66,12 +66,12 @@ class StorageOption {
 }
 
 class Storage {
-  String type;
-  List<StorageOption> options;
+  String? type;
+  List<StorageOption>? options;
 
   Storage({
-    this.type,
-    this.options,
+    required this.type,
+    required this.options,
   });
 
   factory Storage.fromMap(Map<String, dynamic> json) => Storage(
@@ -82,9 +82,9 @@ class Storage {
 }
 
 class TaskDetail {
-  String id;
-  String name;
-  List<Storage> storages;
+  String? id;
+  String? name;
+  List<Storage?>? storages;
 
   TaskDetail({
     this.id,

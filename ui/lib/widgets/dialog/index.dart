@@ -10,7 +10,7 @@ class CommonDialog extends StatelessWidget {
     required this.title,
     required this.content,
     required this.buttons,
-    required this.onClose
+    required this.onClose,
   });
 
   @override

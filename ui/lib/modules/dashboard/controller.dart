@@ -82,7 +82,7 @@ class DashboardController extends GetxController {
 
     return queryGraphQL(QueryOptions(document: gql(_query))).then((result) {
       if (result.data != null) {
-        taskDetail(TaskDetail.fromMap(result?.data["task"] ?? {}));
+        taskDetail(TaskDetail.fromMap(result.data["task"] ?? {}));
       }
 
       return result;

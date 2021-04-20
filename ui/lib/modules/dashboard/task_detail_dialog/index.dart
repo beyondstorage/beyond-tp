@@ -10,13 +10,13 @@ import '../controller.dart';
 class TaskDetailDialog extends GetView<DashboardController> {
   final String taskId;
 
-  TaskDetailDialog({this.taskId}) {
+  TaskDetailDialog({required this.taskId}) {
     controller.getTaskDetail(taskId);
   }
 
   void closeDialog() {
-    Get.back();
     controller.taskDetail(TaskDetail.fromMap({}));
+    Get.back();
   }
 
   @override

@@ -15,12 +15,10 @@ class TaskDetailFormField extends StatelessWidget {
     switch (label) {
       case "work_dir":
         return "Work dir";
-        break;
       case "bucket_name":
         return "Bucket name";
-        break;
       default:
-        return label.capitalize;
+        return label.capitalize as String;
     }
   }
 
@@ -60,20 +58,20 @@ class TaskDetailForm extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      var srcSet = controller.taskDetail.value?.storages?.isNotEmpty
-          ? controller.taskDetail.value?.storages[0]
-          : Storage.fromMap({});
+      final setList = controller.taskDetail.value.storages != null
+          ? controller.taskDetail.value.storages as List<Storage?>
+          : [Storage.fromMap({}), Storage.fromMap({})];
 
-      var dstSet = controller.taskDetail.value?.storages?.isNotEmpty
-          ? controller.taskDetail.value?.storages[1]
-          : Storage.fromMap({});
+      final srcSet = setList.isNotEmpty ? setList[0] : Storage.fromMap({});
+
+      final dstSet = setList.isNotEmpty ? setList[1] : Storage.fromMap({});
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TaskDetailFormField(
             "Task name",
-            controller.taskDetail.value?.name ?? "-",
+            controller.taskDetail.value.name ?? "-",
           ),
           SizedBox(height: 22),
           Container(
@@ -99,8 +97,8 @@ class TaskDetailForm extends GetView<DashboardController> {
             ),
           ),
           TaskDetailFormField("Source type", srcSet?.type ?? "-"),
-          ...(srcSet.options ?? []).map(
-              (option) => TaskDetailFormField(option.key, option.value ?? "-")),
+          ...(srcSet?.options ?? [])
+              .map((option) => TaskDetailFormField(option.key, option.value)),
           SizedBox(
             height: 8,
           ),
@@ -127,8 +125,8 @@ class TaskDetailForm extends GetView<DashboardController> {
             ),
           ),
           TaskDetailFormField("Destination type", dstSet?.type ?? "-"),
-          ...(dstSet.options ?? []).map(
-              (option) => TaskDetailFormField(option.key, option.value ?? "-")),
+          ...(dstSet?.options ?? [])
+              .map((option) => TaskDetailFormField(option.key, option.value)),
         ],
       );
     });
