@@ -13,6 +13,8 @@ import (
 	"github.com/aos-dev/dm/task"
 )
 
+const serverCmdName = "server"
+
 // serverFlags handle flags for server command
 const (
 	flagHost    = "host"
@@ -23,7 +25,7 @@ const (
 // newServerCmd conduct server command
 func newServerCmd() *cobra.Command {
 	serverCmd := &cobra.Command{
-		Use:     "server",
+		Use:     serverCmdName,
 		Short:   fmt.Sprintf("start a http server"),
 		Long:    fmt.Sprintf("dm server can start a http server to handle http request"),
 		Example: "Start server: dm server",
@@ -40,7 +42,7 @@ func newServerCmd() *cobra.Command {
 
 	// use local flags to only handle flags for current command
 	serverCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
-		key := formatKeyInViper(flag.Name)
+		key := formatKeyInViper(serverCmdName, flag.Name)
 		viper.BindPFlag(key, flag)
 		viper.SetDefault(key, flag.DefValue)
 	})
@@ -54,28 +56,29 @@ func serverRun(c *cobra.Command, _ []string) error {
 	logger.Info("start manager")
 
 	manager, err := task.NewManager(c.Context(), task.ManagerConfig{
-		Host:         viper.GetString(formatKeyInViper(flagHost)),
-		GrpcPort:     viper.GetInt(formatKeyInViper(flagRPCPort)),
-		DatabasePath: viper.GetString(formatKeyInViper(flagDB)),
+		Host:         viper.GetString(formatKeyInViper(serverCmdName, flagHost)),
+		GrpcPort:     viper.GetInt(formatKeyInViper(serverCmdName, flagRPCPort)),
+		DatabasePath: viper.GetString(formatKeyInViper("", flagDB)),
 	})
 	if err != nil {
 		return err
 	}
 
 	srv := api.Server{
-		Host:    viper.GetString(formatKeyInViper(flagHost)),
-		Port:    viper.GetInt(formatKeyInViper(flagPort)),
-		DevMode: viper.GetBool(formatKeyInViper(flagDev)),
+		Host:    viper.GetString(formatKeyInViper(serverCmdName, flagHost)),
+		Port:    viper.GetInt(formatKeyInViper(serverCmdName, flagPort)),
+		DevMode: viper.GetBool(formatKeyInViper("", flagDev)),
 		Logger:  logger,
 		DB:      manager.DB(),
 		Manager: manager,
 	}
 
+	fmt.Printf("server: %+v\n", srv)
 	return srv.Start()
 }
 
 func validateServerFlags() error {
-	db := viper.GetString(formatKeyInViper(flagDB))
+	db := viper.GetString(formatKeyInViper("", flagDB))
 	if db == "" {
 		return errors.New("db flag is required")
 	}

@@ -14,6 +14,8 @@ import (
 	"github.com/aos-dev/dm/task"
 )
 
+const staffCmdName = "staff"
+
 // staffFlags handle flags for staff command
 const (
 	flagManager = "manager"
@@ -22,7 +24,7 @@ const (
 // newStaffCmd conduct staff command
 func newStaffCmd() *cobra.Command {
 	staffCmd := &cobra.Command{
-		Use:     "staff",
+		Use:     staffCmdName,
 		Short:   fmt.Sprintf("start a task staff"),
 		Long:    fmt.Sprintf("dm staff can start a task staff to handle task job distribution"),
 		Example: "Start staff: dm staff",
@@ -38,7 +40,7 @@ func newStaffCmd() *cobra.Command {
 
 	// use local flags to only handle flags for current command
 	staffCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
-		key := formatKeyInViper(flag.Name)
+		key := formatKeyInViper(staffCmdName, flag.Name)
 		viper.BindPFlag(key, flag)
 		viper.SetDefault(key, flag.DefValue)
 	})
@@ -48,7 +50,8 @@ func newStaffCmd() *cobra.Command {
 func staffRun(c *cobra.Command, _ []string) error {
 	logger := zapcontext.From(c.Context())
 
-	host, managerAddr := viper.GetString(formatKeyInViper(flagHost)), viper.GetString(formatKeyInViper(flagManager))
+	host, managerAddr := viper.GetString(formatKeyInViper(staffCmdName, flagHost)),
+		viper.GetString(formatKeyInViper(staffCmdName, flagManager))
 	logger.Info("staff info", zap.String("host", host),
 		zap.String("manager addr", managerAddr))
 	w, err := task.NewStaff(c.Context(), task.StaffConfig{
@@ -76,7 +79,7 @@ func staffRun(c *cobra.Command, _ []string) error {
 }
 
 func validateStaffFlags() error {
-	if manager := viper.GetString(formatKeyInViper(flagManager)); manager == "" {
+	if manager := viper.GetString(formatKeyInViper(staffCmdName, flagManager)); manager == "" {
 		return fmt.Errorf("manager flag is required")
 	}
 	return nil

@@ -43,7 +43,7 @@ func newRootCmd() *cobra.Command {
 
 	// use local flags to only handle flags for current command
 	rootCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
-		key := formatKeyInViper(flag.Name)
+		key := formatKeyInViper("", flag.Name)
 		viper.BindPFlag(key, flag)
 		viper.SetDefault(key, flag.DefValue)
 	})

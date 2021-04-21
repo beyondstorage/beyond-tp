@@ -20,7 +20,7 @@ func zapFactory() *zap.Logger {
 	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	encoder := zapcore.NewJSONEncoder(encoderConfig)
 
-	logLevel := viper.GetString(formatKeyInViper(flagLogLevel))
+	logLevel := viper.GetString(formatKeyInViper("", flagLogLevel))
 
 	var l = new(zapcore.Level)
 	err := l.UnmarshalText([]byte(logLevel))
@@ -41,6 +41,11 @@ func zapFactory() *zap.Logger {
 }
 
 // formatKeyInViper format key from flag to viper (kebab-case to snake_case)
-func formatKeyInViper(key string) string {
-	return strings.ReplaceAll(key, "-", "_")
+// if global flag, do not add cmd as prefix
+func formatKeyInViper(prefix, key string) string {
+	k := strings.ReplaceAll(key, "-", "_")
+	if prefix == "" {
+		return k
+	}
+	return fmt.Sprintf("%s_%s", prefix, k)
 }
