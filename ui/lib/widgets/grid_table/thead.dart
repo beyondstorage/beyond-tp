@@ -10,7 +10,10 @@ class GridTableHeader extends StatelessWidget {
   final List<TrackSize> columnSizes;
   final List<GridTableCol> columns;
 
-  GridTableHeader({ this.columns, this.columnSizes });
+  GridTableHeader({
+    required this.columns,
+    required this.columnSizes,
+  });
 
   @override
   Widget build(BuildContext context) {

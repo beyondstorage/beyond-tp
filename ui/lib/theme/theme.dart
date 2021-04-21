@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import '../common/colors.dart';
 
 TextStyle getTextStyle({
-  Color color,
-  double fontSize,
-  String fontFamily,
-  FontWeight fontWeight,
-  TextDecoration decoration,
+  Color? color,
+  double? fontSize,
+  String? fontFamily,
+  FontWeight? fontWeight,
+  TextDecoration? decoration,
 }) => TextStyle(
   fontFamily: "PingFang SC",
   fontSize: fontSize ?? 12.0,
@@ -16,7 +16,7 @@ TextStyle getTextStyle({
   decoration: decoration ?? TextDecoration.none,
 );
 
-TextTheme getTextTheme({ Color color }) => TextTheme(
+TextTheme getTextTheme({ Color? color }) => TextTheme(
   headline1: getTextStyle(
     color: color,
     fontSize: 48,

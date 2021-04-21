@@ -12,12 +12,12 @@ class CreateTaskDialog extends StatelessWidget {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final Function getTasks;
 
-  CreateTaskDialog({this.getTasks});
+  CreateTaskDialog({ required this.getTasks });
 
   void onSubmit() {
     final form = formKey.currentState;
 
-    if (!form.validate()) {
+    if (!form!.validate()) {
       controller.autoValidateMode(AutovalidateMode.always);
     } else {
       form.save();

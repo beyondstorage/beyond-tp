@@ -10,11 +10,13 @@ class CreateTaskController extends GetxController {
   RxString srcPath = '/'.obs;
   RxString srcBucketName = ''.obs;
   RxString srcCredential = ''.obs;
+  RxString srcEndpoint = 'https:qingstor.com'.obs;
 
   RxString dstType = ''.obs;
   RxString dstPath = '/'.obs;
   RxString dstBucketName = ''.obs;
   RxString dstCredential = ''.obs;
+  RxString dstEndpoint = 'https:qingstor.com'.obs;
 
   final autoValidateMode = AutovalidateMode.disabled.obs;
 
@@ -28,13 +30,14 @@ class CreateTaskController extends GetxController {
   }
 
   String get src {
-    if (srcType.value == 'fs') {
+    if (srcType.value == 'Fs') {
       return '''
         {
           type: $srcType,
-          options: {
-            work_dir: "$srcPath",
-          }
+          options: [{
+            key: "work_dir",
+            value: "$srcPath",
+          }],
         }
       ''';
     }
@@ -42,23 +45,37 @@ class CreateTaskController extends GetxController {
     return '''
       {
         type: $srcType,
-        options: {
-          work_dir: "$srcPath",
-          bucket_name: "$srcBucketName",
-          credential: "$srcCredential",
-        }
+        options: [
+          {
+            key: "work_dir",
+            value: "$srcPath",
+          },
+          {
+            key: "credential",
+            value: "$srcCredential",
+          },
+          {
+            key: "endpoint",
+            value: "$srcEndpoint",
+          },
+          {
+            key: "bucket_name",
+            value: "$srcBucketName",
+          },
+        ],
       }
     ''';
   }
 
   String get dst {
-    if (dstType.value == 'fs') {
+    if (dstType.value == 'Fs') {
       return '''
         {
           type: $dstType,
-          options: {
-            work_dir: "$dstPath",
-          }
+          options: [{
+            key: "work_dir",
+            value: "$dstPath",
+          }],
         }
       ''';
     }
@@ -66,11 +83,24 @@ class CreateTaskController extends GetxController {
     return '''
       {
         type: $dstType,
-        options: {
-          work_dir: "$dstPath",
-          bucket_name: "$dstBucketName",
-          credential: "$dstCredential",
-        }
+        options: [
+          {
+            key: "work_dir",
+            value: "$dstPath",
+          },
+          {
+            key: "credential",
+            value: "$dstCredential",
+          },
+          {
+            key: "endpoint",
+            value: "$dstEndpoint",
+          },
+          {
+            key: "bucket_name",
+            value: "$dstBucketName",
+          },
+        ],
       }
     ''';
   }
@@ -81,11 +111,14 @@ class CreateTaskController extends GetxController {
         createTask(input: {
           name: "$name",
           type: copyDir,
-          src: $src,
-          dst: $dst,
+          storages: [$src, $dst],
           options: {
-            recursive: true
-          }
+            key: "recursive",
+            value: "true",
+          },
+          staffs: {
+            id: "",
+          },
         }) { id }
       }
     ''';

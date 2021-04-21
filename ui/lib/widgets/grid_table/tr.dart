@@ -24,7 +24,11 @@ class GridTableTR extends StatelessWidget {
     return Colors.white;
   }
 
-  GridTableTR({ this.columns, this.columnSizes, this.data });
+  GridTableTR({
+    required this.columns,
+    required this.columnSizes,
+    required this.data,
+  });
 
   void onHovered(PointerEnterEvent event) {
     hovered(true);
@@ -55,7 +59,7 @@ class GridTableTR extends StatelessWidget {
           columnSizes: columnSizes,
           children: columns.map((col) {
             if (col.render != null) {
-              return col.render(data[col.dataIndex], data);
+              return col.render!(data[col.dataIndex], data);
             }
 
             return GridTableTD(

@@ -7,8 +7,8 @@ class MoreActions extends StatelessWidget {
   final bool enabled;
 
   MoreActions({
-    this.onSelected,
-    this.itemBuilder,
+    required this.onSelected,
+    required this.itemBuilder,
     this.enabled = true,
   });
 

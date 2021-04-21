@@ -15,12 +15,12 @@ import './task_status.dart';
 class EntryActions extends GetView<DashboardController> {
   final Map<String, dynamic> data;
 
-  EntryActions({this.data});
+  EntryActions({ required this.data });
 
   @override
   Widget build(BuildContext context) {
     String status = data["status"];
-    final startAble = status == "created" || status == "stopped";
+    final startAble = status == "Created" || status == "Stopped";
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
@@ -42,7 +42,7 @@ class EntryMoreActions extends GetView<DashboardController> {
   final dynamic value;
   final Map<String, dynamic> data;
 
-  EntryMoreActions({this.value, this.data});
+  EntryMoreActions({this.value, required this.data});
 
   @override
   Widget build(BuildContext context) {

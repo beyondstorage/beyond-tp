@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class PageContainer extends StatelessWidget {
   final List<Widget> children;
 
-  PageContainer({ this.children });
+  PageContainer({ required this.children });
 
   @override
   Widget build(BuildContext context) {

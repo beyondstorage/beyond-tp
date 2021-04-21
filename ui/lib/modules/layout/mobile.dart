@@ -6,7 +6,7 @@ import 'navigators.dart';
 class MobileLayout extends StatelessWidget {
   final Widget child;
 
-  MobileLayout({ this.child });
+  MobileLayout({ required this.child });
 
   @override
   Widget build(BuildContext context) {
