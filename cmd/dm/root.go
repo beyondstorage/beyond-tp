@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 // Name and other basic info for dm.
@@ -12,24 +14,38 @@ const (
 )
 
 // globalFlags handle flags for global command
-type globalFlags struct {
-	db       string
-	dev      bool
-	logLevel string
-}
+const (
+	flagDB       = "db"
+	flagDev      = "dev"
+	flagLogLevel = "log-level"
+)
 
-var globalFlag = globalFlags{}
+// newRootCmd conduct rootCmd
+func newRootCmd() *cobra.Command {
+	// Setup Env
+	viper.SetEnvPrefix(Name)
+	viper.AutomaticEnv()
 
-var rootCmd = &cobra.Command{
-	Use:     Name,
-	Long:    Description,
-	Version: Version,
-}
+	rootCmd := &cobra.Command{
+		Use:     Name,
+		Long:    Description,
+		Version: Version,
+	}
 
-func initGlobalFlags() {
-	rootCmd.PersistentFlags().StringVar(&globalFlag.db, "db", "", "path to locate badger db")
-	rootCmd.PersistentFlags().BoolVar(&globalFlag.dev, "dev", false, "enable dev mode or not")
-	rootCmd.PersistentFlags().StringVar(&globalFlag.logLevel, "log_level", "info", "log level")
+	rootCmd.PersistentFlags().String(flagDB, "", "path to locate badger db")
+	rootCmd.PersistentFlags().Bool(flagDev, false, "enable dev mode or not")
+	rootCmd.PersistentFlags().String(flagLogLevel, "info", "log level")
 	// Overwrite the default help flag to free -h shorthand.
 	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
+
+	rootCmd.AddCommand(newServerCmd())
+	rootCmd.AddCommand(newStaffCmd())
+
+	// use local flags to only handle flags for current command
+	rootCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
+		key := formatKeyInViper("", flag.Name)
+		viper.BindPFlag(key, flag)
+		viper.SetDefault(key, flag.DefValue)
+	})
+	return rootCmd
 }
