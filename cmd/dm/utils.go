@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -19,7 +20,7 @@ func zapFactory() *zap.Logger {
 	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	encoder := zapcore.NewJSONEncoder(encoderConfig)
 
-	logLevel := viper.GetString("log_level")
+	logLevel := viper.GetString(formatKeyInViper("", flagLogLevel))
 
 	var l = new(zapcore.Level)
 	err := l.UnmarshalText([]byte(logLevel))
@@ -37,4 +38,14 @@ func zapFactory() *zap.Logger {
 	}
 
 	return zap.New(core)
+}
+
+// formatKeyInViper format key from flag to viper (kebab-case to snake_case)
+// if global flag, do not add cmd as prefix
+func formatKeyInViper(prefix, key string) string {
+	k := strings.ReplaceAll(key, "-", "_")
+	if prefix == "" {
+		return k
+	}
+	return fmt.Sprintf("%s_%s", prefix, k)
 }
