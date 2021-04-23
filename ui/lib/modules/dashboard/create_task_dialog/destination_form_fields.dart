@@ -28,15 +28,17 @@ class DestinationFormFields extends GetView<CreateTaskController> {
           padding: EdgeInsets.symmetric(horizontal: 30.0),
           margin: EdgeInsets.only(bottom: 24.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
+              Container(
                 width: 124,
+                height: 32,
+                alignment: Alignment.centerLeft,
                 child: RichText(
                   text: TextSpan(
                     text: 'Destination type'.tr,
                     style: TextStyle(
                       fontSize: 12,
-                      height: 2.67,
                       color: Theme.of(context).primaryColorLight,
                       fontWeight: FontWeight.w500,
                     ),
@@ -54,11 +56,12 @@ class DestinationFormFields extends GetView<CreateTaskController> {
               Expanded(
                 child: DropdownButtonFormField(
                   hint: Text('Select destination type'.tr),
-                  isExpanded: true,
-                  isDense: true,
                   style: TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   ),
                   value: controller.dstType.value != ''
                       ? controller.dstType.value
@@ -99,35 +102,41 @@ class DestinationFormFields extends GetView<CreateTaskController> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 30.0),
           margin: EdgeInsets.only(bottom: 32.0),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            SizedBox(
-              width: 124,
-              child: Text(
-                'Destination path'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 2.67,
-                  color: Theme.of(context).primaryColorLight,
-                  fontWeight: FontWeight.w500,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 124,
+                height: 32,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Destination path'.tr,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).primaryColorLight,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  contentPadding: EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 10.0),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  ),
+                  focusNode: dstFocusNode,
+                  maxLines: 1,
+                  style: TextStyle(fontSize: 12),
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.text,
+                  initialValue: '/',
+                  onSaved: controller.dstPath,
                 ),
-                focusNode: dstFocusNode,
-                maxLines: 1,
-                style: TextStyle(fontSize: 12),
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                initialValue: '/',
-                onSaved: controller.dstPath,
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
         Obx(
           () => Visibility(
@@ -138,14 +147,15 @@ class DestinationFormFields extends GetView<CreateTaskController> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
+                  Container(
                     width: 124,
+                    height: 32,
+                    alignment: Alignment.centerLeft,
                     child: RichText(
                       text: TextSpan(
                         text: 'Credential'.tr,
                         style: TextStyle(
                           fontSize: 12,
-                          height: 2.67,
                           color: Theme.of(context).primaryColorLight,
                           fontWeight: FontWeight.w500,
                         ),
@@ -164,8 +174,9 @@ class DestinationFormFields extends GetView<CreateTaskController> {
                     child: TextFormField(
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
+                        isDense: true,
                         contentPadding:
-                            EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 10.0),
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                       ),
                       maxLines: 1,
                       style: TextStyle(fontSize: 12),
@@ -191,13 +202,14 @@ class DestinationFormFields extends GetView<CreateTaskController> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
+                  Container(
                     width: 124,
+                    height: 32,
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       'Endpoint'.tr,
                       style: TextStyle(
                         fontSize: 12,
-                        height: 2.67,
                         color: Theme.of(context).primaryColorLight,
                         fontWeight: FontWeight.w500,
                       ),
@@ -207,8 +219,9 @@ class DestinationFormFields extends GetView<CreateTaskController> {
                     child: TextFormField(
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
+                        isDense: true,
                         contentPadding:
-                            EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 10.0),
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                       ),
                       maxLines: 1,
                       style: TextStyle(fontSize: 12),
@@ -232,14 +245,15 @@ class DestinationFormFields extends GetView<CreateTaskController> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
+                  Container(
                     width: 124,
+                    height: 32,
+                    alignment: Alignment.centerLeft,
                     child: RichText(
                       text: TextSpan(
                         text: 'Bucket name'.tr,
                         style: TextStyle(
                           fontSize: 12,
-                          height: 2.67,
                           color: Theme.of(context).primaryColorLight,
                           fontWeight: FontWeight.w500,
                         ),
@@ -258,8 +272,9 @@ class DestinationFormFields extends GetView<CreateTaskController> {
                     child: TextFormField(
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
+                        isDense: true,
                         contentPadding:
-                            EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 10.0),
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                       ),
                       maxLines: 1,
                       style: TextStyle(fontSize: 12),
