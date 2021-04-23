@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -40,6 +42,7 @@ func newRootCmd() *cobra.Command {
 
 	rootCmd.AddCommand(newServerCmd())
 	rootCmd.AddCommand(newStaffCmd())
+	rootCmd.AddCommand(newTaskCmd())
 
 	// use local flags to only handle flags for current command
 	rootCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
@@ -48,4 +51,13 @@ func newRootCmd() *cobra.Command {
 		viper.SetDefault(key, flag.DefValue)
 	})
 	return rootCmd
+}
+
+// dbRequiredCheck check db flag
+func dbRequiredCheck() error {
+	db := viper.GetString(formatKeyInViper("", flagDB))
+	if db == "" {
+		return errors.New("db flag is required")
+	}
+	return nil
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/aos-dev/go-toolbox/zapcontext"
@@ -78,9 +77,5 @@ func serverRun(c *cobra.Command, _ []string) error {
 }
 
 func validateServerFlags() error {
-	db := viper.GetString(formatKeyInViper("", flagDB))
-	if db == "" {
-		return errors.New("db flag is required")
-	}
-	return nil
+	return dbRequiredCheck()
 }
