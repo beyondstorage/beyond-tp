@@ -7,6 +7,7 @@ import '../../common/request.dart';
 class DashboardController extends GetxController {
   RxBool loading = false.obs;
   Rx<Tasks> tasks = Tasks.fromList([]).obs;
+  Rx<TaskDetail> taskDetail = TaskDetail.fromMap({}).obs;
 
   final String query = r'''
     query {
@@ -57,6 +58,32 @@ class DashboardController extends GetxController {
 
     return queryGraphQL(QueryOptions(document: gql(_query))).then((result) {
       getTasks();
+
+      return result;
+    });
+  }
+
+  Future<QueryResult> getTaskDetail(String id) {
+    String _query = '''
+      query {
+        task(id: "$id") {
+          id
+          name
+          storages {
+            type
+            options {
+              key
+              value
+            }
+          }
+        }
+      }
+    ''';
+
+    return queryGraphQL(QueryOptions(document: gql(_query))).then((result) {
+      if (result.data != null) {
+        taskDetail(TaskDetail.fromMap(result.data["task"] ?? {}));
+      }
 
       return result;
     });

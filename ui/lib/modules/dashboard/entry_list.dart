@@ -6,11 +6,13 @@ import 'package:ui/widgets/delete_dialog/index.dart';
 import 'controller.dart';
 
 import '../../common/global.dart';
+import '../../common/colors.dart';
 import '../../widgets/grid_table/model.dart';
 import '../../widgets/grid_table/index.dart';
 import '../../widgets/more_actions/index.dart';
 import '../../widgets/delete_dialog/index.dart';
 import './task_status.dart';
+import './task_detail_dialog/index.dart';
 
 class EntryActions extends GetView<DashboardController> {
   final Map<String, dynamic> data;
@@ -23,16 +25,40 @@ class EntryActions extends GetView<DashboardController> {
     final startAble = status == "Created" || status == "Stopped";
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-      child: TextButton(
-        child: Text(
-          "Start".tr,
-          style: TextStyle(
-            fontSize: 12,
-            color: Color.fromRGBO(3, 102, 214, startAble ? 1 : .5),
-          ),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            TextButton(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  "View detail".tr,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: rgba(3, 102, 214, 1),
+                  ),
+                ),
+              ),
+              onPressed: () => Get.dialog(TaskDetailDialog(taskId: data["id"])),
+            ),
+            TextButton(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  "Start".tr,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: rgba(3, 102, 214, startAble ? 1 : .5),
+                  ),
+                ),
+              ),
+              onPressed:
+                  startAble ? () => controller.runTask(data["id"]) : null,
+            ),
+          ],
         ),
-        onPressed: startAble ? () => controller.runTask(data["id"]) : null,
       ),
     );
   }
