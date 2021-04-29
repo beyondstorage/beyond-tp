@@ -50,12 +50,15 @@ func newStaffCmd() *cobra.Command {
 func staffRun(c *cobra.Command, _ []string) error {
 	logger := zapcontext.From(c.Context())
 
-	host, managerAddr := viper.GetString(formatKeyInViper(staffCmdName, flagHost)),
-		viper.GetString(formatKeyInViper(staffCmdName, flagManager))
+	host, managerAddr, dbPath :=
+		viper.GetString(formatKeyInViper(staffCmdName, flagHost)),
+		viper.GetString(formatKeyInViper(staffCmdName, flagManager)),
+		viper.GetString(formatKeyInViper("", flagDB))
 	logger.Info("staff info", zap.String("host", host),
 		zap.String("manager addr", managerAddr))
 	w, err := task.NewStaff(c.Context(), task.StaffConfig{
 		Host:        host,
+		DataPath:    dbPath,
 		ManagerAddr: managerAddr,
 	})
 	if err != nil {
@@ -82,5 +85,5 @@ func validateStaffFlags() error {
 	if manager := viper.GetString(formatKeyInViper(staffCmdName, flagManager)); manager == "" {
 		return fmt.Errorf("manager flag is required")
 	}
-	return nil
+	return dbRequiredCheck()
 }
