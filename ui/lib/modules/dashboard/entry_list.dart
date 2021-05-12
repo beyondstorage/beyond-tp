@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
-import 'package:ui/widgets/delete_dialog/index.dart';
 
 import 'controller.dart';
 
@@ -10,7 +10,8 @@ import '../../common/colors.dart';
 import '../../widgets/grid_table/model.dart';
 import '../../widgets/grid_table/index.dart';
 import '../../widgets/more_actions/index.dart';
-import '../../widgets/delete_dialog/index.dart';
+import '../../widgets/confirm/index.dart';
+
 import './task_status.dart';
 import './task_detail_dialog/index.dart';
 
@@ -72,27 +73,21 @@ class EntryMoreActions extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    String name = data["name"];
+    // String name = data["name"];
 
     return MoreActions(
       onSelected: (String op) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => DeleteDialog(
-            title: "Delete Task".tr,
-            child: SelectableText(
-              "Confirm to delete task $name?",
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-            onDelete: () {
+        Get.dialog(
+          Confirm(
+            title: "Are you sure to delete this task?".tr,
+            description: "This task has been completed and will no longer be displayed in the task list after deletion.".tr,
+            onConfirm: () {
               controller.deleteTask(data["id"]).then((result) {
-                Navigator.pop(context, true);
+                Get.back();
               });
-            },
-            onClose: () => Navigator.pop(context, true),
-          ),
+            }
+          )
         );
-        // controller.deleteTask(data["id"]);
       },
       itemBuilder: (BuildContext context) => [
         PopupMenuItem(
