@@ -8,7 +8,9 @@ TextStyle getTextStyle({
   String? fontFamily,
   FontWeight? fontWeight,
   TextDecoration? decoration,
+  double? height,
 }) => TextStyle(
+  height: height ?? 1.67,
   fontFamily: "PingFang SC",
   fontSize: fontSize ?? 12.0,
   fontWeight: fontWeight ?? FontWeight.normal,
@@ -39,6 +41,7 @@ TextTheme getTextTheme({ Color? color }) => TextTheme(
   ),
   headline5: getTextStyle(
     color: color,
+    height: 1.50,
     fontSize: 16,
     fontWeight: FontWeight.w600,
   ),
@@ -49,6 +52,9 @@ TextTheme getTextTheme({ Color? color }) => TextTheme(
   ),
   bodyText1: getTextStyle(
     color: color ?? rgba(50, 69, 88, 1),
+  ),
+  bodyText2: getTextStyle(
+    color: color ?? rgba(76, 94, 112, 1),
   ),
 );
 
