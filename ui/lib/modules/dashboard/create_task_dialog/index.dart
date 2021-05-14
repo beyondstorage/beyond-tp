@@ -12,7 +12,7 @@ class CreateTaskDialog extends StatelessWidget {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final Function getTasks;
 
-  CreateTaskDialog({ required this.getTasks });
+  CreateTaskDialog({required this.getTasks});
 
   void onSubmit() {
     final form = formKey.currentState;
@@ -38,10 +38,7 @@ class CreateTaskDialog extends StatelessWidget {
       ),
       buttons: [
         Button(
-          child: Text(
-            "Cancel".tr,
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
+          child: Text("Cancel".tr),
           type: ButtonType.defaults,
           onPressed: controller.closeDialog,
         ),
