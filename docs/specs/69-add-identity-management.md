@@ -35,11 +35,12 @@ type Identity struct {
     Type string // qingstor, fs
     Credential struct {
         Protocol string // hmac, file
-        Value string // ak:sk, /path/to/token
+        Args []string // [ak, sk], [/path/to/token]
     }
     Endpoint struct {
         Protocol string // http, https
-        Value string // qingstor.com:443
+        Host string // qingstor.com
+        Port int // 443
     }
 }
 ```
@@ -70,22 +71,24 @@ type Identity {
 
 input CredentialInput {
     protocol: String!
-    value: String!
+    args: [String!]
 }
 
 type Credential {
     protocol: String!
-    value: String!
+    args: [String!]
 }
 
 input EndpointInput {
     protocol: String!
-    value: String!
+    host: String!
+    port: Int!
 }
 
 type Endpoint {
     protocol: String!
-    value: String!
+    host: String!
+    port: Int!
 }
 
 enum IdentityType {
