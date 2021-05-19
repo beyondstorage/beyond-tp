@@ -1,4 +1,10 @@
-# Proposal: Add identity management APIs
+---
+author: Prnyself <github.com/Prnyself>
+status: draft
+updated_at: 2021-05-19
+---
+
+# DMP-69: Add identity management APIs
 
 ## Background
 
