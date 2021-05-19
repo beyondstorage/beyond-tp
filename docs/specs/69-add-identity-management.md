@@ -1,5 +1,5 @@
 ---
-author: Prnyself <github.com/Prnyself>
+author: Prnyself <https://github.com/Prnyself>
 status: draft
 updated_at: 2021-05-19
 ---
@@ -32,7 +32,7 @@ Where `Identity` is defined as follows:
 ```go
 type Identity struct {
     Name string // my_id_1
-    Type string // qingstor, fs
+    Type IdentityType // enum: qingstor, fs
     Credential struct {
         Protocol string // hmac, file
         Args []string // [ak, sk], [/path/to/token]
