@@ -25,6 +25,11 @@ func (d *DB) Close() (err error) {
 	return d.db.Close()
 }
 
+// NewTxn export db.NewTransaction method
+func (d *DB) NewTxn(update bool) *badger.Txn {
+	return d.db.NewTransaction(update)
+}
+
 func (d *DB) CloseTxn(txn *badger.Txn, err error) error {
 	// Discard all changes and return input error.
 	if err != nil {

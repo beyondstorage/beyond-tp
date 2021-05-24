@@ -1,0 +1,28 @@
+syntax = "proto3";
+package identity;
+
+option go_package = "github.com/aos-dev/dm/models";
+
+message Identity {
+  string name = 1;
+  IdentityType type = 2;
+  Credential credential = 3;
+  Endpoint endpoint = 4;
+}
+
+enum IdentityType {
+  InvalidIdentityType = 0;
+
+  Qingstor = 1;
+}
+
+message Credential {
+  string protocol = 1;
+  repeated string args = 2;
+}
+
+message Endpoint {
+  string protocol = 1;
+  string host = 2;
+  int32 port = 3;
+}
