@@ -4,12 +4,16 @@ scalar Any
 type Query {
     task(id: String!): Task!
     tasks: [Task!]!
+    identities(type: IdentityType): [Identity!]!
+    identity(type: IdentityType!, name: String!): Identity!
 }
 
 type Mutation {
     createTask(input: CreateTask): Task!
     deleteTask(input: DeleteTask): Task!
     runTask(id: String!): Task!
+    createIdentity(input: CreateIdentity): Identity!
+    deleteIdentity(input: DeleteIdentity): Identity!
 }
 
 type Task {
@@ -22,6 +26,35 @@ type Task {
     storages: [Storage!]!
     options: [Pair!]!
     staffs: [Staff!]!
+}
+
+type Identity {
+    name: String!
+    type: IdentityType!
+    credential: Credential!
+    endpoint: Endpoint!
+}
+
+input CredentialInput {
+    protocol: String!
+    args: [String!]
+}
+
+type Credential {
+    protocol: String!
+    args: [String!]
+}
+
+input EndpointInput {
+    protocol: String!
+    host: String!
+    port: Int!
+}
+
+type Endpoint {
+    protocol: String!
+    host: String!
+    port: Int!
 }
 
 enum TaskType {
@@ -37,6 +70,11 @@ enum TaskStatus {
     Error
 }
 
+enum IdentityType {
+    Qingstor
+    S3
+}
+
 input CreateTask {
     name: String!
     type: TaskType!
@@ -47,6 +85,18 @@ input CreateTask {
 
 input DeleteTask {
     id: String!
+}
+
+input CreateIdentity {
+    name: String!
+    type: IdentityType!
+    credential: CredentialInput!
+    endpoint: EndpointInput!
+}
+
+input DeleteIdentity {
+    name: String!
+    type: IdentityType!
 }
 
 input StorageInput {

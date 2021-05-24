@@ -8,6 +8,8 @@ import (
 var (
 	// ErrNotFound returns when request record not found in db
 	ErrNotFound = errors.New("record not found")
+	// ErrAlreadyExists returns when insert record with given key already exists
+	ErrAlreadyExists = errors.New("record already exists")
 )
 
 type Error struct {

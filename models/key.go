@@ -7,9 +7,10 @@ import (
 var pool *bufferpool.Pool
 
 const (
-	taskPrefix  = 't'
-	staffPrefix = 's'
-	jobPrefix   = 'j'
+	taskPrefix     = 't'
+	staffPrefix    = 's'
+	jobPrefix      = 'j'
+	identityPrefix = 'i'
 )
 
 var (
@@ -18,7 +19,7 @@ var (
 	JobPrefix   = []byte{jobPrefix, ':'}
 )
 
-// Style: t:<task_id>
+// TaskKey Style: t:<task_id>
 func TaskKey(taskId string) []byte {
 	b := pool.Get()
 	defer b.Free()
@@ -30,7 +31,7 @@ func TaskKey(taskId string) []byte {
 	return b.BytesCopy()
 }
 
-// Style: t_leader:<task_id>
+// TaskLeaderKey Style: t_leader:<task_id>
 func TaskLeaderKey(taskId string) []byte {
 	b := pool.Get()
 	defer b.Free()
@@ -44,7 +45,7 @@ func TaskLeaderKey(taskId string) []byte {
 	return b.BytesCopy()
 }
 
-// Style: s:<staff_id>
+// StaffKey Style: s:<staff_id>
 func StaffKey(staffId string) []byte {
 	b := pool.Get()
 	defer b.Free()
@@ -56,7 +57,7 @@ func StaffKey(staffId string) []byte {
 	return b.BytesCopy()
 }
 
-// Style: s_t:<staff_id>:<task_id>
+// StaffTaskPrefix Style: s_t:<staff_id>:
 func StaffTaskPrefix(staffId string) []byte {
 	b := pool.Get()
 	defer b.Free()
@@ -71,7 +72,7 @@ func StaffTaskPrefix(staffId string) []byte {
 	return b.BytesCopy()
 }
 
-// Style: st:<staff_id>:<task_id>
+// StaffTaskKey Style: st:<staff_id>:<task_id>
 func StaffTaskKey(staffId, taskId string) []byte {
 	b := pool.Get()
 	defer b.Free()
@@ -87,6 +88,7 @@ func StaffTaskKey(staffId, taskId string) []byte {
 	return b.BytesCopy()
 }
 
+// JobKey Style: j:<job_id>
 func JobKey(jobId string) []byte {
 	b := pool.Get()
 	defer b.Free()
@@ -95,6 +97,36 @@ func JobKey(jobId string) []byte {
 	b.AppendByte(':')
 	b.AppendString(jobId)
 
+	return b.BytesCopy()
+}
+
+// IdentityKey Style: i:<id_type>:<id_name>
+func IdentityKey(idType IdentityType, name string) []byte {
+	b := pool.Get()
+	defer b.Free()
+
+	b.AppendByte(identityPrefix)
+	b.AppendByte(':')
+	b.AppendString(idType.String())
+	b.AppendByte(':')
+	b.AppendString(name)
+
+	return b.BytesCopy()
+}
+
+// IdentityKeyPrefix Style: i:<id_type>:
+func IdentityKeyPrefix(idType *IdentityType) []byte {
+	b := pool.Get()
+	defer b.Free()
+
+	b.AppendByte(identityPrefix)
+	b.AppendByte(':')
+
+	// append type filter if has
+	if idType != nil {
+		b.AppendString(idType.String())
+		b.AppendByte(':')
+	}
 	return b.BytesCopy()
 }
 
