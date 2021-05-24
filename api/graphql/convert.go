@@ -150,8 +150,6 @@ func formatIdentityType(it models.IdentityType) IdentityType {
 	switch it {
 	case models.IdentityType_Qingstor:
 		return IdentityTypeQingstor
-	case models.IdentityType_S3:
-		return IdentityTypeS3
 	default:
 		panic(fmt.Errorf("identity type %s is invalid", it.String()))
 	}
@@ -161,8 +159,6 @@ func parseIdentityType(it IdentityType) models.IdentityType {
 	switch it {
 	case IdentityTypeQingstor:
 		return models.IdentityType_Qingstor
-	case IdentityTypeS3:
-		return models.IdentityType_S3
 	default:
 		panic(fmt.Errorf("identity type %s is invalid", it.String()))
 	}

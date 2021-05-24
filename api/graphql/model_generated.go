@@ -106,17 +106,15 @@ type IdentityType string
 
 const (
 	IdentityTypeQingstor IdentityType = "Qingstor"
-	IdentityTypeS3       IdentityType = "S3"
 )
 
 var AllIdentityType = []IdentityType{
 	IdentityTypeQingstor,
-	IdentityTypeS3,
 }
 
 func (e IdentityType) IsValid() bool {
 	switch e {
-	case IdentityTypeQingstor, IdentityTypeS3:
+	case IdentityTypeQingstor:
 		return true
 	}
 	return false

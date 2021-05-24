@@ -534,7 +534,6 @@ enum TaskStatus {
 
 enum IdentityType {
     Qingstor
-    S3
 }
 
 input CreateTask {

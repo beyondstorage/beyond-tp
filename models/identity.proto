@@ -14,7 +14,6 @@ enum IdentityType {
   InvalidIdentityType = 0;
 
   Qingstor = 1;
-  S3 = 2;
 }
 
 message Credential {
