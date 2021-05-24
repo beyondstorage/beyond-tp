@@ -145,3 +145,68 @@ func formatTasks(t []*models.Task) []*Task {
 	}
 	return ts
 }
+
+func formatIdentityType(it models.IdentityType) IdentityType {
+	switch it {
+	case models.IdentityType_Qingstor:
+		return IdentityTypeQingstor
+	default:
+		panic(fmt.Errorf("identity type %s is invalid", it.String()))
+	}
+}
+
+func parseIdentityType(it IdentityType) models.IdentityType {
+	switch it {
+	case IdentityTypeQingstor:
+		return models.IdentityType_Qingstor
+	default:
+		panic(fmt.Errorf("identity type %s is invalid", it.String()))
+	}
+}
+
+func formatIdentity(i *models.Identity) *Identity {
+	return &Identity{
+		Name:       i.Name,
+		Type:       formatIdentityType(i.Type),
+		Credential: formatCredential(i.Credential),
+		Endpoint:   formatEndpoint(i.Endpoint),
+	}
+}
+
+func formatIdentities(ids []*models.Identity) []*Identity {
+	res := make([]*Identity, 0, len(ids))
+	for _, v := range ids {
+		res = append(res, formatIdentity(v))
+	}
+	return res
+}
+
+func formatCredential(cred *models.Credential) *Credential {
+	return &Credential{
+		Protocol: cred.Protocol,
+		Args:     cred.Args,
+	}
+}
+
+func parseCredentialInput(cred *CredentialInput) *models.Credential {
+	return &models.Credential{
+		Protocol: cred.Protocol,
+		Args:     cred.Args,
+	}
+}
+
+func formatEndpoint(ep *models.Endpoint) *Endpoint {
+	return &Endpoint{
+		Protocol: ep.Protocol,
+		Host:     ep.Host,
+		Port:     int(ep.Port),
+	}
+}
+
+func parseEndpointInput(ep *EndpointInput) *models.Endpoint {
+	return &models.Endpoint{
+		Protocol: ep.Protocol,
+		Host:     ep.Host,
+		Port:     int32(ep.Port),
+	}
+}

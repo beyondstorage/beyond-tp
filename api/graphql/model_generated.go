@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type CreateIdentity struct {
+	Name       string           `json:"name"`
+	Type       IdentityType     `json:"type"`
+	Credential *CredentialInput `json:"credential"`
+	Endpoint   *EndpointInput   `json:"endpoint"`
+}
+
 type CreateTask struct {
 	Name     string          `json:"name"`
 	Type     TaskType        `json:"type"`
@@ -17,8 +24,42 @@ type CreateTask struct {
 	Staffs   []*StaffInput   `json:"staffs"`
 }
 
+type Credential struct {
+	Protocol string   `json:"protocol"`
+	Args     []string `json:"args"`
+}
+
+type CredentialInput struct {
+	Protocol string   `json:"protocol"`
+	Args     []string `json:"args"`
+}
+
+type DeleteIdentity struct {
+	Name string       `json:"name"`
+	Type IdentityType `json:"type"`
+}
+
 type DeleteTask struct {
 	ID string `json:"id"`
+}
+
+type Endpoint struct {
+	Protocol string `json:"protocol"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+}
+
+type EndpointInput struct {
+	Protocol string `json:"protocol"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+}
+
+type Identity struct {
+	Name       string       `json:"name"`
+	Type       IdentityType `json:"type"`
+	Credential *Credential  `json:"credential"`
+	Endpoint   *Endpoint    `json:"endpoint"`
 }
 
 type Pair struct {
@@ -59,6 +100,45 @@ type Task struct {
 	Storages  []*Storage `json:"storages"`
 	Options   []*Pair    `json:"options"`
 	Staffs    []*Staff   `json:"staffs"`
+}
+
+type IdentityType string
+
+const (
+	IdentityTypeQingstor IdentityType = "Qingstor"
+)
+
+var AllIdentityType = []IdentityType{
+	IdentityTypeQingstor,
+}
+
+func (e IdentityType) IsValid() bool {
+	switch e {
+	case IdentityTypeQingstor:
+		return true
+	}
+	return false
+}
+
+func (e IdentityType) String() string {
+	return string(e)
+}
+
+func (e *IdentityType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IdentityType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IdentityType", str)
+	}
+	return nil
+}
+
+func (e IdentityType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type StorageType string
