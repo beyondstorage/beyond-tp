@@ -77,6 +77,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Identities func(childComplexity int, typeArg *IdentityType) int
 		Identity   func(childComplexity int, typeArg IdentityType, name string) int
+		Staffs     func(childComplexity int) int
 		Task       func(childComplexity int, id string) int
 		Tasks      func(childComplexity int) int
 	}
@@ -115,6 +116,7 @@ type QueryResolver interface {
 	Tasks(ctx context.Context) ([]*Task, error)
 	Identities(ctx context.Context, typeArg *IdentityType) ([]*Identity, error)
 	Identity(ctx context.Context, typeArg IdentityType, name string) (*Identity, error)
+	Staffs(ctx context.Context) ([]*Staff, error)
 }
 
 type executableSchema struct {
@@ -293,6 +295,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Identity(childComplexity, args["type"].(IdentityType), args["name"].(string)), true
 
+	case "Query.staffs":
+		if e.complexity.Query.Staffs == nil {
+			break
+		}
+
+		return e.complexity.Query.Staffs(childComplexity), true
+
 	case "Query.task":
 		if e.complexity.Query.Task == nil {
 			break
@@ -468,6 +477,7 @@ type Query {
     tasks: [Task!]!
     identities(type: IdentityType): [Identity!]!
     identity(type: IdentityType!, name: String!): Identity!
+    staffs: [Staff!]!
 }
 
 type Mutation {
@@ -1532,6 +1542,41 @@ func (ec *executionContext) _Query_identity(ctx context.Context, field graphql.C
 	res := resTmp.(*Identity)
 	fc.Result = res
 	return ec.marshalNIdentity2ᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐIdentity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_staffs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Staffs(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Staff)
+	fc.Result = res
+	return ec.marshalNStaff2ᚕᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3661,6 +3706,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_identity(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "staffs":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_staffs(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
