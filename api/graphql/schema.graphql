@@ -6,6 +6,7 @@ type Query {
     tasks: [Task!]!
     identities(type: IdentityType): [Identity!]!
     identity(type: IdentityType!, name: String!): Identity!
+    staffs: [Staff!]!
 }
 
 type Mutation {
