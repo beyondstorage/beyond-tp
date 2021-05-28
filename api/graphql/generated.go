@@ -1576,7 +1576,7 @@ func (ec *executionContext) _Query_staffs(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.([]*Staff)
 	fc.Result = res
-	return ec.marshalNStaff2ᚕᚖgithubᚗcomᚋaosᚑdevᚋdmᚋapiᚋgraphqlᚐStaffᚄ(ctx, field.Selections, res)
+	return ec.marshalNStaff2ᚕᚖgithubᚗcomᚋbeyondstorageᚋdmᚋapiᚋgraphqlᚐStaffᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
