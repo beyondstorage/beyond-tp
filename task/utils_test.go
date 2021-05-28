@@ -3,7 +3,7 @@ package task
 import (
 	"testing"
 
-	"github.com/aos-dev/go-storage/v3/types"
+	"github.com/beyondstorage/go-storage/v4/types"
 	"github.com/stretchr/testify/assert"
 )
 

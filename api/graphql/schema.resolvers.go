@@ -8,9 +8,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
-
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*Task, error) {

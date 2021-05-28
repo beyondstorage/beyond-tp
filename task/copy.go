@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	ps "github.com/aos-dev/go-storage/v3/pairs"
-	"github.com/aos-dev/go-storage/v3/pkg/iowrap"
-	"github.com/aos-dev/go-storage/v3/types"
+	ps "github.com/beyondstorage/go-storage/v4/pairs"
+	"github.com/beyondstorage/go-storage/v4/pkg/iowrap"
+	"github.com/beyondstorage/go-storage/v4/types"
 	protobuf "github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 const (
@@ -278,7 +278,7 @@ func (rn *runner) HandleCopyMultipart(ctx context.Context, msg protobuf.Message)
 	}()
 
 	o := dst.Create(arg.DstPath, ps.WithMultipartID(arg.MultipartId))
-	_, err := multipart.WriteMultipart(o, r, arg.Size, int(arg.Index))
+	_, _, err := multipart.WriteMultipart(o, r, arg.Size, int(arg.Index))
 	if err != nil {
 		logger.Error("write multipart",
 			zap.String("dst", arg.DstPath), zap.Error(err))
