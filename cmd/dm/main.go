@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"go.uber.org/zap"
 )
 

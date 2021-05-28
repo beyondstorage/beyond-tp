@@ -6,7 +6,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 type Leader struct {

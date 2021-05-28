@@ -3,11 +3,11 @@ package graphql
 import (
 	"context"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 // runTask handle publish task and update
