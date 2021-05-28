@@ -65,7 +65,25 @@ func (d *DB) GetStaff(id string) (s *Staff, err error) {
 }
 
 func (d *DB) ListStaffs() ([]*Staff, error) {
-	panic("implement me")
+	txn := d.db.NewTransaction(false)
+	defer txn.Discard()
+
+	it := txn.NewIterator(badger.DefaultIteratorOptions)
+	defer it.Close()
+
+	staffs := make([]*Staff, 0)
+
+	for it.Seek(StaffPrefix); it.ValidForPrefix(StaffPrefix); it.Next() {
+		item := it.Item()
+		err := item.Value(func(v []byte) error {
+			staffs = append(staffs, NewStaffFromBytes(v))
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return staffs, nil
 }
 
 func (d *DB) InsertStaffTask(txn *badger.Txn, staffId, taskId string) (err error) {

@@ -147,6 +147,14 @@ func (r *queryResolver) Identity(ctx context.Context, typeArg IdentityType, name
 	return formatIdentity(id), nil
 }
 
+func (r *queryResolver) Staffs(ctx context.Context) ([]*Staff, error) {
+	staffs, err := r.DB.ListStaffs()
+	if err != nil {
+		return nil, err
+	}
+	return formatStaffs(staffs), nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
