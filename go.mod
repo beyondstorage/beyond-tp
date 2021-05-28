@@ -13,8 +13,7 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.2
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/protobuf v1.4.3
-	github.com/google/go-cmp v0.5.4 // indirect
+	github.com/golang/protobuf v1.5.0
 	github.com/google/uuid v1.2.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/json-iterator/go v1.1.10 // indirect
@@ -28,5 +27,5 @@ require (
 	google.golang.org/genproto v0.0.0-20200806141610-86f49bd18e98 // indirect
 	google.golang.org/grpc v1.36.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.26.0
 )
