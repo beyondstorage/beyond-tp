@@ -3,7 +3,7 @@ package staff;
 
 import "task.proto";
 
-option go_package = "github.com/aos-dev/dm/models";
+option go_package = "github.com/beyondstorage/dm/models";
 
 service Staff {
     rpc Register (RegisterRequest) returns (RegisterReply) {

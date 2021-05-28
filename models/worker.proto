@@ -3,7 +3,7 @@ package worker;
 
 import "job.proto";
 
-option go_package = "github.com/aos-dev/dm/models";
+option go_package = "github.com/beyondstorage/dm/models";
 
 service Worker {
     rpc PollJob (PollJobRequest) returns (stream PollJobReply) {

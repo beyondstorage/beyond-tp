@@ -3,7 +3,7 @@ package task
 import (
 	"fmt"
 
-	"github.com/aos-dev/go-storage/v3/types"
+	"github.com/beyondstorage/go-storage/v4/types"
 )
 
 func calculatePartSize(o *types.Object, totalSize int64) (int64, error) {
