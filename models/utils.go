@@ -6,9 +6,9 @@ import (
 	"io"
 
 	"github.com/99designs/gqlgen/graphql"
-	fs "github.com/aos-dev/go-service-fs/v2"
-	qingstor "github.com/aos-dev/go-service-qingstor/v2"
-	"github.com/aos-dev/go-storage/v3/types"
+	fs "github.com/beyondstorage/go-service-fs/v3"
+	qingstor "github.com/beyondstorage/go-service-qingstor/v3"
+	"github.com/beyondstorage/go-storage/v4/types"
 )
 
 func FormatStorage(st *Storage) (types.Storager, error) {
