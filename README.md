@@ -8,5 +8,5 @@ dm is a data migration service.
 
 ## Useful links
 
-- [Project Roadmap](https://github.com/aos-dev/dm/discussions)
-- [Discussions on github](https://github.com/aos-dev/dm/discussions)
+- [Project Roadmap](https://github.com/orgs/beyondstorage/projects/2#card-60949498)
+- [Discussions on forum](https://forum.beyondstorage.io/c/development/dm/10)

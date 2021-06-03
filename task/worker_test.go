@@ -5,11 +5,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 func setupManager(t *testing.T) *Manager {

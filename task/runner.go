@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/aos-dev/go-storage/v3/types"
+	"github.com/beyondstorage/go-storage/v4/types"
 	protobuf "github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 type runner struct {

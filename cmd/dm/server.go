@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/aos-dev/dm/api"
-	"github.com/aos-dev/dm/task"
+	"github.com/beyondstorage/dm/api"
+	"github.com/beyondstorage/dm/task"
 )
 
 const serverCmdName = "server"
