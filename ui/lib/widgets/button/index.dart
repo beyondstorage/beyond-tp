@@ -9,26 +9,39 @@ enum ButtonType {
 }
 
 class Button extends StatelessWidget {
-  final IconData?icon;
+  final IconData? icon;
   final Widget child;
   final VoidCallback onPressed;
   final ButtonType type;
   final bool disabled;
 
-  Button(
-      {this.icon,
-      required this.child,
-      required this.onPressed,
-      this.disabled = false,
-      this.type = ButtonType.defaults});
+  Button({
+    this.icon,
+    required this.child,
+    required this.onPressed,
+    this.disabled = false,
+    this.type = ButtonType.defaults,
+  });
 
-  Color getColor(Set<MaterialState> states) {
-    // const Set<MaterialState> interactiveStates = <MaterialState>{
-    //   MaterialState.pressed,
-    //   MaterialState.hovered,
-    //   MaterialState.focused,
-    // };
+  Color getFontColor(Set<MaterialState> states) {
+    double opacity = disabled ? 0.5 : 1.00;
+    Color color;
 
+    switch (type) {
+      case ButtonType.error:
+        color = rgba(202, 38, 33, 1);
+        break;
+      case ButtonType.primary:
+        color = Colors.white;
+        break;
+      default:
+        color = rgba(50, 69, 88, opacity);
+    }
+
+    return color;
+  }
+
+  Color getBackgroundColor(Set<MaterialState> states) {
     double opacity = disabled ? 0.5 : 1.00;
 
     switch (type) {
@@ -41,41 +54,79 @@ class Button extends StatelessWidget {
     }
   }
 
-  EdgeInsetsGeometry getPadding(Set<MaterialState> states) {
-    return EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0);
+  BorderSide getSide(Set<MaterialState> states) {
+    double opacity = disabled ? 0.5 : 1.00;
+    Color color;
+
+    switch (type) {
+      case ButtonType.error:
+        color = rgba(202, 38, 33, 1);
+        break;
+      case ButtonType.primary:
+        color = rgba(0, 170, 114, opacity);
+        break;
+      default:
+        color = rgba(140, 140, 140, opacity);
+    }
+
+    return BorderSide(
+      style: BorderStyle.solid,
+      color: color,
+    );
   }
+
+  OutlinedBorder getShape(Set<MaterialState> states) {
+    return RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0));
+  }
+
+  Size getSize(Set<MaterialState> states) => Size(0, 0);
 
   TextStyle getTextStyle(Set<MaterialState> states) {
     return TextStyle(fontSize: 12);
   }
 
-  Size getSize(Set<MaterialState> states) => Size(90.0, 40.0);
-
   @override
   Widget build(BuildContext context) {
-    // ignore: unnecessary_null_comparison
     if (icon == null) {
-      return ElevatedButton(
-        child: child,
+      return OutlinedButton(
         onPressed: onPressed,
         style: ButtonStyle(
-          padding: MaterialStateProperty.resolveWith(getPadding),
-          minimumSize: MaterialStateProperty.resolveWith(getSize),
+          padding: MaterialStateProperty.all(EdgeInsets.zero),
+          foregroundColor: MaterialStateProperty.resolveWith(getFontColor),
+          backgroundColor:
+              MaterialStateProperty.resolveWith(getBackgroundColor),
+          side: MaterialStateProperty.resolveWith(getSide),
+          shape: MaterialStateProperty.resolveWith(getShape),
           textStyle: MaterialStateProperty.resolveWith(getTextStyle),
-          backgroundColor: MaterialStateProperty.resolveWith(getColor),
+          minimumSize: MaterialStateProperty.resolveWith(getSize),
+        ),
+        child: Container(
+          height: 32,
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          child: child,
         ),
       );
     }
 
-    return ElevatedButton.icon(
-      label: child,
+    return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 14),
       style: ButtonStyle(
-        padding: MaterialStateProperty.resolveWith(getPadding),
-        minimumSize: MaterialStateProperty.resolveWith(getSize),
+        padding:
+            MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 24)),
+        alignment: Alignment.center,
+        foregroundColor: MaterialStateProperty.resolveWith(getFontColor),
+        backgroundColor: MaterialStateProperty.resolveWith(getBackgroundColor),
+        side: MaterialStateProperty.resolveWith(getSide),
+        shape: MaterialStateProperty.resolveWith(getShape),
         textStyle: MaterialStateProperty.resolveWith(getTextStyle),
-        backgroundColor: MaterialStateProperty.resolveWith(getColor),
+        minimumSize: MaterialStateProperty.resolveWith(getSize),
+      ),
+      icon: Icon(icon, size: 14),
+      label: Container(
+        height: 32,
+        alignment: Alignment.center,
+        child: child,
       ),
     );
   }
