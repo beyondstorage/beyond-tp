@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import '../button/index.dart';
+import '../button/constants.dart';
+
 import '../../common/global.dart';
 
 import './title.dart';
@@ -61,12 +63,12 @@ class Confirm extends StatelessWidget {
       contentPadding: EdgeInsets.symmetric(horizontal: 32.0),
       actions: <Widget>[
         Button(
-          child: Text(
-            "Cancel".tr, style: Theme.of(context).textTheme.bodyText1),
+          child: Text("Cancel".tr),
           onPressed: () => onClosePressed(),
+          // disabled: true,
         ),
         Button(
-          type: ButtonType.error,
+          type: ButtonType.primary,
           child: Text("Delete".tr),
           onPressed: () => onConfirm(),
         ),
