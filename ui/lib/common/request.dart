@@ -16,7 +16,7 @@ Future<QueryResult> queryGraphQL(QueryOptions options) async {
   //   return QueryResult(source: QueryResultSource.optimisticResult);
   // }
 
-  String server = Foundation.kDebugMode ? "http://0.0.0.0:7436" : "";
+  String server = Foundation.kDebugMode ? "http://localhost:7436" : "";
 
   GraphQLClient client = GraphQLClient(
     cache: GraphQLCache(), link: HttpLink("$server/graphql"));

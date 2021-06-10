@@ -28,7 +28,7 @@ class Toggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Listener(
-        onPointerUp: (PointerUpEvent event) => onChange!(value != true),
+        onPointerUp: (PointerUpEvent event) => onChange(value != true),
         child: Container(
           width: 28,
           height: 16,
