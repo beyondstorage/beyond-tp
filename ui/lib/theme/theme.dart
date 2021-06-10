@@ -14,47 +14,47 @@ TextStyle getTextStyle({
   fontFamily: "PingFang SC",
   fontSize: fontSize ?? 12.0,
   fontWeight: fontWeight ?? FontWeight.normal,
-  color: color ?? rgba(50, 69, 88, 1),
+  color: color ?? regularFontColor,
   decoration: decoration ?? TextDecoration.none,
 );
 
 TextTheme getTextTheme({ Color? color }) => TextTheme(
   headline1: getTextStyle(
-    color: color,
+    color: color ?? headlineFontColor,
     fontSize: 48,
     fontWeight: FontWeight.w600,
   ),
   headline2: getTextStyle(
-    color: color,
+    color: color ?? headlineFontColor,
     fontSize: 24,
     fontWeight: FontWeight.w600,
   ),
   headline3: getTextStyle(
-    color: color,
+    color: color ?? headlineFontColor,
     fontSize: 20,
     fontWeight: FontWeight.w600,
   ),
   headline4: getTextStyle(
-    color: color,
+    color: color ?? headlineFontColor,
     fontSize: 18,
     fontWeight: FontWeight.w600,
   ),
   headline5: getTextStyle(
-    color: color,
+    color: color ?? headlineFontColor,
     height: 1.50,
     fontSize: 16,
     fontWeight: FontWeight.w600,
   ),
   headline6: getTextStyle(
-    color: color,
+    color: color ?? headlineFontColor,
     fontSize: 14,
     fontWeight: FontWeight.w600,
   ),
   bodyText1: getTextStyle(
-    color: color ?? rgba(50, 69, 88, 1),
+    color: color ?? regularFontColor,
   ),
   bodyText2: getTextStyle(
-    color: color ?? rgba(76, 94, 112, 1),
+    color: color ?? secondaryFontColor,
   ),
 );
 
