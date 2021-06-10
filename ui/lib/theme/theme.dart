@@ -11,7 +11,7 @@ TextStyle getTextStyle({
   double? height,
 }) => TextStyle(
   height: height ?? 1.67,
-  fontFamily: "PingFang SC",
+  fontFamily: "Roboto",
   fontSize: fontSize ?? 12.0,
   fontWeight: fontWeight ?? FontWeight.normal,
   color: color ?? regularFontColor,
@@ -21,21 +21,25 @@ TextStyle getTextStyle({
 TextTheme getTextTheme({ Color? color }) => TextTheme(
   headline1: getTextStyle(
     color: color ?? headlineFontColor,
+    height: 1.0,
     fontSize: 48,
     fontWeight: FontWeight.w600,
   ),
   headline2: getTextStyle(
     color: color ?? headlineFontColor,
+    height: 1.0,
     fontSize: 24,
     fontWeight: FontWeight.w600,
   ),
   headline3: getTextStyle(
     color: color ?? headlineFontColor,
+    height: 1.0,
     fontSize: 20,
     fontWeight: FontWeight.w600,
   ),
   headline4: getTextStyle(
     color: color ?? headlineFontColor,
+    height: 1.0,
     fontSize: 18,
     fontWeight: FontWeight.w600,
   ),
@@ -62,9 +66,9 @@ TextTheme getTextTheme({ Color? color }) => TextTheme(
 final themeData = ThemeData(
   brightness: Brightness.light,
 
-  fontFamily: "PingFang SC",
+  fontFamily: "Roboto",
 
-  primaryColor: rgba(0, 170, 114, 1),
+  primaryColor: primaryColor,
   primaryColorLight: rgba(50, 69, 88, 1),
 
   backgroundColor: rgba(255, 255, 255, 1),
