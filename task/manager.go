@@ -6,14 +6,14 @@ import (
 	"net"
 	"time"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 type Manager struct {

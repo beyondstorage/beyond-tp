@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/aos-dev/go-storage/v3/types"
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-storage/v4/types"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 type Staff struct {

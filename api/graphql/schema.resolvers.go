@@ -8,9 +8,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
-
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*Task, error) {
@@ -146,6 +145,14 @@ func (r *queryResolver) Identity(ctx context.Context, typeArg IdentityType, name
 		return nil, err
 	}
 	return formatIdentity(id), nil
+}
+
+func (r *queryResolver) Staffs(ctx context.Context) ([]*Staff, error) {
+	staffs, err := r.DB.ListStaffs()
+	if err != nil {
+		return nil, err
+	}
+	return formatStaffs(staffs), nil
 }
 
 // Mutation returns MutationResolver implementation.

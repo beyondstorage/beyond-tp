@@ -3,7 +3,7 @@ package graphql
 import (
 	"fmt"
 
-	"github.com/aos-dev/dm/models"
+	"github.com/beyondstorage/dm/models"
 )
 
 func parseTaskType(tt TaskType) models.TaskType {
@@ -209,4 +209,16 @@ func parseEndpointInput(ep *EndpointInput) *models.Endpoint {
 		Host:     ep.Host,
 		Port:     int32(ep.Port),
 	}
+}
+
+func formatStaff(staff *models.Staff) *Staff {
+	return &Staff{ID: staff.Id}
+}
+
+func formatStaffs(staffs []*models.Staff) []*Staff {
+	res := make([]*Staff, 0, len(staffs))
+	for _, staff := range staffs {
+		res = append(res, formatStaff(staff))
+	}
+	return res
 }

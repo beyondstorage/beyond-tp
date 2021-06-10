@@ -5,13 +5,13 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/aos-dev/go-toolbox/zapcontext"
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/aos-dev/dm/task"
+	"github.com/beyondstorage/dm/task"
 )
 
 const staffCmdName = "staff"
