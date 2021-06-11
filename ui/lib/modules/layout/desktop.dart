@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'header.dart';
+// import 'header.dart';
 import 'navigators.dart';
 
 class DesktopLayout extends StatelessWidget {
@@ -11,7 +11,7 @@ class DesktopLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Header(),
+      // appBar: Header(),
       body: Row(
         children: [
           Navigators(),

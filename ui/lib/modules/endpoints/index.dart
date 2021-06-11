@@ -7,7 +7,7 @@ class Endpoints extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Layout(
-      child: PageContainer(
+      child: Column(
         children: [
           Text("Endpoints"),
         ],

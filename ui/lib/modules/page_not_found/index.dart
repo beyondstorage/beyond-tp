@@ -9,7 +9,7 @@ class PageNotFound extends StatelessWidget {
     return Layout(
       child: Center(
         child: SizedBox(
-          height: 100,
+          height: 300.0,
           child: Column(
             children: [
               Text(

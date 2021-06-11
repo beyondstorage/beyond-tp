@@ -13,7 +13,10 @@ class MobileLayout extends StatelessWidget {
     return Scaffold(
       appBar: MobileHeader(),
       body: SingleChildScrollView(
-        child: child,
+        child: Padding(
+          child: child,
+          padding: EdgeInsets.all(12.0),
+        ),
         scrollDirection: Axis.vertical,
       ),
       drawer: Drawer(
