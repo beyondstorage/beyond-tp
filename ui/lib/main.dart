@@ -26,6 +26,7 @@ class App extends StatelessWidget {
       locale: Locale('en', 'US'),
       fallbackLocale: Locale('en', 'US'),
       theme: themeData,
+      defaultTransition: Transition.noTransition,
     );
   }
 }

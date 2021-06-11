@@ -18,7 +18,7 @@ class GridTableTR extends StatelessWidget {
 
   Color get color {
     if (hovered.value) {
-      return rgba(245, 247, 250, 0.5);
+      return rgba(104, 131, 237, 0.1);
     }
 
     return Colors.white;
