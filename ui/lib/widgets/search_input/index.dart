@@ -21,11 +21,16 @@ class SearchInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController c = TextEditingController(text: defaultValue);
-    void handleClear() {
-      c.text = '';
-      onClear();
-    }
+    TextEditingController c = TextEditingController.fromValue(
+      TextEditingValue(
+        text: defaultValue ?? '',
+        selection: TextSelection.fromPosition(
+          TextPosition(
+            affinity: TextAffinity.downstream, offset: defaultValue!.length
+          )
+        )
+      )
+    );
 
     return Container(
       width: width,
@@ -38,7 +43,10 @@ class SearchInput extends StatelessWidget {
           prefixIcon: Icon(Icons.search, size: 16.0),
           suffixIcon: c.text.length > 0 ? IconButton(
             icon: Icon(Icons.cancel, size: 16.0),
-            onPressed: handleClear,
+            onPressed: () {
+              c.text = '';
+              onClear();
+            },
           ) : null,
           contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
           border: OutlineInputBorder(
