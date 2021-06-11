@@ -16,7 +16,7 @@ class HeaderController extends GetxController {
 
   void logout() {
     clearConfigs().then((res) {
-      Get.offAllNamed(Routes.main);
+      Get.offAndToNamed(Routes.login);
     });
   }
 }
