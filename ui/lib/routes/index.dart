@@ -7,7 +7,8 @@ import '../modules/signin/index.dart';
 class Routes {
   static final String main = "/";
   static final String login = "/login";
-  static final String endpoints = "/endpoints";
+  static final String agents = "/agents";
+  static final String identities = "/identities";
 
   static final List<GetPage> getPages = [
     GetPage(name: main, page: () => Dashboard()),

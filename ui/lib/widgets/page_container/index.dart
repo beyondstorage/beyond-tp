@@ -1,31 +1,33 @@
 import 'package:flutter/material.dart';
 
-class PageContainer extends StatelessWidget {
-  final List<Widget> children;
+import '../../common/colors.dart';
 
-  PageContainer({ required this.children });
+class WidgetContainer extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+
+  WidgetContainer({
+    this.margin,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-          decoration: new BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(2.0)),
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0, 1),
-                color: Color.fromRGBO(26, 30, 34, 0.08),
-                blurRadius: 3.0,
-              )
-            ],
-          ),
-          child: Column(children: children),
-        ),
-      ],
+    return Container(
+      margin: margin,
+      decoration: new BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(6.0)),
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(0, 1),
+            color: rgba(52, 61, 190, 0.1),
+            blurRadius: 3.0,
+          )
+        ],
+      ),
+      child: child,
     );
   }
 }
+

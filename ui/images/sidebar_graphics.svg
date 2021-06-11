@@ -1,0 +1,12 @@
+<svg width="80" height="1024" viewBox="0 0 80 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="1024">
+<path d="M0 0H80V1024H0V0Z" fill="rgba(255, 255, 255, 1)"/>
+</mask>
+<g mask="url(#mask0)">
+<path d="M70.7791 77.0631C23.4161 108.508 -37.7259 99.3024 -88.4273 61.1469L-45.4463 -107.414L345.804 -40.1598C222.308 -42.5961 118.142 45.6186 70.7791 77.0631Z" fill="rgba(111, 133, 245, 1)" fill-opacity="0.15"/>
+<rect x="34.3945" y="427.032" width="80.6556" height="76.0659" rx="16" transform="rotate(-45 34.3945 427.032)" fill="rgba(111, 133, 245, 1)" fill-opacity="0.1"/>
+<rect x="-55.6221" y="508" width="165.998" height="165.998" rx="20" transform="rotate(45 -55.6221 508)" fill="rgba(111, 133, 245, 1)" fill-opacity="0.1"/>
+<circle cx="50" cy="845" r="10" fill="white" fill-opacity="0.05"/>
+<path d="M109.74 888.948C216.435 842.281 196.752 787.253 219.487 677.03L394.211 1118.51L58.3042 1157.39L-34.4758 1032.52C-25.7414 956.013 34.7574 919.656 109.74 888.948Z" fill="rgba(111, 133, 245, 1)" fill-opacity="0.1"/>
+</g>
+</svg>
