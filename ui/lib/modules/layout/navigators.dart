@@ -1,11 +1,12 @@
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../common/global.dart';
 import '../../common/colors.dart';
 import '../../routes/index.dart';
 import '../../widgets/side_link/index.dart';
+import '../../common/svg_provider.dart';
 
 class Navigators extends StatelessWidget {
   @override
@@ -13,7 +14,15 @@ class Navigators extends StatelessWidget {
     return Container(
       width: navigationWidth,
       height: double.infinity,
-      color: rgba(52, 61, 190, 1),
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: SvgProvider('images/sidebar_graphics.svg',
+            size: Size(80.0, 1024.0),
+            color: rgba(52, 61, 190, 1),
+          ),
+          fit: BoxFit.fill,
+        ),
+      ),
       child: Column(
         children: [
           Padding(
@@ -25,7 +34,6 @@ class Navigators extends StatelessWidget {
                   cursor: SystemMouseCursors.click,
                   child: Text('DM', style: TextStyle(
                     height: 1.0,
-                    fontFamily: "Roboto",
                     fontSize: 32.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,

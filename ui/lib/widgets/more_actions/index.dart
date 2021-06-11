@@ -21,7 +21,7 @@ class MoreActions extends StatelessWidget {
       iconSize: 18.0,
       enabled: enabled,
       tooltip: "More actions".tr,
-      offset: Offset(0, 36)
+      offset: Offset(0, 36),
       // itemBuilder: (BuildContext context) => [
       //   PopupMenuItem(
       //     value: "delete",

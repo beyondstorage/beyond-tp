@@ -46,7 +46,7 @@ class EntryList extends GetView<DashboardController> {
             Obx(() => GridTable(
               columns: columns,
               dataList: controller.tasks.value.toList(),
-              maxHeight: Get.height - globalHeaderHeight - 180.0,
+              maxHeight: Get.height - 336.0,
             ))
           ],
         ),
