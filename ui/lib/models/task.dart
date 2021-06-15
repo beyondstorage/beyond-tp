@@ -37,17 +37,25 @@ class Task {
 class Tasks {
   List<Task> tasks;
 
-  Tasks({ required this.tasks });
+  Tasks({
+    required this.tasks,
+  });
 
-  factory Tasks.fromList(List<Object> tasks) => Tasks(
-    tasks: List<Task>.from(tasks.map((x) => Task.fromMap(x as Map<String, dynamic>)))
-  );
+  factory Tasks.fromList(List<Object> tasks) {
+    return Tasks(
+      tasks: List<Task>.from(
+        tasks.map((x) => Task.fromMap(x as Map<String, dynamic>)),
+      ),
+    );
+  }
 
   List<Map<String, dynamic>> toList() {
     return tasks.map((task) => task.toMap()).toList();
   }
 
   String toString() => json.encode(toList());
+
+  int length() => tasks.length;
 }
 
 class StorageOption {
