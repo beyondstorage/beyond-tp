@@ -14,19 +14,31 @@ from the action. For now, we do not have a mechanism to get the results of a job
 
 ## Propose
 
-So, I propose to save the result as job's metadata in DB. 
+So, I propose to save the result as job's metadata in DB.
 
-The key of job metadata is like: `jmeta:<job_id>`, and the content is like:
+The key of job metadata is like: `jmeta:<job_id>`, and 
+we can define strongly typed `JobMetadata` to ensure the content and struct of metadata. 
 
-```go
-type JobMetadata struct {
-    JobID string // redundant jobID for convenience
-    Data  map[string]interface{}
+Take the `WriteMultipartJobMetadata` as example:
+
+```protobuf
+message WriteMultipartJobMetadata {
+    string etag = 1;
 }
 ```
 
-In this way, when job's action is done, conduct the `JobMetadata` and rpc call to save it into task's DB. So that it can
-be used as needed.
+In this way, when job's action is done, construct the `JobMetadata` and rpc call to save it into task's DB. So that it can
+be used as needed. For example:
+
+```go
+result, _ := protobuf.Marshal(&models.WriteMultipartJobMetadata{
+	Etag: part.ETag,
+})
+_, err = rn.grpcClient.SetJobMetadata(ctx, &models.SetJobMetadataRequest{
+	JobId: rn.j.Id,
+	Metadata: result,
+})
+```
 
 ## Rationale
 
@@ -61,9 +73,13 @@ message GetJobMetadataReply {
 
 ### Set Job Metadata in Handler
 
-When job is run, rpc call `SetJobMetadata` to save metadata into DB, and call `GetJobMetadata` as needed.
+When job is run, conduct rpc call `SetJobMetadata` to save metadata into DB, and call `GetJobMetadata` as needed.
 
 For more, user **should** ensure job metadata available by `Await` when job is handled asynchronously.
+
+### Remove Metadata
+
+When job is finished, the metadata can be GC by directly delete key with given prefix `jmeta:<job_id>` in DB. 
 
 ## Compatibility
 
