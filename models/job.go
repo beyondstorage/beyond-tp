@@ -8,6 +8,7 @@ import (
 	"github.com/dgraph-io/badger/v3"
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 var JobDone = errors.New("job done")
@@ -78,6 +79,10 @@ func (d *DB) GetJob(ctx context.Context, jobId string) (j *Job, err error) {
 func (d *DB) SubscribeJob(ctx context.Context, fn func(j *Job)) (err error) {
 	return d.db.Subscribe(ctx, func(kv *badger.KVList) error {
 		for _, v := range kv.Kv {
+			// do not handle job which is deleted
+			if v.Value == nil {
+				continue
+			}
 			j := NewJobFromBytes(v.Value)
 			fn(j)
 		}
@@ -93,13 +98,16 @@ func (d *DB) DeleteJob(ctx context.Context, jobId string) (err error) {
 	if err != nil {
 		return
 	}
-	return
+	return txn.Commit()
 }
 
 func (d *DB) WaitJob(ctx context.Context, jobId string) (err error) {
+	logger := d.logger
+
 	_, err = d.GetJob(ctx, jobId)
 	// If job doesn't exist, we can return directly.
 	if err != nil && errors.Is(err, ErrNotFound) {
+		logger.Error("not found", zap.String("job", jobId), zap.Error(err))
 		return nil
 	}
 	if err != nil {
@@ -115,6 +123,7 @@ func (d *DB) WaitJob(ctx context.Context, jobId string) (err error) {
 		return nil
 	}, JobKey(jobId))
 	if err == JobDone {
+		logger.Debug("job done", zap.String("id", jobId))
 		return nil
 	}
 	return err
