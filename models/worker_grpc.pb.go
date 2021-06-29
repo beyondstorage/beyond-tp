@@ -22,6 +22,9 @@ type WorkerClient interface {
 	CreateJob(ctx context.Context, in *CreateJobRequest, opts ...grpc.CallOption) (*CreateJobReply, error)
 	WaitJob(ctx context.Context, in *WaitJobRequest, opts ...grpc.CallOption) (*WaitJobReply, error)
 	FinishJob(ctx context.Context, in *FinishJobRequest, opts ...grpc.CallOption) (*FinishJobReply, error)
+	SetJobMetadata(ctx context.Context, in *SetJobMetadataRequest, opts ...grpc.CallOption) (*SetJobMetadataReply, error)
+	GetJobMetadata(ctx context.Context, in *GetJobMetadataRequest, opts ...grpc.CallOption) (*GetJobMetadataReply, error)
+	DeleteJobMetadata(ctx context.Context, in *DeleteJobMetadataRequest, opts ...grpc.CallOption) (*DeleteJobMetadataReply, error)
 }
 
 type workerClient struct {
@@ -91,6 +94,33 @@ func (c *workerClient) FinishJob(ctx context.Context, in *FinishJobRequest, opts
 	return out, nil
 }
 
+func (c *workerClient) SetJobMetadata(ctx context.Context, in *SetJobMetadataRequest, opts ...grpc.CallOption) (*SetJobMetadataReply, error) {
+	out := new(SetJobMetadataReply)
+	err := c.cc.Invoke(ctx, "/worker.Worker/SetJobMetadata", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *workerClient) GetJobMetadata(ctx context.Context, in *GetJobMetadataRequest, opts ...grpc.CallOption) (*GetJobMetadataReply, error) {
+	out := new(GetJobMetadataReply)
+	err := c.cc.Invoke(ctx, "/worker.Worker/GetJobMetadata", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *workerClient) DeleteJobMetadata(ctx context.Context, in *DeleteJobMetadataRequest, opts ...grpc.CallOption) (*DeleteJobMetadataReply, error) {
+	out := new(DeleteJobMetadataReply)
+	err := c.cc.Invoke(ctx, "/worker.Worker/DeleteJobMetadata", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WorkerServer is the server API for Worker service.
 // All implementations must embed UnimplementedWorkerServer
 // for forward compatibility
@@ -99,6 +129,9 @@ type WorkerServer interface {
 	CreateJob(context.Context, *CreateJobRequest) (*CreateJobReply, error)
 	WaitJob(context.Context, *WaitJobRequest) (*WaitJobReply, error)
 	FinishJob(context.Context, *FinishJobRequest) (*FinishJobReply, error)
+	SetJobMetadata(context.Context, *SetJobMetadataRequest) (*SetJobMetadataReply, error)
+	GetJobMetadata(context.Context, *GetJobMetadataRequest) (*GetJobMetadataReply, error)
+	DeleteJobMetadata(context.Context, *DeleteJobMetadataRequest) (*DeleteJobMetadataReply, error)
 	mustEmbedUnimplementedWorkerServer()
 }
 
@@ -117,6 +150,15 @@ func (UnimplementedWorkerServer) WaitJob(context.Context, *WaitJobRequest) (*Wai
 }
 func (UnimplementedWorkerServer) FinishJob(context.Context, *FinishJobRequest) (*FinishJobReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FinishJob not implemented")
+}
+func (UnimplementedWorkerServer) SetJobMetadata(context.Context, *SetJobMetadataRequest) (*SetJobMetadataReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetJobMetadata not implemented")
+}
+func (UnimplementedWorkerServer) GetJobMetadata(context.Context, *GetJobMetadataRequest) (*GetJobMetadataReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJobMetadata not implemented")
+}
+func (UnimplementedWorkerServer) DeleteJobMetadata(context.Context, *DeleteJobMetadataRequest) (*DeleteJobMetadataReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteJobMetadata not implemented")
 }
 func (UnimplementedWorkerServer) mustEmbedUnimplementedWorkerServer() {}
 
@@ -206,6 +248,60 @@ func _Worker_FinishJob_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Worker_SetJobMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetJobMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkerServer).SetJobMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/worker.Worker/SetJobMetadata",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkerServer).SetJobMetadata(ctx, req.(*SetJobMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Worker_GetJobMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetJobMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkerServer).GetJobMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/worker.Worker/GetJobMetadata",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkerServer).GetJobMetadata(ctx, req.(*GetJobMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Worker_DeleteJobMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteJobMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkerServer).DeleteJobMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/worker.Worker/DeleteJobMetadata",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkerServer).DeleteJobMetadata(ctx, req.(*DeleteJobMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Worker_ServiceDesc is the grpc.ServiceDesc for Worker service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -224,6 +320,18 @@ var Worker_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FinishJob",
 			Handler:    _Worker_FinishJob_Handler,
+		},
+		{
+			MethodName: "SetJobMetadata",
+			Handler:    _Worker_SetJobMetadata_Handler,
+		},
+		{
+			MethodName: "GetJobMetadata",
+			Handler:    _Worker_GetJobMetadata_Handler,
+		},
+		{
+			MethodName: "DeleteJobMetadata",
+			Handler:    _Worker_DeleteJobMetadata_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -14,9 +14,10 @@ const (
 )
 
 var (
-	TaskPrefix  = []byte{taskPrefix, ':'}
-	StaffPrefix = []byte{staffPrefix, ':'}
-	JobPrefix   = []byte{jobPrefix, ':'}
+	TaskPrefix    = []byte{taskPrefix, ':'}
+	StaffPrefix   = []byte{staffPrefix, ':'}
+	JobPrefix     = []byte{jobPrefix, ':'}
+	JobMetaPrefix = []byte{'j', 'm', 't', ':'}
 )
 
 // TaskKey Style: t:<task_id>
@@ -127,6 +128,17 @@ func IdentityKeyPrefix(idType *IdentityType) []byte {
 		b.AppendString(idType.String())
 		b.AppendByte(':')
 	}
+	return b.BytesCopy()
+}
+
+// JobMetaKey Style: jmt:<job_id>
+func JobMetaKey(jobId string) []byte {
+	b := pool.Get()
+	defer b.Free()
+
+	b.AppendBytes(JobMetaPrefix)
+	b.AppendString(jobId)
+
 	return b.BytesCopy()
 }
 

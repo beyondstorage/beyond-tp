@@ -67,3 +67,7 @@ message CopyMultipartJob {
     uint32 index = 7;
     int64 offset = 8;
 }
+
+message WriteMultipartJobMetadata {
+    string etag = 1;
+}
