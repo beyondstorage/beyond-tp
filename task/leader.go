@@ -168,6 +168,8 @@ func (l *Leader) FinishJob(ctx context.Context, req *models.FinishJobRequest) (r
 		logger.Error("delete job", zap.Error(err))
 		return
 	}
+	logger.Debug("job finished", zap.String("id", req.JobId), zap.String("status", req.Status.String()),
+		zap.String("root job", l.rootJobId))
 
 	if req.JobId == l.rootJobId {
 		logger.Debug("root job finished", zap.String("id", req.JobId))
@@ -176,6 +178,33 @@ func (l *Leader) FinishJob(ctx context.Context, req *models.FinishJobRequest) (r
 		close(l.jobCh)
 	}
 	return
+}
+
+func (l *Leader) GetJobMetadata(ctx context.Context, req *models.GetJobMetadataRequest) (
+	*models.GetJobMetadataReply, error) {
+	res, err := l.db.GetJobMetadata(req.JobId)
+	if err != nil {
+		return nil, err
+	}
+	return &models.GetJobMetadataReply{Metadata: res}, nil
+}
+
+func (l *Leader) SetJobMetadata(ctx context.Context, req *models.SetJobMetadataRequest) (
+	*models.SetJobMetadataReply, error) {
+	err := l.db.SetJobMetadata(req.JobId, req.Metadata)
+	if err != nil {
+		return nil, err
+	}
+	return &models.SetJobMetadataReply{}, nil
+}
+
+func (l *Leader) DeleteJobMetadata(ctx context.Context, req *models.DeleteJobMetadataRequest) (
+	*models.DeleteJobMetadataReply, error) {
+	err := l.db.DeleteJobMetadata(req.JobId)
+	if err != nil {
+		return nil, err
+	}
+	return &models.DeleteJobMetadataReply{}, nil
 }
 
 func HandleAsLeader(ctx context.Context, nl net.Listener, dp string, cond *sync.Cond, job *models.Job) {
