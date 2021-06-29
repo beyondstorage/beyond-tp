@@ -201,6 +201,7 @@ func (rn *runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 	var offset int64
 	var index uint32
 	parts := make([]*types.Part, 0)
+	indexToJob := make(map[uint32]string, 0)
 	for {
 		// handle size for the last part
 		if offset+partSize > arg.Size {
@@ -217,6 +218,8 @@ func (rn *runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 			Offset:      offset,
 			MultipartId: obj.MustGetMultipartID(),
 		})
+		// register job ID with index
+		indexToJob[index] = job.Id
 
 		if err = rn.Async(ctx, job); err != nil {
 			logger.Error("async copy multipart",
@@ -242,12 +245,35 @@ func (rn *runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 		return err
 	}
 
+	// aggregation part from metadata after await (to ensure metadata available)
+	for i, jobID := range indexToJob {
+		result, err := rn.grpcClient.GetJobMetadata(ctx, &models.GetJobMetadataRequest{
+			JobId: jobID,
+		})
+		if err != nil {
+			logger.Error("get copy multipart job metadata", zap.String("job", jobID), zap.Error(err))
+			return err
+		}
+
+		metadata := models.WriteMultipartJobMetadata{}
+		_ = protobuf.Unmarshal(result.Metadata, &metadata)
+		parts[int(i)].ETag = metadata.Etag
+
+		// delete job metadata after used
+		_, err = rn.grpcClient.DeleteJobMetadata(ctx, &models.DeleteJobMetadataRequest{
+			JobId: jobID,
+		})
+		if err != nil {
+			logger.Warn("delete copy multipart job metadata failed", zap.String("job", jobID), zap.Error(err))
+		}
+	}
+
 	if err = multiparter.CompleteMultipartWithContext(ctx, obj, parts); err != nil {
 		return err
 	}
 
 	// Send task and wait for response.
-	logger.Info("copy multipart",
+	logger.Info("copy multipart file",
 		zap.String("from", arg.SrcPath),
 		zap.String("to", arg.DstPath))
 	return nil
@@ -278,7 +304,7 @@ func (rn *runner) HandleCopyMultipart(ctx context.Context, msg protobuf.Message)
 	}()
 
 	o := dst.Create(arg.DstPath, ps.WithMultipartID(arg.MultipartId))
-	_, _, err := multipart.WriteMultipart(o, r, arg.Size, int(arg.Index))
+	_, part, err := multipart.WriteMultipart(o, r, arg.Size, int(arg.Index))
 	if err != nil {
 		logger.Error("write multipart",
 			zap.String("dst", arg.DstPath), zap.Error(err))
@@ -292,6 +318,17 @@ func (rn *runner) HandleCopyMultipart(ctx context.Context, msg protobuf.Message)
 		}
 	}()
 
+	result, _ := protobuf.Marshal(&models.WriteMultipartJobMetadata{
+		Etag: part.ETag,
+	})
+	_, err = rn.grpcClient.SetJobMetadata(ctx, &models.SetJobMetadataRequest{
+		JobId:    rn.j.Id,
+		Metadata: result,
+	})
+
+	if err != nil {
+		return err
+	}
 	logger.Info("copy multipart",
 		zap.String("from", arg.SrcPath),
 		zap.String("to", arg.DstPath))

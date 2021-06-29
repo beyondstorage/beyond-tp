@@ -128,3 +128,44 @@ func (d *DB) WaitJob(ctx context.Context, jobId string) (err error) {
 	}
 	return err
 }
+
+func (d *DB) GetJobMetadata(jobId string) (result []byte, err error) {
+	txn := d.db.NewTransaction(false)
+	defer txn.Discard()
+
+	item, err := txn.Get(JobMetaKey(jobId))
+	if err != nil {
+		// handle not found error manually
+		if errors.Is(err, badger.ErrKeyNotFound) {
+			return nil, NewNotFoundErr(jobId)
+		}
+		return nil, err
+	}
+	err = item.Value(func(val []byte) error {
+		result = append(result, val...)
+		return nil
+	})
+	return
+}
+
+func (d *DB) SetJobMetadata(jobId string, data []byte) error {
+	txn := d.db.NewTransaction(true)
+	defer txn.Discard()
+
+	err := txn.Set(JobMetaKey(jobId), data)
+	if err != nil {
+		return err
+	}
+	return txn.Commit()
+}
+
+func (d *DB) DeleteJobMetadata(jobId string) error {
+	txn := d.db.NewTransaction(true)
+	defer txn.Discard()
+
+	err := txn.Delete(JobMetaKey(jobId))
+	if err != nil {
+		return err
+	}
+	return txn.Commit()
+}

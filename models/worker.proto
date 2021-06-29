@@ -14,6 +14,12 @@ service Worker {
     }
     rpc FinishJob (FinishJobRequest) returns (FinishJobReply) {
     }
+    rpc SetJobMetadata (SetJobMetadataRequest) returns (SetJobMetadataReply) {
+    }
+    rpc GetJobMetadata (GetJobMetadataRequest) returns (GetJobMetadataReply) {
+    }
+    rpc DeleteJobMetadata (DeleteJobMetadataRequest) returns (DeleteJobMetadataReply) {
+    }
 }
 
 enum PollJobStatus {
@@ -57,4 +63,27 @@ message WaitJobRequest {
 message WaitJobReply {
     uint32 status = 1;
     string message = 2;
+}
+
+message SetJobMetadataRequest {
+    string job_id = 1;
+    bytes metadata = 2;
+}
+
+message SetJobMetadataReply {
+}
+
+message GetJobMetadataRequest {
+    string job_id = 1;
+}
+
+message GetJobMetadataReply {
+    bytes metadata = 1;
+}
+
+message DeleteJobMetadataRequest {
+    string job_id = 1;
+}
+
+message DeleteJobMetadataReply {
 }
