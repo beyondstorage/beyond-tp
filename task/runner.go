@@ -93,7 +93,7 @@ func (rn *runner) Async(ctx context.Context, job *models.Job) (err error) {
 	go func() {
 		defer rn.wg.Done()
 
-		_, err = rn.grpcClient.WaitJob(ctx, &models.WaitJobRequest{JobId: job.Id})
+		_, err := rn.grpcClient.WaitJob(ctx, &models.WaitJobRequest{JobId: job.Id})
 		if err != nil {
 			logger.Error("wait job", zap.Error(err))
 		}
