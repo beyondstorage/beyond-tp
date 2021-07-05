@@ -46,14 +46,17 @@ So, I propose to delay the distribution of task from creating to running.
 For one hand, we do not need to insert `staff-task relation` when create task. It is enough to know which staff will run
 this task, before task's distribution.
 
-For another hand, when a staff started, it can call `Poll` to subscribe task change with prefix `s_t:{staff-id}:` 
-(replace by its own staff ID), and do not insert `staff-task relation` when create task, but insert relation with 
-key `s_t:{staff-id}:{task-id}` when run task.
-
-To ensure the data consistency, we can use `transaction` between modify task status and insert `staff-task relation`.
+For another hand, when a staff started, it can call `Poll` to subscribe task change with given prefix,
+and do not insert `staff-task relation` when create task, but insert relation when run task.
 
 When a staff start to poll task, it will monitor the `staff-task relation` change, and the process will be hang up
 until a real `staff-task relation` has been set up, which indicates the task is going to run by this staff.
+
+So the new process would be like:
+
+1. every staff monitor its own task key by `Poll`
+2. insert `staff-task relation` when task run
+3. staff got the `staff-task relation` change, then run task by electing leader and distributing job to runner
 
 ## Rationale
 
@@ -66,5 +69,9 @@ Otherwise, we can integrate subscription into `Register`, so that only one rpc c
 None
 
 ## Implementation
+
+- keep `staff-task` key format as `s_t:{staff-id}:{task-id}`
+- subscribe prefix `s_t:{staff-id}:` (replace with its own staffID) when poll task 
+- to ensure the data consistency, we can use `transaction` between modify task status and insert `staff-task relation`.
 
 Most of the work would be done by the author of this proposal.
