@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/beyond-tp/models"
 )
 
 const (
@@ -39,8 +39,8 @@ func newTaskListCmd() *cobra.Command {
 	listCmd := &cobra.Command{
 		Use:     taskListCmdName,
 		Short:   fmt.Sprintf("list tasks"),
-		Long:    fmt.Sprintf("dm task list can list all task info"),
-		Example: "List tasks: dm task list",
+		Long:    fmt.Sprintf("beyondtp task list can list all task info"),
+		Example: "List tasks: beyondtp task list",
 		Args:    cobra.ExactArgs(0),
 		RunE:    taskListRun,
 	}
@@ -74,8 +74,8 @@ func newTaskInfoCmd() *cobra.Command {
 	infoCmd := &cobra.Command{
 		Use:     taskInfoCmdName,
 		Short:   fmt.Sprintf("get task info by ID"),
-		Long:    fmt.Sprintf("dm task info can get a task's info by task ID"),
-		Example: "Show task info: dm task info [task-ID] [task-ID]...",
+		Long:    fmt.Sprintf("beyondtp task info can get a task's info by task ID"),
+		Example: "Show task info: beyondtp task info [task-ID] [task-ID]...",
 		Args:    cobra.MinimumNArgs(1),
 		RunE:    taskInfoRun,
 	}
@@ -108,8 +108,8 @@ func newTaskRunCmd() *cobra.Command {
 	runCmd := &cobra.Command{
 		Use:     taskRunCmdName,
 		Short:   fmt.Sprintf("run task by ID"),
-		Long:    fmt.Sprintf("dm task run can run a task by task ID"),
-		Example: "Run task: dm task run [task-ID]",
+		Long:    fmt.Sprintf("beyondtp task run can run a task by task ID"),
+		Example: "Run task: beyondtp task run [task-ID]",
 		Args:    cobra.ExactArgs(1),
 		RunE:    taskRunRun,
 	}

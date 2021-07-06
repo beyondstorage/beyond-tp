@@ -1,8 +1,8 @@
-# dm
+# beyond-tp
 
-[![dm dev](https://img.shields.io/matrix/dm:aos.dev.svg?server_fqdn=chat.aos.dev&label=%23dm%3Aaos.dev&logo=matrix)](https://matrix.to/#/#dm:aos.dev)
+[![beyond-tp dev](https://img.shields.io/matrix/beyond-tp:aos.dev.svg?server_fqdn=chat.aos.dev&label=%23beyond-tp%3Aaos.dev&logo=matrix)](https://matrix.to/#/#beyond-tp:aos.dev)
 
-dm is a data migration service.
+beyond-tp is a data migration service.
 
 **This project is under high development, please do not apply to production environment**
 

@@ -3,7 +3,7 @@ package graphql
 import (
 	"fmt"
 
-	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/beyond-tp/models"
 )
 
 func parseTaskType(tt TaskType) models.TaskType {

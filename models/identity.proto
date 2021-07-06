@@ -1,7 +1,7 @@
 syntax = "proto3";
 package identity;
 
-option go_package = "github.com/beyondstorage/dm/models";
+option go_package = "github.com/beyondstorage/beyond-tp/models";
 
 message Identity {
   string name = 1;

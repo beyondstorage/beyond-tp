@@ -24,4 +24,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - backend: Implement `CreateTask` and `RunTask`
 - frontend: Setup flutter UI framework
   
-[v0.2.0]: https://github.com/beyondstorage/dm/compare/v0.1.0...v0.2.0
+[v0.2.0]: https://github.com/beyondstorage/beyond-tp/compare/v0.1.0...v0.2.0

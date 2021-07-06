@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/dm/task"
+	"github.com/beyondstorage/beyond-tp/task"
 )
 
 const staffCmdName = "staff"
@@ -26,8 +26,8 @@ func newStaffCmd() *cobra.Command {
 	staffCmd := &cobra.Command{
 		Use:     staffCmdName,
 		Short:   fmt.Sprintf("start a task staff"),
-		Long:    fmt.Sprintf("dm staff can start a task staff to handle task job distribution"),
-		Example: "Start staff: dm staff",
+		Long:    fmt.Sprintf("beyondtp staff can start a task staff to handle task job distribution"),
+		Example: "Start staff: beyondtp staff",
 		Args:    cobra.ExactArgs(0),
 		PreRunE: func(c *cobra.Command, _ []string) error {
 			return validateStaffFlags()

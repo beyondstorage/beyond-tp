@@ -7,8 +7,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 
-	"github.com/beyondstorage/dm/models"
-	"github.com/beyondstorage/dm/task"
+	"github.com/beyondstorage/beyond-tp/models"
+	"github.com/beyondstorage/beyond-tp/task"
 )
 
 const ginCtxKey = "gin_in_ctx"

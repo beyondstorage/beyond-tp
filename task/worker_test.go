@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/beyond-tp/models"
 )
 
 func setupManager(t *testing.T) *Manager {

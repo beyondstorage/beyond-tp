@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
 
-	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/beyond-tp/models"
 )
 
 type Staff struct {
