@@ -1,7 +1,7 @@
 syntax = "proto3";
 package job;
 
-option go_package = "github.com/beyondstorage/dm/models";
+option go_package = "github.com/beyondstorage/beyond-tp/models";
 
 message Job {
     string id = 1;

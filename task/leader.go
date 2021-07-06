@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/beyond-tp/models"
 )
 
 type Leader struct {

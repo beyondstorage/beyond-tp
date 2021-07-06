@@ -21,7 +21,7 @@ const requestIDCtxKey = "request_id_ctx_key"
 func setRequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID := uuid.NewString()
-		c.Writer.Header().Set("x-dm-request-id", requestID) // set uuid in header for frontend use
+		c.Writer.Header().Set("x-tp-request-id", requestID) // set uuid in header for frontend use
 		c.Set(requestIDCtxKey, requestID)
 		c.Next()
 	}

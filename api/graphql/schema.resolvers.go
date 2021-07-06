@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/beyond-tp/models"
 	"github.com/beyondstorage/go-toolbox/zapcontext"
 )
 

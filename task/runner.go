@@ -9,7 +9,7 @@ import (
 	protobuf "github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/dm/models"
+	"github.com/beyondstorage/beyond-tp/models"
 )
 
 type runner struct {

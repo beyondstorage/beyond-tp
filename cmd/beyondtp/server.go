@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/beyondstorage/dm/api"
-	"github.com/beyondstorage/dm/task"
+	"github.com/beyondstorage/beyond-tp/api"
+	"github.com/beyondstorage/beyond-tp/task"
 )
 
 const serverCmdName = "server"
@@ -26,8 +26,8 @@ func newServerCmd() *cobra.Command {
 	serverCmd := &cobra.Command{
 		Use:     serverCmdName,
 		Short:   fmt.Sprintf("start a http server"),
-		Long:    fmt.Sprintf("dm server can start a http server to handle http request"),
-		Example: "Start server: dm server",
+		Long:    fmt.Sprintf("beyondtp server can start a http server to handle http request"),
+		Example: "Start server: beyondtp server",
 		Args:    cobra.ExactArgs(0),
 		PreRunE: func(c *cobra.Command, _ []string) error {
 			return validateServerFlags()

@@ -12,10 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/dm/api/graphql"
-	"github.com/beyondstorage/dm/api/ui"
-	"github.com/beyondstorage/dm/models"
-	"github.com/beyondstorage/dm/task"
+	"github.com/beyondstorage/beyond-tp/api/graphql"
+	"github.com/beyondstorage/beyond-tp/api/ui"
+	"github.com/beyondstorage/beyond-tp/models"
+	"github.com/beyondstorage/beyond-tp/task"
 )
 
 // Server handle configs to start a server
