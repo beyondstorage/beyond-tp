@@ -24,7 +24,7 @@ func (rn *runner) HandleCopyDir(ctx context.Context, msg protobuf.Message) error
 
 	store := rn.storages[arg.Src]
 
-	it, err := store.List(arg.SrcPath)
+	it, err := store.List(arg.SrcPath, ps.WithListMode(types.ListModeDir))
 	if err != nil {
 		logger.Error("storage list",
 			zap.String("store", store.String()),
