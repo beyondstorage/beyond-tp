@@ -1,8 +1,8 @@
 package graphql
 
 import (
-	"github.com/beyondstorage/dm/models"
-	"github.com/beyondstorage/dm/task"
+	"github.com/beyondstorage/beyond-tp/models"
+	"github.com/beyondstorage/beyond-tp/task"
 )
 
 type Resolver struct {

@@ -29,7 +29,7 @@ jobs:
       - uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: beyondstorage/dm
+          GITHUB_REPOSITORY: beyondstorage/beyond-tp
         with:
           draft: true
           prerelease: true

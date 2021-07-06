@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Name and other basic info for dm.
+// Name and other basic info for beyondtp.
 const (
-	Name        = "dm"
+	Name        = "beyondtp"
 	Description = "Advanced tool for data migration."
 	Version     = "0.2.0"
 )

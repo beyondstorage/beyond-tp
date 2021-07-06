@@ -1,4 +1,4 @@
-module github.com/beyondstorage/dm
+module github.com/beyondstorage/beyond-tp
 
 go 1.16
 
