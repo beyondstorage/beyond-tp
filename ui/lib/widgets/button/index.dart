@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import './colors.dart';
 import './constants.dart';
 
-
 class Button extends StatelessWidget {
   final IconData? icon;
   final Widget child;
@@ -79,7 +78,8 @@ class Button extends StatelessWidget {
         style: ButtonStyle(
           padding: MaterialStateProperty.all(EdgeInsets.zero),
           foregroundColor: MaterialStateProperty.resolveWith(getFontColor),
-          backgroundColor: MaterialStateProperty.resolveWith(getBackgroundColor),
+          backgroundColor:
+              MaterialStateProperty.resolveWith(getBackgroundColor),
           side: MaterialStateProperty.resolveWith(getSide),
           shape: MaterialStateProperty.resolveWith(getShape),
           textStyle: MaterialStateProperty.resolveWith(getTextStyle),
@@ -99,7 +99,8 @@ class Button extends StatelessWidget {
       onPressed: onClick,
       style: ButtonStyle(
         alignment: Alignment.center,
-        padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 24)),
+        padding:
+            MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 24)),
         foregroundColor: MaterialStateProperty.resolveWith(getFontColor),
         backgroundColor: MaterialStateProperty.resolveWith(getBackgroundColor),
         side: MaterialStateProperty.resolveWith(getSide),

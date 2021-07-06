@@ -24,20 +24,20 @@ class Dashboard extends GetView<DashboardController> {
             title: 'Tasks'.tr,
             subtitle: "Create and manage your data migration tasks".tr,
           ),
-          Visibility(
-            visible: controller.tasks.value.length() == 0,
-            child: EmptyEntryList(
-              icon: Icons.source,
-              title: 'The task list is empty'.tr,
-              subTitle: 'Please click the button below to create a task'.tr,
-              buttonText: 'Create task'.tr,
-              onClick: () =>
-                  Get.dialog(CreateTaskDialog(getTasks: controller.getTasks)),
-            ),
-          ),
-          Visibility(
-            visible: controller.tasks.value.length() > 0,
-            child: EntryList(),
+          Obx(
+            () => controller.tasks.value.length() == 0
+                ? EmptyEntryList(
+                    icon: Icons.source,
+                    title: 'The task list is empty'.tr,
+                    subTitle:
+                        'Please click the button below to create a task'.tr,
+                    buttonText: 'Create task'.tr,
+                    onClick: () => Get.dialog(CreateTaskDialog(
+                      name: 'DM Task 1',
+                      getTasks: controller.getTasks,
+                    )),
+                  )
+                : EntryList(),
           ),
         ],
       ),
