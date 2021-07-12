@@ -6,8 +6,15 @@ import (
 	"io"
 
 	"github.com/99designs/gqlgen/graphql"
+	azblob "github.com/beyondstorage/go-service-azblob/v2"
+	cos "github.com/beyondstorage/go-service-cos/v2"
+	dropbox "github.com/beyondstorage/go-service-dropbox/v2"
 	fs "github.com/beyondstorage/go-service-fs/v3"
+	gcs "github.com/beyondstorage/go-service-gcs/v2"
+	kodo "github.com/beyondstorage/go-service-kodo/v2"
+	oss "github.com/beyondstorage/go-service-oss/v2"
 	qingstor "github.com/beyondstorage/go-service-qingstor/v3"
+	s3 "github.com/beyondstorage/go-service-s3/v2"
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
@@ -18,10 +25,44 @@ func FormatStorage(st *Storage) (types.Storager, error) {
 	}
 
 	switch st.Type {
+	case StorageType_Azblob:
+		pairs = append(pairs, azblob.WithStorageFeatures(azblob.StorageFeatures{
+			VirtualDir: true,
+		}))
+		return azblob.NewStorager(pairs...)
+	case StorageType_Cos:
+		pairs = append(pairs, cos.WithStorageFeatures(cos.StorageFeatures{
+			VirtualDir: true,
+		}))
+		return cos.NewStorager(pairs...)
+	case StorageType_Dropbox:
+		return dropbox.NewStorager(pairs...)
 	case StorageType_Fs:
 		return fs.NewStorager(pairs...)
+	case StorageType_Gcs:
+		pairs = append(pairs, gcs.WithStorageFeatures(gcs.StorageFeatures{
+			VirtualDir: true,
+		}))
+		return gcs.NewStorager(pairs...)
+	case StorageType_Kodo:
+		pairs = append(pairs, kodo.WithStorageFeatures(kodo.StorageFeatures{
+			VirtualDir: true,
+		}))
+		return kodo.NewStorager(pairs...)
+	case StorageType_Oss:
+		pairs = append(pairs, oss.WithStorageFeatures(oss.StorageFeatures{
+			VirtualDir: true,
+		}))
+		return oss.NewStorager(pairs...)
 	case StorageType_Qingstor:
+		pairs = append(pairs, qingstor.WithStorageFeatures(qingstor.StorageFeatures{
+			VirtualDir: true,
+		}))
 		return qingstor.NewStorager(pairs...)
+	case StorageType_S3:
+		// always enable path style for s3, to avoid dns problem
+		pairs = append(pairs, s3.WithForcePathStyle(true))
+		return s3.NewStorager(pairs...)
 	default:
 		return nil, errors.New("endpoint type unsupported")
 	}
