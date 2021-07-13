@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 // import '../modules/endpoints/index.dart';
 import '../modules/dashboard/index.dart';
+import '../modules/identity/index.dart';
 import '../modules/signin/index.dart';
 
 class Routes {
@@ -12,6 +13,7 @@ class Routes {
 
   static final List<GetPage> getPages = [
     GetPage(name: main, page: () => Dashboard()),
+    GetPage(name: identities, page: () => Identity()),
     // GetPage(name: endpoints, page: () => Endpoints()),
     GetPage(name: login, page: () => SignIn()),
   ];

@@ -16,3 +16,6 @@ Color primaryColor = rgba(56, 86, 242, 1);
 Color primaryHoveredColor = rgba(89, 126, 247, 1);
 Color primaryPressedColor = rgba(29, 57, 196, 1);
 Color primaryDisabledColor = rgba(111, 133, 245, opacity);
+
+Color regularLineColor = rgba(203, 213, 225, 1);
+Color lightLineColor = rgba(226, 232, 240, 1);

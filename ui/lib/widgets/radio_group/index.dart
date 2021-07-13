@@ -41,7 +41,6 @@ class RadioGroup extends StatelessWidget {
                   style: TextStyle(
                     color: regularFontColor,
                     fontSize: 12,
-                    height: 1.67,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
