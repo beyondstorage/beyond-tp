@@ -107,3 +107,39 @@ class TaskDetail {
             .map((storage) => Storage.fromMap(storage))),
       );
 }
+
+class Staff {
+  String id;
+
+  Staff({required this.id});
+
+  factory Staff.fromMap(Map<String, dynamic> json) => Staff(id: json["id"]);
+
+  Map<String, dynamic> toMap() => {
+        "id": id,
+      };
+
+  String toString() => json.encode(toMap());
+}
+
+class Staffs {
+  List<Staff> staffs;
+
+  Staffs({required this.staffs});
+
+  factory Staffs.fromList(List<Object> staffs) {
+    return Staffs(
+      staffs: List<Staff>.from(
+        staffs.map((x) => Staff.fromMap(x as Map<String, dynamic>)),
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> toList() {
+    return staffs.map((staff) => staff.toMap()).toList();
+  }
+
+  String toString() => json.encode(toList());
+
+  int length() => staffs.length;
+}

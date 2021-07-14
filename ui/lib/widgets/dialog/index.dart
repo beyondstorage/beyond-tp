@@ -1,17 +1,61 @@
 import 'package:flutter/material.dart';
 
+import '../../common/colors.dart';
+
+const List<Widget> _defaultLeftButtons = [];
+
 class CommonDialog extends StatelessWidget {
   final String title;
   final Widget content;
+  final Widget? actions;
   final List<Widget> buttons;
+  final List<Widget> leftButtons;
   final Function onClose;
 
   CommonDialog({
     required this.title,
     required this.content,
+    this.actions,
     required this.buttons,
+    this.leftButtons = _defaultLeftButtons,
     required this.onClose,
   });
+
+  List<Widget> getActions() {
+    if (actions != null) {
+      return [actions as Widget];
+    }
+    if (buttons.length == 0 && leftButtons.length == 0) {
+      return [];
+    }
+
+    return [
+      Container(
+        width: 800,
+        height: 56,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(
+          horizontal: 20,
+        ),
+        decoration: new BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: defaultDisabledColor,
+              width: 1,
+            ),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(children: leftButtons),
+            Row(children: buttons),
+          ],
+        ),
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,24 +63,35 @@ class CommonDialog extends StatelessWidget {
     final contentHeight = size.height - 60 - 60 - 90;
 
     return AlertDialog(
-      title: Row(
-        children: [
-          Expanded(
-            child: SelectableText(
-              title,
-              style: Theme.of(context).textTheme.headline4,
+      title: Container(
+        padding: EdgeInsets.only(top: 9, right: 21, bottom: 9, left: 24),
+        decoration: new BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: rgba(226, 232, 240, 1),
+              width: 1,
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.close),
-            iconSize: 20,
-            padding: EdgeInsets.all(1.0),
-            splashRadius: 1.0,
-            onPressed: () => onClose(),
-          ),
-        ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: SelectableText(
+                title,
+                style: Theme.of(context).textTheme.headline5,
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.close),
+              iconSize: 20,
+              padding: EdgeInsets.all(1.0),
+              splashRadius: 1.0,
+              onPressed: () => onClose(),
+            ),
+          ],
+        ),
       ),
-      titlePadding: EdgeInsets.only(top: 16, right: 20, bottom: 32, left: 20),
+      titlePadding: EdgeInsets.zero,
       content: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: contentHeight),
         child: Scrollbar(
@@ -46,30 +101,7 @@ class CommonDialog extends StatelessWidget {
         ),
       ),
       contentPadding: EdgeInsets.all(0),
-      actions: [
-        Container(
-          width: 600,
-          padding: EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 44,
-          ),
-          decoration: new BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(3.0)),
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0, -1),
-                color: Color.fromRGBO(3, 5, 7, 0.08),
-                blurRadius: 3.0,
-              )
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: buttons,
-          ),
-        ),
-      ],
+      actions: getActions(),
       actionsPadding: EdgeInsets.zero,
       buttonPadding: EdgeInsets.zero,
       insetPadding: EdgeInsets.zero,
