@@ -3,8 +3,13 @@ import 'package:flutter/widgets.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../../../common/request.dart';
+import '../../../models/task.dart';
 
 class CreateTaskController extends GetxController {
+  RxInt step = 1.obs;
+  RxBool isEditingName = false.obs;
+  RxBool isCreatingIdentity = false.obs;
+
   RxString name = ''.obs;
   RxString srcType = ''.obs;
   RxString srcPath = '/'.obs;
@@ -105,8 +110,27 @@ class CreateTaskController extends GetxController {
     ''';
   }
 
+  final String staffQuery = '''
+    query {
+      staffs {
+        id
+      }
+    }
+  ''';
+
+  Future<Staffs> getStaffs() {
+    return queryGraphQL(QueryOptions(document: gql(staffQuery))).then((result) {
+      if (result.data != null) {
+        return Staffs.fromList(result.data["staffs"] ?? []);
+      } else {
+        return Staffs.fromList([]);
+      }
+    });
+  }
+
   Future<QueryResult> createTask() {
-    String _query = '''
+    return getStaffs().then((staffs) {
+      String _query = '''
       mutation {
         createTask(input: {
           name: "$name",
@@ -116,15 +140,17 @@ class CreateTaskController extends GetxController {
             key: "recursive",
             value: "true",
           },
-          staffs: {
-            id: "",
-          },
+          staffs: ${staffs.toList()},
         }) { id }
       }
     ''';
 
-    return queryGraphQL(QueryOptions(document: gql(_query))).then((result) {
-      return result;
+      return queryGraphQL(QueryOptions(document: gql(staffQuery)))
+          .then((result) {
+        return queryGraphQL(QueryOptions(document: gql(_query))).then((result) {
+          return result;
+        });
+      });
     });
   }
 }
