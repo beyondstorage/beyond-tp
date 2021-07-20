@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/Xuanwo/go-bufferpool"
 )
 
@@ -73,7 +75,7 @@ func StaffTaskPrefix(staffId string) []byte {
 	return b.BytesCopy()
 }
 
-// StaffTaskKey Style: st:<staff_id>:<task_id>
+// StaffTaskKey Style: s_t:<staff_id>:<task_id>
 func StaffTaskKey(staffId, taskId string) []byte {
 	b := pool.Get()
 	defer b.Free()
@@ -146,4 +148,13 @@ func init() {
 	// Most key will include a UUID like: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 	// Set init size to 64 to prevent alloc extra space.
 	pool = bufferpool.New(64)
+}
+
+// GetTaskIDFromStaffTaskKey Style: s_t:<staff_id>:<task_id>
+func GetTaskIDFromStaffTaskKey(key string) string {
+	results := strings.Split(key, ":")
+	if len(results) < 3 {
+		return ""
+	}
+	return results[2]
 }

@@ -4,10 +4,12 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/beyondstorage/beyond-tp/models"
 )
@@ -44,7 +46,7 @@ func TestWorker(t *testing.T) {
 		w, err := NewStaff(ctx, StaffConfig{
 			Host:        "localhost",
 			ManagerAddr: "localhost:7000",
-			DataPath:    "/tmp",
+			DataPath:    "/tmp/badger",
 		})
 		if err != nil {
 			t.Error(err)
@@ -55,7 +57,7 @@ func TestWorker(t *testing.T) {
 		go w.Start(ctx)
 	}
 
-	copyFileTask := &models.Task{
+	task := &models.Task{
 		Id:       uuid.NewString(),
 		Type:     models.TaskType_CopyDir,
 		Status:   models.TaskStatus_Ready,
@@ -66,12 +68,35 @@ func TestWorker(t *testing.T) {
 		},
 	}
 
-	err := p.db.InsertTask(nil, copyFileTask)
+	err := p.db.InsertTask(nil, task)
 	if err != nil {
 		t.Errorf("insert task: %v", err)
 	}
 
-	err = p.db.WaitTask(ctx, copyFileTask.Id)
+	task.UpdatedAt = timestamppb.Now()
+	task.Status = models.TaskStatus_Running
+
+	txn := p.db.NewTxn(true)
+	err = p.db.UpdateTask(txn, task)
+	if err != nil {
+		t.Error("save task", zap.String("id", task.Id), zap.Error(err))
+		txn.Discard()
+		t.Fatal(err)
+	}
+
+	time.Sleep(time.Second)
+	for _, staffId := range task.StaffIds {
+		err = p.db.InsertStaffTask(txn, staffId, task.Id)
+		if err != nil {
+			t.Error("insert staff task",
+				zap.String("task", task.Id), zap.String("staff", staffId), zap.Error(err))
+			txn.Discard()
+			t.Fatal(err)
+		}
+	}
+	txn.Commit()
+
+	err = p.db.WaitTask(ctx, task.Id)
 	if err != nil {
 		t.Errorf("wait task: %v", err)
 	}

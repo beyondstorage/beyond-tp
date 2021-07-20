@@ -7,6 +7,7 @@ import (
 	"github.com/dgraph-io/badger/v3"
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -35,20 +36,13 @@ func NewTaskFromBytes(bs []byte) *Task {
 	return t
 }
 
-// Insert will insert task and update all staffs task queue.
+// InsertTask will insert a task.
 func (d *DB) InsertTask(txn *badger.Txn, t *Task) (err error) {
 	if txn == nil {
 		txn = d.db.NewTransaction(true)
 		defer func() {
 			err = d.CloseTxn(txn, err)
 		}()
-	}
-
-	for _, v := range t.StaffIds {
-		err = d.InsertStaffTask(txn, v, t.Id)
-		if err != nil {
-			return
-		}
 	}
 
 	bs, err := protobuf.Marshal(t)
@@ -62,9 +56,13 @@ func (d *DB) InsertTask(txn *badger.Txn, t *Task) (err error) {
 	return
 }
 
-func (d *DB) UpdateTask(t *Task) error {
-	txn := d.db.NewTransaction(true)
-	defer txn.Discard()
+func (d *DB) UpdateTask(txn *badger.Txn, t *Task) (err error) {
+	if txn == nil {
+		txn = d.db.NewTransaction(true)
+		defer func() {
+			err = d.CloseTxn(txn, err)
+		}()
+	}
 
 	bs, err := protobuf.Marshal(t)
 	if err != nil {
@@ -75,7 +73,7 @@ func (d *DB) UpdateTask(t *Task) error {
 	if err = txn.Set(TaskKey(t.Id), bs); err != nil {
 		return err
 	}
-	return txn.Commit()
+	return
 }
 
 // DeleteTask delete a task by given ID from DB
@@ -139,6 +137,24 @@ func (d *DB) SubscribeTask(ctx context.Context, fn func(t *Task)) (err error) {
 		}
 		return nil
 	}, TaskPrefix)
+}
+
+func (d *DB) StaffWatchTaskRun(staffID string, fn func(staffTaskKey string) error) error {
+	return d.db.Subscribe(context.TODO(), func(kv *badger.KVList) error {
+		for _, v := range kv.Kv {
+			// do not handle key delete
+			if v.Value == nil {
+				continue
+			}
+			d.logger.Debug("key change", zap.String("key", string(v.Key)), zap.String("val", string(v.Value)), zap.Bool("del", v.Value == nil))
+			err := fn(string(v.Key))
+			if err != nil {
+				d.logger.Error("handle key", zap.String("staff", staffID))
+				return err
+			}
+		}
+		return nil
+	}, StaffTaskPrefix(staffID))
 }
 
 func (d *DB) WaitTask(ctx context.Context, taskId string) (err error) {

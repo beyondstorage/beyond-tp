@@ -45,6 +45,7 @@ func NewStaff(ctx context.Context, cfg StaffConfig) (s *Staff, err error) {
 		ctx:    ctx,
 		logger: logger,
 	}
+	logger.Info("staff created", zap.String("id", s.id))
 	return
 }
 
