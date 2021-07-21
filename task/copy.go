@@ -147,6 +147,7 @@ func (rn *runner) HandleCopySingleFile(ctx context.Context, msg protobuf.Message
 
 	arg := msg.(*models.CopySingleFileJob)
 
+	logger.Debug("start copy single file", zap.String("src", arg.SrcPath), zap.String("dst", arg.DstPath))
 	src := rn.storages[arg.Src]
 	dst := rn.storages[arg.Dst]
 
@@ -165,6 +166,7 @@ func (rn *runner) HandleCopySingleFile(ctx context.Context, msg protobuf.Message
 		}
 	}()
 
+	logger.Debug("start write dst", zap.String("file", arg.DstPath))
 	_, err := dst.Write(arg.DstPath, r, arg.Size)
 	if err != nil {
 		logger.Error("write single file failed", zap.Error(err))
