@@ -40,7 +40,7 @@ func newRunner(a *Worker, j *models.Job) (*runner, error) {
 func (rn *runner) Handle() {
 	rn.logger.Info("runner start job",
 		zap.String("id", rn.j.Id),
-		zap.Uint32("type", uint32(rn.j.Type)))
+		zap.String("type", rn.j.Type.String()))
 
 	ctx := context.Background()
 
@@ -73,11 +73,14 @@ func (rn *runner) Handle() {
 	}
 
 	err = fn(ctx, t)
+	if err != nil {
+		rn.logger.Error("handle job", zap.Error(err), zap.String("type", rn.j.Type.String()))
+	}
 
 	// Send JobReply after the job has been handled.
 	err = rn.Finish(ctx, err)
 	if err != nil {
-		rn.logger.Error("runner finish", zap.Error(err))
+		rn.logger.Error("runner finish", zap.Error(err), zap.String("type", rn.j.Type.String()))
 	}
 }
 

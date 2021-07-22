@@ -52,8 +52,15 @@ message Storage {
 enum StorageType {
     InvalidStorageType = 0;
 
-    Fs = 1;
-    Qingstor = 2;
+    Azblob = 1;
+    Cos = 2;
+    Dropbox = 3;
+    Fs = 4;
+    Gcs = 5;
+    Kodo = 6;
+    Oss = 7;
+    Qingstor = 8;
+    S3 = 9;
 }
 
 message Pair {
