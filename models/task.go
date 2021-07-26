@@ -88,6 +88,32 @@ func (d *DB) DeleteTask(id string) error {
 	return txn.Commit()
 }
 
+func (d *DB) RunTask(id string) error {
+	task, err := d.GetTask(id)
+	if err != nil {
+		return err
+	}
+
+	task.UpdatedAt = timestamppb.Now()
+	task.Status = TaskStatus_Running
+
+	txn := d.db.NewTransaction(true)
+	err = d.UpdateTask(txn, task)
+	if err != nil {
+		txn.Discard()
+		return err
+	}
+
+	for _, staffId := range task.StaffIds {
+		err = d.InsertStaffTask(txn, staffId, task.Id)
+		if err != nil {
+			txn.Discard()
+			return err
+		}
+	}
+	return txn.Commit()
+}
+
 // GetTask get task from db and parsed into struct with specific ID
 func (d *DB) GetTask(id string) (t *Task, err error) {
 	txn := d.db.NewTransaction(false)
@@ -149,7 +175,7 @@ func (d *DB) StaffWatchTaskRun(staffID string, fn func(staffTaskKey string) erro
 			d.logger.Debug("key change", zap.String("key", string(v.Key)), zap.String("val", string(v.Value)), zap.Bool("del", v.Value == nil))
 			err := fn(string(v.Key))
 			if err != nil {
-				d.logger.Error("handle key", zap.String("staff", staffID))
+				d.logger.Error("handle task key", zap.String("staff_task_key", string(v.Key)))
 				return err
 			}
 		}

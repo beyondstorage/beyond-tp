@@ -9,7 +9,6 @@ import (
 	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/beyondstorage/beyond-tp/models"
 )
@@ -73,28 +72,12 @@ func TestWorker(t *testing.T) {
 		t.Errorf("insert task: %v", err)
 	}
 
-	task.UpdatedAt = timestamppb.Now()
-	task.Status = models.TaskStatus_Running
-
-	txn := p.db.NewTxn(true)
-	err = p.db.UpdateTask(txn, task)
-	if err != nil {
-		t.Error("save task", zap.String("id", task.Id), zap.Error(err))
-		txn.Discard()
-		t.Fatal(err)
-	}
-
 	time.Sleep(time.Second)
-	for _, staffId := range task.StaffIds {
-		err = p.db.InsertStaffTask(txn, staffId, task.Id)
-		if err != nil {
-			t.Error("insert staff task",
-				zap.String("task", task.Id), zap.String("staff", staffId), zap.Error(err))
-			txn.Discard()
-			t.Fatal(err)
-		}
+
+	err = p.db.RunTask(task.Id)
+	if err != nil {
+		t.Errorf("run task: %v", err)
 	}
-	txn.Commit()
 
 	err = p.db.WaitTask(ctx, task.Id)
 	if err != nil {
