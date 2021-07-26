@@ -48,7 +48,7 @@ func TestWorker(t *testing.T) {
 			DataPath:    "/tmp/badger",
 		})
 		if err != nil {
-			t.Error(err)
+			t.Fatal(err)
 		}
 
 		staffIds = append(staffIds, w.id)
@@ -69,24 +69,24 @@ func TestWorker(t *testing.T) {
 
 	err := p.db.InsertTask(nil, task)
 	if err != nil {
-		t.Errorf("insert task: %v", err)
+		t.Fatalf("insert task: %v", err)
 	}
 
 	time.Sleep(time.Second)
 
 	err = p.db.RunTask(task.Id)
 	if err != nil {
-		t.Errorf("run task: %v", err)
+		t.Fatalf("run task: %v", err)
 	}
 
 	err = p.db.WaitTask(ctx, task.Id)
 	if err != nil {
-		t.Errorf("wait task: %v", err)
+		t.Fatalf("wait task: %v", err)
 	}
 	t.Logf("task has been finished")
 
 	err = p.Stop(ctx)
 	if err != nil {
-		t.Errorf("stop: %v", err)
+		t.Fatalf("stop: %v", err)
 	}
 }

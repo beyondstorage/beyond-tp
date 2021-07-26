@@ -136,7 +136,7 @@ func (p *Manager) Poll(req *models.PollRequest, srv models.Staff_PollServer) (er
 			return err
 		}
 
-		logger.Info("polled task", zap.String("id", task.Id), zap.String("staff", req.StaffId))
+		logger.Info("polled task, ready to remove", zap.String("id", task.Id), zap.String("staff", req.StaffId))
 
 		err = p.db.DeleteStaffTask(nil, req.StaffId, taskID)
 		if err != nil {
