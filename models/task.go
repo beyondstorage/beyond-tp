@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/dgraph-io/badger/v3"
 	protobuf "github.com/golang/protobuf/proto"
@@ -88,7 +89,7 @@ func (d *DB) DeleteTask(id string) error {
 	return txn.Commit()
 }
 
-func (d *DB) RunTask(id string) error {
+func (d *DB) RunTask(id string) (err error) {
 	task, err := d.GetTask(id)
 	if err != nil {
 		return err
@@ -98,20 +99,22 @@ func (d *DB) RunTask(id string) error {
 	task.Status = TaskStatus_Running
 
 	txn := d.db.NewTransaction(true)
+	defer func() {
+		err = d.CloseTxn(txn, err)
+	}()
+
 	err = d.UpdateTask(txn, task)
 	if err != nil {
-		txn.Discard()
-		return err
+		return fmt.Errorf("update task %s failed: [%w]", task.Id, err)
 	}
 
 	for _, staffId := range task.StaffIds {
 		err = d.InsertStaffTask(txn, staffId, task.Id)
 		if err != nil {
-			txn.Discard()
-			return err
+			return fmt.Errorf("insert staff task %s to staff %s failed: [%w]", task.Id, staffId, err)
 		}
 	}
-	return txn.Commit()
+	return
 }
 
 // GetTask get task from db and parsed into struct with specific ID
