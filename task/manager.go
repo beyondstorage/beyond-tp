@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"time"
 
 	"github.com/beyondstorage/go-toolbox/zapcontext"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -117,50 +116,36 @@ func (p *Manager) Elect(ctx context.Context, req *models.ElectRequest) (reply *m
 func (p *Manager) Poll(req *models.PollRequest, srv models.Staff_PollServer) (err error) {
 	logger := p.logger
 
-	for {
+	logger.Debug("start poll", zap.String("staff", req.StaffId))
+	err = p.db.StaffWatchTaskRun(req.StaffId, func(staffTaskKey string) error {
+		taskID := models.GetTaskIDFromStaffTaskKey(staffTaskKey)
+		task, err := p.db.GetTask(taskID)
+		if err != nil {
+			logger.Error("get task when staff watch", zap.String("staff", req.StaffId), zap.Error(err))
+			return err
+		}
+
 		reply := &models.PollReply{}
-
-		taskId, err := p.db.NextStaffTask(nil, req.StaffId)
-		if err != nil {
-			logger.Error("next staff task", zap.Error(err))
-			return err
-		}
-
-		// task_id == "" means there is no task for out staff.
-		if taskId == "" {
-			reply.Status = models.PollStatus_Empty
-
-			err = srv.Send(reply)
-			if err != nil {
-				return err
-			}
-
-			// FIXME: we need to find a way to watch staff task changes.
-			time.Sleep(60 * time.Second)
-			return err
-		}
-
-		task, err := p.db.GetTask(taskId)
-		if err != nil {
-			logger.Error("get task", zap.Error(err))
-			return err
-		}
-
 		reply.Status = models.PollStatus_Valid
 		reply.Task = task
 
 		err = srv.Send(reply)
 		if err != nil {
+			logger.Error("poll send task",
+				zap.String("task", task.Id), zap.String("staff", req.StaffId), zap.Error(err))
 			return err
 		}
 
-		logger.Info("polled task", zap.String("id", task.Id))
+		logger.Info("polled task, ready to remove", zap.String("id", task.Id), zap.String("staff", req.StaffId))
 
-		err = p.db.DeleteStaffTask(nil, req.StaffId, taskId)
+		err = p.db.DeleteStaffTask(nil, req.StaffId, taskID)
 		if err != nil {
 			return err
 		}
-	}
+		return nil
+	})
+
+	return
 }
 
 func (p *Manager) Finish(ctx context.Context, req *models.FinishRequest) (reply *models.FinishReply, err error) {
@@ -176,7 +161,7 @@ func (p *Manager) Finish(ctx context.Context, req *models.FinishRequest) (reply 
 
 	t.Status = models.TaskStatus_Finished
 
-	err = p.db.UpdateTask(t)
+	err = p.db.UpdateTask(nil, t)
 	if err != nil {
 		logger.Error("update task", zap.String("id", req.TaskId))
 		return

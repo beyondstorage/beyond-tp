@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/google/uuid"
@@ -44,10 +45,10 @@ func TestWorker(t *testing.T) {
 		w, err := NewStaff(ctx, StaffConfig{
 			Host:        "localhost",
 			ManagerAddr: "localhost:7000",
-			DataPath:    "/tmp",
+			DataPath:    "/tmp/badger",
 		})
 		if err != nil {
-			t.Error(err)
+			t.Fatal(err)
 		}
 
 		staffIds = append(staffIds, w.id)
@@ -55,7 +56,7 @@ func TestWorker(t *testing.T) {
 		go w.Start(ctx)
 	}
 
-	copyFileTask := &models.Task{
+	task := &models.Task{
 		Id:       uuid.NewString(),
 		Type:     models.TaskType_CopyDir,
 		Status:   models.TaskStatus_Ready,
@@ -66,19 +67,26 @@ func TestWorker(t *testing.T) {
 		},
 	}
 
-	err := p.db.InsertTask(nil, copyFileTask)
+	err := p.db.InsertTask(nil, task)
 	if err != nil {
-		t.Errorf("insert task: %v", err)
+		t.Fatalf("insert task: %v", err)
 	}
 
-	err = p.db.WaitTask(ctx, copyFileTask.Id)
+	time.Sleep(time.Second)
+
+	err = p.db.RunTask(task.Id)
 	if err != nil {
-		t.Errorf("wait task: %v", err)
+		t.Fatalf("run task: %v", err)
+	}
+
+	err = p.db.WaitTask(ctx, task.Id)
+	if err != nil {
+		t.Fatalf("wait task: %v", err)
 	}
 	t.Logf("task has been finished")
 
 	err = p.Stop(ctx)
 	if err != nil {
-		t.Errorf("stop: %v", err)
+		t.Fatalf("stop: %v", err)
 	}
 }
