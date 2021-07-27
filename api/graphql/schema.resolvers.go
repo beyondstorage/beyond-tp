@@ -8,8 +8,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/beyondstorage/beyond-tp/models"
 	"github.com/beyondstorage/go-toolbox/zapcontext"
+
+	"github.com/beyondstorage/beyond-tp/models"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*Task, error) {
@@ -51,7 +52,7 @@ func (r *mutationResolver) RunTask(ctx context.Context, id string) (*Task, error
 		return nil, err
 	}
 
-	if err = r.runTask(ctx, task); err != nil {
+	if err = r.DB.RunTask(task.Id); err != nil {
 		return nil, err
 	}
 	return formatTask(task), nil

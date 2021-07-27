@@ -142,7 +142,7 @@ func taskRunRun(c *cobra.Command, args []string) error {
 	task.UpdatedAt = timestamppb.Now()
 	task.Status = models.TaskStatus_Ready
 
-	err = db.UpdateTask(task)
+	err = db.UpdateTask(nil, task)
 	if err != nil {
 		logger.Error("save task", zap.String("id", task.Id), zap.Error(err))
 		return err
