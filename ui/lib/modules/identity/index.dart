@@ -30,7 +30,7 @@ class Identity extends GetView<IdentityController> {
           ),
           Obx(() => controller.identities.value.length() == 0
               ? EmptyEntryList(
-                  icon: Icons.source,
+                  icon: Icons.how_to_reg,
                   title: 'The Identity List Is Empty'.tr,
                   subTitle:
                       'Please Click The Button Below To Create Identity'.tr,

@@ -20,7 +20,7 @@ class IdentityPanel extends GetView<IdentityController> {
     return Container(
       width: 312,
       height: 360,
-      padding: EdgeInsets.only(top: 2, right: 12, bottom: 12, left: 12),
+      padding: EdgeInsets.only(top: 2, right: 2, bottom: 12, left: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(6)),
