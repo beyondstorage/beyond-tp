@@ -59,6 +59,7 @@ class CreateTaskDialog extends StatelessWidget {
     return Obx(
       () => CommonDialog(
         title: 'Create task'.tr,
+        width: 800,
         content: Container(
           width: 800,
           height: 548,

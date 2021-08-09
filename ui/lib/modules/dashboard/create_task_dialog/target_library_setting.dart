@@ -78,14 +78,12 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                   children: [
                     SizedBox(height: 24),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         SelectableText(
                           'Bucket Name'.tr,
                           style: TextStyle(
                             color: regularFontColor,
                             fontSize: 12,
-                            height: 1.67,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -127,14 +125,12 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                   children: [
                     SizedBox(height: 24),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         SelectableText(
                           'Work Dir'.tr,
                           style: TextStyle(
                             color: regularFontColor,
                             fontSize: 12,
-                            height: 1.67,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
