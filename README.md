@@ -1,6 +1,6 @@
 # beyond-tp
 
-[![beyond-tp dev](https://img.shields.io/matrix/beyond-tp:aos.dev.svg?server_fqdn=chat.aos.dev&label=%23beyond-tp%3Aaos.dev&logo=matrix)](https://matrix.to/#/#beyond-tp:aos.dev)
+[![beyond-tp dev](https://img.shields.io/matrix/beyondstorage@beyond-tp:matrix.org.svg?label=beyond-tp&logo=matrix)](https://matrix.to/#/#beyondstorage@beyond-tp:matrix.org)
 
 beyond-tp is a data migration service.
 
