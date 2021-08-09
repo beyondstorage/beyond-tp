@@ -25,6 +25,7 @@ class TaskDetailDialog extends GetView<DashboardController> {
   Widget build(BuildContext context) {
     return CommonDialog(
       title: 'Task detail'.tr,
+      width: 600,
       content: Container(
         width: 600,
         child: Padding(

@@ -6,6 +6,7 @@ const List<Widget> _defaultLeftButtons = [];
 
 class CommonDialog extends StatelessWidget {
   final String title;
+  final double width;
   final Widget content;
   final Widget? actions;
   final List<Widget> buttons;
@@ -14,6 +15,7 @@ class CommonDialog extends StatelessWidget {
 
   CommonDialog({
     required this.title,
+    required this.width,
     required this.content,
     this.actions,
     required this.buttons,
@@ -31,7 +33,7 @@ class CommonDialog extends StatelessWidget {
 
     return [
       Container(
-        width: 800,
+        width: width,
         height: 56,
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(
