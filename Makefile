@@ -32,7 +32,7 @@ build-frontend:
 	@cp -r ui/build/web/* api/ui
 	@echo "ok"
 
-build: generate tidy check build-frontend
+build: tidy check build-frontend
 	@echo "build beyondtp"
 	go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
 	@echo "ok"
