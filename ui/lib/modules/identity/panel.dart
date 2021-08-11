@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ui/widgets/confirm/constants.dart';
 
 import '../../common/colors.dart';
 import '../../models/identity.dart';
@@ -54,6 +55,8 @@ class IdentityPanel extends GetView<IdentityController> {
                       description:
                           "After Deleting, It Will Not Affect The Created Tasks, But It Will Not Appear In The Identity List And The Identity Option Of The Created Task."
                               .tr,
+                      position: ConfirmBtnPosition.horizontal,
+                      iconColor: Colors.red[600],
                       onConfirm: () {
                         controller.deleteIdentity(identity).then((result) {
                           Get.back();

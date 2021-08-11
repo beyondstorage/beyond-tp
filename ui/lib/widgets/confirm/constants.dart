@@ -1,0 +1,4 @@
+enum ConfirmBtnPosition {
+  vertical,
+  horizontal
+}
