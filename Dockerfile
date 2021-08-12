@@ -13,16 +13,17 @@ ENV FLUTTER_URL="https://storage.googleapis.com/flutter_infra/releases/$FLUTTER_
 ENV FLUTTER_HOME="/home/$USER/flutter"
 ENV FLUTTER_WEB_PORT="8090"
 ENV FLUTTER_DEBUG_PORT="42000"
-ENV PATH="$GO_ROOT/:$FLUTTER_HOME/bin:$PATH"
+ENV PATH="$GO_ROOT/bin:$FLUTTER_HOME/bin:$PATH"
 
 # install all dependencies
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update \
-  && apt-get install --yes --no-install-recommends build-essential openjdk-$JAVA_VERSION-jdk curl unzip sed git bash xz-utils libglvnd0 ssh xauth x11-xserver-utils libpulse0 libxcomposite1 libgl1-mesa-glx \
+  && apt-get install --yes --no-install-recommends build-essential openjdk-$JAVA_VERSION-jdk curl unzip sed git bash xz-utils libglvnd0 ssh xauth x11-xserver-utils libpulse0 libxcomposite1 libgl1-mesa-glx libprotoc-dev\
   && rm -rf /var/lib/{apt,dpkg,cache,log}
 
 # go
 RUN curl -sSL -o go.tar.gz $GO_URL \
+  && rm -rf /usr/local/go \
   && tar -C /usr/local -xzf go.tar.gz
 
 # create user

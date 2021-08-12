@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-GO_BUILD_OPTION := -trimpath -tags netgo
+GO_BUILD_OPTION := -trimpath
 
 .PHONY: check format vet lint build test
 
@@ -38,7 +38,7 @@ build-frontend:
 
 build: tidy check build-frontend
 	@echo "build beyondtp"
-	go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
+	CGO_ENABLED=1 go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
 	@echo "ok"
 
 release: generate tidy check build-frontend
