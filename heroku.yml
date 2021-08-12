@@ -2,5 +2,11 @@ build:
   docker:
     beyondtp: Dockerfile
 run:
-  server: ./bin/beyondtp server --db db --host localhost --port "$PORT" --rpc-port 7000
-  worker: ./bin/beyondtp staff --host localhost --manager localhost:7000
+  server:
+    image: beyondtp
+    cmd:
+      - ./bin/beyondtp server --db db --host localhost --port "$PORT" --rpc-port 7000
+  worker:
+    image: beyondtp
+    cmd:
+      - ./bin/beyondtp staff --host localhost --manager localhost:7000
