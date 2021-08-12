@@ -31,9 +31,8 @@ vet:
 
 build-frontend:
 	@echo "build frontend"
-	@git clean -Xf api/ui/
 	cd ./ui && flutter build web --release
-	@cp -r ui/build/web/* api/ui
+	cp -r ui/build/web/* api/ui
 	@echo "ok"
 
 # We remove check target to work around build failed in container build.
