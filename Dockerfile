@@ -18,7 +18,7 @@ ENV PATH="$GO_ROOT/:$FLUTTER_HOME/bin:$PATH"
 # install all dependencies
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update \
-  && apt-get install --yes --no-install-recommends openjdk-$JAVA_VERSION-jdk curl unzip sed git bash xz-utils libglvnd0 ssh xauth x11-xserver-utils libpulse0 libxcomposite1 libgl1-mesa-glx \
+  && apt-get install --yes --no-install-recommends build-essential openjdk-$JAVA_VERSION-jdk curl unzip sed git bash xz-utils libglvnd0 ssh xauth x11-xserver-utils libpulse0 libxcomposite1 libgl1-mesa-glx \
   && rm -rf /var/lib/{apt,dpkg,cache,log}
 
 # go
