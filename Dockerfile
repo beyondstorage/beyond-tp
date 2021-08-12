@@ -37,4 +37,6 @@ RUN curl -sSL -o flutter.tar.xz $FLUTTER_URL \
   && mkdir -p $FLUTTER_HOME \
   && tar xf flutter.tar.xz -C /home/$USER \
   && rm flutter.tar.xz \
-  && flutter config --no-analytics
+  && flutter config --no-analytics \
+
+RUN make build
