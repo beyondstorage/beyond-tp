@@ -4,9 +4,9 @@ build:
 run:
   server:
     image: beyondtp
-    cmd:
+    command:
       - ./bin/beyondtp server --db db --host localhost --port "$PORT" --rpc-port 7000
   worker:
     image: beyondtp
-    cmd:
+    command:
       - ./bin/beyondtp staff --host localhost --manager localhost:7000
