@@ -1,10 +1,26 @@
 # beyond-tp
 
+[![go version](https://img.shields.io/github/go-mod/go-version/beyondstorage/beyond-tp)]()
+[![license](https://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/beyondstorage/beyond-tp/blob/master/LICENSE)
+[![unit test status](https://github.com/beyondstorage/beyond-tp/workflows/Unit%20Test/badge.svg?branch=master)](https://github.com/beyondstorage/beyond-tp/actions?query=workflow%3A%22Unit+Test%22)
 [![beyond-tp dev](https://img.shields.io/matrix/beyondstorage@beyond-tp:matrix.org.svg?label=beyond-tp&logo=matrix)](https://matrix.to/#/#beyondstorage@beyond-tp:matrix.org)
 
 beyond-tp is a data migration service.
 
 **This project is now under high development, please do not apply to production environment**
+
+- [Contributor Guide](#contributor-guide)
+- [Development Requirement](#development-requirement)
+  - [protobuf](#protobuf)
+  - [flutter](#flutter)
+- [Build](#build)
+  - [Build Binary](#build-binary)
+  - [Build Frontend Pages](#build-frontend-pages)
+  - [Generate Code](#generate-code)
+- [Usage](#usage)  
+  - [Start a Server](#start-a-server)
+  - [Start a Staff](#start-a-staff)
+  - [What's more](#whats-more)
 
 ## Contributor Guide
 
@@ -67,6 +83,92 @@ Beyond-tp uses flutter to conduct frontend web pages. `v2.0.1` or higher version
 To install flutter, you can take [flutter installation](https://flutter.dev/docs/get-started/install) as a reference.
 
 **Notice**: For some network reason, you can also get help from <https://flutter.cn/community/china>.
+
+## Build
+
+### Build Binary
+
+```
+make build
+```
+
+Run `make build` to build the binary file used to start a beyond-tp server or staff.
+
+### Build Frontend Pages
+
+```
+make build-frontend
+```
+
+Run `make build-frontend` to build frontend pages. 
+
+**Notice** that beyond-tp uses flutter to build web pages,
+so please make sure flutter is well [installed](#flutter), and added in `$PATH` directories.
+
+For more details, please run `make help` as a reference.
+
+### Generate Code
+
+```
+make generate
+```
+
+Run `make generate` to generate the latest code by GraphQL schema and grpc `.proto` files.
+
+**Notice** that beyond-tp uses protobuf tools to generate grpc code,
+so please make sure protobuf is well [installed](#protobuf), 
+and added in `$PATH` directories for the protocol buffer compiler to find it.
+
+## Usage
+
+### Start a Server
+
+`Server` used as a web server as well as a task manager. It allows you to manage beyond-tp visually,
+and support a rpc server to communicate with `Staffs`. You can easily start a beyond-tp server by:
+
+```
+beyondtp server --db /path/to/db --host localhost --port 7436 --rpc-port 7000
+```
+
+This command will start a beyond-tp server, including a web server, with local db indicated by `db` flag. 
+You can visit the home page at `localhost:7436/ui` in your web browser.
+
+Run `beyondtp server --help` for more examples and flags' usage.
+
+### Start a Staff
+
+`Staff` used as a task executor. It can run a migration task, distributed by `Server`. 
+You can easily start a beyond-tp staff by:
+
+```
+beyondtp staff --host localhost --manager localhost:7000
+```
+
+This command will start a beyond-tp staff connected to the manager `localhost:7000`.
+The manager's host and port are specified in `server` command by flag `host` and `rpc-port`.
+
+Run `beyondtp staff --help` for more examples and flags' usage.
+
+### What's more
+
+We support to use environment variable to replace flags. All the flags follow these rules:
+
+- All flags correspond to environment variable with prefix `BEYONDTP_`
+- Kebab-case (`log-level`) to Snake_case (`LOG_LEVEL`) with upper case
+- Flags for specific commands should add command prefix, e.g. `BEYONDTP_SERVER_PORT` and `BEYONDTP_STAFF_PORT` for 
+  `--port` flag under `server` command and `staff` command 
+- Global flags do not need to add command prefix, e.g. `BEYONDTP_LOG_LEVEL`
+
+If the same flag set by both environment variable and command flag, command flag will be 
+higher priority than environment variable, for example:
+
+```
+BEYONDTP_LOG_LEVEL=debug bin/beyondtp server --db badger --log-level=warn
+```
+
+The final log level would be `warn` instead of `debug`.
+
+For more command usage, please run `beyondtp --help` as a reference.
 
 ## Useful links
 

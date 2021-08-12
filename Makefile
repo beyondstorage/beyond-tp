@@ -5,8 +5,12 @@ GO_BUILD_OPTION := -trimpath -tags netgo
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
-	@echo "  check      to format, vet and lint "
-	@echo "  build      to create bin directory and build beyondtp"
+	@echo "  check				to format code and vet check"
+	@echo "  build				to create bin directory and build beyondtp"
+	@echo "  build-frontend		to build flutter web and copy to api/ui directory"
+	@echo "  generate			to generate code"
+	@echo "  test				to run unit tests"
+	@echo "  tidy				to tidy and check the go mod files"
 
 check: format vet
 
@@ -32,7 +36,7 @@ build-frontend:
 	@cp -r ui/build/web/* api/ui
 	@echo "ok"
 
-build: generate tidy check build-frontend
+build: tidy check build-frontend
 	@echo "build beyondtp"
 	go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
 	@echo "ok"
