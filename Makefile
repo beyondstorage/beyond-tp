@@ -36,7 +36,16 @@ build-frontend:
 	@cp -r ui/build/web/* api/ui
 	@echo "ok"
 
-build: tidy check build-frontend
+# We remove check target to work around build failed in container build.
+# If we build in container, we will meet errors like:
+#
+# > go fmt
+# > go: not formatting packages in dependency modules
+# > package github.com/google/flatbuffers/grpc/tests: C++ source files not allowed when not using cgo or SWIG: grpctest.cpp message_builder_test.cpp
+# > package github.com/google/flatbuffers/samples: C++ source files not allowed when not using cgo or SWIG: sample_bfbs.cpp sample_binary.cpp sample_text.cpp
+# > package github.com/google/flatbuffers/tests: C++ source files not allowed when not using cgo or SWIG: monster_test.grpc.fb.cc native_type_test_impl.cpp test.cpp test_assert.cpp test_builder.cpp
+# > make: *** [Makefile:19: format] Error 1
+build: tidy build-frontend
 	@echo "build beyondtp"
 	CGO_ENABLED=1 go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
 	@echo "ok"
