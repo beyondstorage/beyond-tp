@@ -51,6 +51,12 @@ func (s *Server) Start() error {
 	// register routers here
 	r.GET("/ping", ping)
 	r.StaticFS("/ui", http.FS(ui.UI))
+
+	// redirect / to /ui, since /ui is the real homepage of website
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/ui")
+	})
+
 	r.NoRoute(func(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	})
