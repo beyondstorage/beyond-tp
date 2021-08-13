@@ -1,0 +1,60 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Go template
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+### IntelliJ user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+
+db
+bin
+dist
+node_modules
+
+releases
+
+api/ui/*
+!api/ui/ui.go
+
+# Flutter/Dart/Pub related
+ui/**/doc/api/
+ui/**/ios/Flutter/.last_build_id
+ui/.dart_tool/
+ui/.flutter-plugins
+ui/.flutter-plugins-dependencies
+ui/.packages
+ui/.pub-cache/
+ui/.pub/
+ui//build/
+
+# Web related
+ui/lib/generated_plugin_registrant.dart
+
+# Symbolication related
+ui/app.*.symbols
+
+# Obfuscation related
+ui/app.*.map.json
+
+# Android Studio will place build artifacts here
+ui/android/app/debug
+ui/android/app/profile
+ui/android/app/release

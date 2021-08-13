@@ -5,8 +5,8 @@ run:
   server:
     image: beyondtp
     command:
-      - ./bin/beyondtp server --db db --host localhost --port "$PORT" --rpc-port 7000
+      - ./beyondtp server --db db --host localhost --port $PORT --rpc-port 7000
   worker:
     image: beyondtp
     command:
-      - ./bin/beyondtp staff --host localhost --manager localhost:7000
+      - ./beyondtp staff --host localhost --manager localhost:7000

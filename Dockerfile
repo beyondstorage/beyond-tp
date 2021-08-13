@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 AS builder
 
 ENV UID=1000
 ENV GID=1000
@@ -45,3 +45,13 @@ ADD --chown=1000:1000 . /home/$USER
 
 # Build beyond-tp
 RUN make build
+
+FROM ubuntu:20.04
+ENV UID=1000
+ENV GID=1000
+ENV USER="developer"
+WORKDIR /home/$USER
+COPY --from=builder /home/$USER/bin/beyondtp ./
+
+ENV PORT=7436
+CMD ./beyondtp server --db db --host localhost --port $PORT --rpc-port 7000
