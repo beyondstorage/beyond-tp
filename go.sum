@@ -112,10 +112,14 @@ github.com/beyondstorage/go-service-oss/v2 v2.1.0 h1:8uEL+EavpLzb+Sm7y0CkY5uPtFS
 github.com/beyondstorage/go-service-oss/v2 v2.1.0/go.mod h1:bMp2yGZFDGz9w8vtADEb5DI89u5Wvn/og0fUDk/BKSk=
 github.com/beyondstorage/go-service-qingstor/v3 v3.1.0 h1:+2PbAAXFP0mxg0I3mQTOcMrvHTaks1/EXjK+ETfydkY=
 github.com/beyondstorage/go-service-qingstor/v3 v3.1.0/go.mod h1:mwNsAwcah9WYbwENmqlgjq57SjFypHJEn2QoXLfms24=
+github.com/beyondstorage/go-service-qingstor/v3 v3.2.0 h1:74nZZ8hvB8JxN7zYzHJMgxRQxOR7Zn56rQhgNTLwcUg=
+github.com/beyondstorage/go-service-qingstor/v3 v3.2.0/go.mod h1:quW3B/90+LrMxoH+ZWhLrSLLJw4Syc6a/4Bykm+HYKE=
 github.com/beyondstorage/go-service-s3/v2 v2.2.0 h1:aAQa4yXMb1AoeZWaQI5bhDbKARSbg/avRb0yu09Wlrc=
 github.com/beyondstorage/go-service-s3/v2 v2.2.0/go.mod h1:R5W0FHPt6RmFAEO/ngoJ04q3G/i+mb38GCJNPZPwtxc=
 github.com/beyondstorage/go-storage/v4 v4.2.0 h1:J0xqqy4qEQRtIS2zUWMA5wRXVHx/cxX5fHsU2ezA3+I=
 github.com/beyondstorage/go-storage/v4 v4.2.0/go.mod h1:rUNzOXcikYk5w0ewvNsKbztg7ndQDyDvjDuP0bznSLU=
+github.com/beyondstorage/go-storage/v4 v4.3.2 h1:F3xQVTcBJ+nSzEt/wBZCx4pE7aYhy43+tn1mwMYCacE=
+github.com/beyondstorage/go-storage/v4 v4.3.2/go.mod h1:8FHjTUFuwLl/mmIGpOL9g3RTZPyye7vneFN/JkRj5Tg=
 github.com/beyondstorage/go-toolbox v0.0.0-20210525101004-db84362b9d67 h1:7NdkncAr22xMcShOQklq9xYIIoY5oaheG/rdgZbDU2s=
 github.com/beyondstorage/go-toolbox v0.0.0-20210525101004-db84362b9d67/go.mod h1:AiPx/HlIztABJ36kcUPd+zbIFRMNiJ8qf7p+rGaHF/Q=
 github.com/beyondstorage/specs/go v0.0.0-20210623065218-d1c2d7d81259 h1:mW9XpHLc6pdXBRnsha1VlqF0rNsB/Oc+8l+5UYngmRA=
@@ -296,6 +300,7 @@ github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
 github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5 h1:sjZBwGj9Jlw33ImPtvFviGYvseOtDM7hkSKB7+Tv3SM=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
