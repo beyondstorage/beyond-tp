@@ -54,4 +54,4 @@ WORKDIR /home/$USER
 COPY --from=builder /home/$USER/bin/beyondtp ./
 
 ENV PORT=7436
-CMD ./beyondtp server --db db --host localhost --port $PORT --rpc-port 7000
+CMD ./beyondtp server --db db --host 0.0.0.0 --port $PORT --rpc-port 7000
