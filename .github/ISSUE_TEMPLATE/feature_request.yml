@@ -1,0 +1,43 @@
+name: Feature Request
+description: New idea for beyond-tp? Happy for your willing to tell us!
+title: "[Feat]: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+             Hello! Thank you so much for your interest in BeyondTP. The fact you care enough to be here, right now, helping, makes us very happy!
+             - Read the [contributing guidelines](https://github.com/beyondstorage/beyond-tp/blob/master/docs/contributing.md).
+             - Support question are better asked in one of the following locations:
+               - On [#beyond-tp](https://matrix.to/#/#beyondstorage@beyond-tp:matrix.org) Matrix channel.
+             - Ensure the feature isn't already reported or implemented.
+  - type: input
+    id: about
+    attributes:
+      label: What is this about?
+      description: Please describe this feature shortly and precisely
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why we need this feature?
+      description: |
+        Please tell us your idea as in detail.
+        You can also attach url for external link.
+      value: |
+        I believe this is an important feature for Beyond-TP. There're a few use cases:
+
+          - case one
+          - case two
+          ...
+
+        Please leave your comments below if there's anyone agrees with me. Or just give me a thumb up.
+    validations:
+      required: true
+  - type: textarea
+    id: more-info
+    attributes:
+      label: More Suggestion
+      placeholder: Any other information you can supply to help us improve :)
+
