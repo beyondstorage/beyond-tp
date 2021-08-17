@@ -33,13 +33,15 @@ class Navigators extends StatelessWidget {
                   onTap: () => Get.toNamed("/"),
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
-                    child: Text('BTP',
-                        style: TextStyle(
-                          height: 1.0,
-                          fontSize: 32.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        )),
+                    child: Text(
+                      'BTP',
+                      style: TextStyle(
+                        height: 1.0,
+                        fontSize: 32.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -47,9 +49,10 @@ class Navigators extends StatelessWidget {
             SideLink(title: "Tasks".tr, icon: Icons.source, path: Routes.main),
             SideLink(title: "Agents".tr, icon: Icons.dns, path: Routes.agents),
             SideLink(
-                title: "Identities".tr,
-                icon: Icons.how_to_reg,
-                path: Routes.identities),
+              title: "Identities".tr,
+              icon: Icons.how_to_reg,
+              path: Routes.identities,
+            ),
           ],
         ));
   }
