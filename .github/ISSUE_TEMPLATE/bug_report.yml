@@ -1,0 +1,53 @@
+name: Bug Report
+description: Create a bug report to help us improve
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+             Hello! Thank you so much for your interest in BeyondTP. The fact you care enough to be here, right now, helping, makes us very happy!
+             - Check the documentation resources [beyondstorage.io](https://beyondstorage.io/docs/beyond-tp/index) to see if there are docs, examples, etc. that might solve your problem quicker.
+             - Make sure to provide as much information as possible (stack traces, error logs, code examples, screenshots...), so we can better help you.
+             - Read the [contributing guidelines](https://github.com/beyondstorage/beyond-tp/blob/master/docs/contributing.md).
+             - Support question are better asked in one of the following locations:
+               - On [#beyond-tp](https://matrix.to/#/#beyondstorage@beyond-tp:matrix.org) Matrix channel.
+             - Ensure the issue isn't already reported.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: |
+        Please describe in painful detail what you did (so others can play along with you) to get to this point. This includes things like the exact command(s) you used, or action you did in browser, that sort of thing.
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error1.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: |
+        What version of beyond-tp are you running?
+        Use `beyondtp --version` to show version info.
+    validations:
+      required: true
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output (if have). This will be automatically formatted into code, so no need for backticks.
+      render: shell
