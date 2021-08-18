@@ -16,7 +16,8 @@ class Navigators extends StatelessWidget {
       height: double.infinity,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: SvgProvider('images/sidebar_graphics.svg',
+          image: SvgProvider(
+            'images/sidebar_graphics.svg',
             size: Size(80.0, 1024.0),
             color: rgba(52, 61, 190, 1),
           ),
@@ -32,21 +33,28 @@ class Navigators extends StatelessWidget {
                 onTap: () => Get.toNamed("/"),
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
-                  child: Text('DM', style: TextStyle(
-                    height: 1.0,
-                    fontSize: 32.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  )),
+                  child: Text(
+                    'BTP',
+                    style: TextStyle(
+                      height: 1.0,
+                      fontSize: 32.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
           SideLink(title: "Tasks".tr, icon: Icons.source, path: Routes.main),
           SideLink(title: "Agents".tr, icon: Icons.dns, path: Routes.agents),
-          SideLink(title: "Identities".tr, icon: Icons.how_to_reg, path: Routes.identities),
+          SideLink(
+            title: "Identities".tr,
+            icon: Icons.how_to_reg,
+            path: Routes.identities,
+          ),
         ],
-      )
+      ),
     );
   }
 }
