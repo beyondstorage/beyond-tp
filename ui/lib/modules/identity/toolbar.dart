@@ -15,7 +15,7 @@ class Toolbar extends GetView<IdentityController> {
       children: [
         Button(
           icon: Icons.add,
-          child: Text("Create task".tr),
+          child: Text("Create Identity".tr),
           type: ButtonType.primary,
           onPressed: () => Get.dialog(
               CreateIdentityDialog(getIdentities: controller.getIdentities)),
