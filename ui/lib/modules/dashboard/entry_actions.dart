@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:ui/widgets/confirm/constants.dart';
 
 import 'controller.dart';
 
@@ -76,8 +75,6 @@ class EntryMoreActions extends GetView<DashboardController> {
             Confirm(
                 title: "Are you sure to delete this task?".tr,
                 description: "This task has been completed and will no longer be displayed in the task list after deletion.".tr,
-                position: ConfirmBtnPosition.horizontal,
-                iconColor: Colors.red[600],
                 onConfirm: () {
                   controller.deleteTask(data["id"]).then((result) {
                     Get.back();

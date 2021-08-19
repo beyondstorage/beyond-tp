@@ -17,7 +17,7 @@ class ConfirmTitle extends StatelessWidget {
       direction: Axis.horizontal,
       verticalDirection: VerticalDirection.up,
       children: [
-        Icon(this.icon, size: 24.0, color: this.color != null ? this.color : null,),
+        Icon(this.icon, size: 26.0, color: this.color != null ? this.color : null,),
         Padding(
           padding: EdgeInsets.only(left: 12.0),
           child: SelectableText(

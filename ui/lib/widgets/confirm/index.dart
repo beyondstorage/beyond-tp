@@ -6,7 +6,6 @@ import '../button/constants.dart';
 
 import '../../common/global.dart';
 import './title.dart';
-import './constants.dart';
 
 class Confirm extends StatelessWidget {
   final String title;
@@ -14,19 +13,17 @@ class Confirm extends StatelessWidget {
   final IconData? icon;
   final Function? onClose;
   final Function onConfirm;
-  final Color? iconColor;
-  final ConfirmBtnPosition position;
+  final Color iconColor;
   final String confirmBtnText;
 
-  Confirm({
-    this.title = "Confirm",
-    this.icon = Icons.report_problem,
-    this.description,
-    this.onClose,
-    required this.onConfirm,
-    this.iconColor,
-    this.confirmBtnText = "Delete",
-    this.position = ConfirmBtnPosition.vertical
+  Confirm(
+      {this.title = "Confirm",
+      this.icon = Icons.warning_rounded,
+      this.description,
+      this.onClose,
+      required this.onConfirm,
+      this.iconColor = Colors.redAccent,
+      this.confirmBtnText = "Delete",
   });
 
   void onClosePressed() {
@@ -38,22 +35,25 @@ class Confirm extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Align(
-        child: IconButton(
-          icon: Icon(Icons.close),
-          iconSize: 20,
-          padding: EdgeInsets.all(1.0),
-          splashRadius: 1.0,
-          onPressed: () => onClosePressed(),
-        ),
-        alignment: Alignment.centerRight
-      ),
+          child: IconButton(
+            icon: Icon(Icons.close),
+            iconSize: 20,
+            padding: EdgeInsets.all(1.0),
+            splashRadius: 1.0,
+            onPressed: () => onClosePressed(),
+          ),
+          alignment: Alignment.centerRight),
       titlePadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       content: SizedBox(
         width: confirmDialogWidth,
         height: 80.0,
         child: Column(
           children: [
-            ConfirmTitle(icon: this.icon, title: this.title, color: this.iconColor,),
+            ConfirmTitle(
+              icon: this.icon,
+              title: this.title,
+              color: this.iconColor,
+            ),
             Padding(
               padding: EdgeInsets.only(left: 36.0, top: 8.0, bottom: 4.0),
               child: SelectableText(
@@ -71,40 +71,28 @@ class Confirm extends StatelessWidget {
       actionsPadding: EdgeInsets.all(20),
     );
   }
+
   get ConfirmBtn {
-    List<Widget> vertical = [
-        Button(
-          child: Text("Cancel".tr),
-          onPressed: () => onClosePressed(),
-          // disabled: true,
-        ),
-        Button(
-          type: ButtonType.primary,
-          child: Text(this.confirmBtnText),
-          onPressed: () => onConfirm(),
-        ),
-      ];
-      List<Widget> horizontal = [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Button(
-          child: Text("Cancel".tr),
-          onPressed: () => onClosePressed(),
-          // disabled: true,
-        ),
-        SizedBox(
-          width: 8,
-        ),
-        Button(
-          type: ButtonType.primary,
-          child: Text(this.confirmBtnText),
-          onPressed: () => onConfirm(),
-        ),
-          ],
-        )
-      ];
-      return this.position == ConfirmBtnPosition.horizontal ? 
-        horizontal : vertical;
+    List<Widget> horizontal = [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Button(
+            child: Text("Cancel".tr),
+            onPressed: () => onClosePressed(),
+            // disabled: true,
+          ),
+          SizedBox(width: 8,),
+          Button(
+            type: ButtonType.primary,
+            child: Text(
+              this.confirmBtnText,
+            ),
+            onPressed: () => onConfirm(),
+          ),
+        ],
+      )
+    ];
+    return horizontal;
   }
 }
