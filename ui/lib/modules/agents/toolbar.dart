@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:ui/widgets/page_container/index.dart';
@@ -8,40 +7,38 @@ import 'controller.dart';
 class Toolbar extends GetView<AgentsController> {
   final Function onClick;
 
-  Toolbar({
-    required this.onClick
-  });
-  
+  Toolbar({required this.onClick});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          child: GestureDetector(
-            onTap: () => this.onClick(),
-            child: Icon(
-            Icons.refresh,
-            size: 22,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            child: GestureDetector(
+              onTap: () => this.onClick(),
+              child: Icon(
+                Icons.refresh,
+                size: 22,
+              ),
+            ),
           ),
+          SizedBox(
+            width: 10,
           ),
-        ),
-        SizedBox(
-          width: 10,
-        ),
-        Obx(() => SelectableText(
-          '${controller.agents.value.length()} ${controller.agents.value.length() > 1 ? 'Agents': 'Agent'}',
-          style: TextStyle(
-            color: regularFontColor,
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-          ),
-        ))
-      ],
-    ),
+          Obx(() => SelectableText(
+                '${controller.agents.value.length()} ${controller.agents.value.length() > 1 ? 'Agents' : 'Agent'}',
+                style: TextStyle(
+                  color: regularFontColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+              ))
+        ],
+      ),
     );
   }
 }

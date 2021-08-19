@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 class Agent {
   String name;
   String id;
@@ -58,4 +59,5 @@ class Agents {
   String toString() => json.encode(toList());
 
   int length() => agents.length;
+  
 }

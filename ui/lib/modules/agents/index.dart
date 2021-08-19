@@ -1,11 +1,13 @@
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../layout/index.dart';
 import '../../widgets/page_description/index.dart';
-import '../../widgets/empty_entry_list/index.dart';
+
 import 'entry_list.dart';
+import 'controller.dart';
+
 class Agents extends GetView<AgentsController> {
   final AgentsController c = Get.put(AgentsController());
   Agents() {

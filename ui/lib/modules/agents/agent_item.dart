@@ -2,12 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui/models/agents.dart';
 import 'package:ui/modules/Agents/controller.dart';
+
 import '../../common/colors.dart';
 
 class AgentItem extends GetView<AgentsController> {
   final Agent agent;
 
   AgentItem({required this.agent});
+
+  Widget getShowItem({int flex = 1, required List<Widget> children}) {
+    return Expanded(
+        flex: 1,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
+        ));
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -148,13 +159,5 @@ class AgentItem extends GetView<AgentsController> {
     );
   }
 
-  Widget getShowItem({int flex = 1, required List<Widget> children}) {
-    return Expanded(
-        flex: 1,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: children,
-        ));
-  }
+  
 }

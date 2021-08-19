@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../common/colors.dart';
 
 class MessageAnimation extends StatefulWidget {
@@ -8,21 +9,19 @@ class MessageAnimation extends StatefulWidget {
   final Color fontColor;
   final Function callBack;
   final int duration;
-  const MessageAnimation(
-      {required this.message,
-      required this.backgroundColor,
-      required this.icon,
-      required this.fontColor,
-      required this.callBack,
-      this.duration = 1500
-    });
-
+  const MessageAnimation({
+    required this.message,
+    required this.backgroundColor,
+    required this.icon,
+    required this.fontColor,
+    required this.callBack,
+    this.duration = 1500,
+  });
   @override
   _MessageAnimationState createState() => _MessageAnimationState();
 }
 
-class _MessageAnimationState extends State<MessageAnimation>
-    with SingleTickerProviderStateMixin {
+class _MessageAnimationState extends State<MessageAnimation> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> animation;
   double fadeValue = 0;
@@ -41,7 +40,8 @@ class _MessageAnimationState extends State<MessageAnimation>
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          new Future.delayed(Duration(milliseconds: widget.duration)).then((value) {
+          new Future.delayed(Duration(milliseconds: widget.duration))
+              .then((value) {
             _controller.reverse();
           });
         } else if (status == AnimationStatus.dismissed) {
@@ -86,10 +86,11 @@ class _MessageAnimationState extends State<MessageAnimation>
                 Text(
                   widget.message,
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: widget.fontColor,
-                      decoration: TextDecoration.none),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: widget.fontColor,
+                    decoration: TextDecoration.none,
+                  ),
                 )
               ],
             ),

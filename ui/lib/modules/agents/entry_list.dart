@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:ui/modules/agents/agent_item.dart';
 import 'package:ui/widgets/message/index.dart';
 import 'package:ui/widgets/page_container/index.dart';
+
 import 'controller.dart';
 import 'toolbar.dart';
 
 class EntryList extends GetView<AgentsController> {
+
   @override
   Widget build(BuildContext context) {
     return Expanded(

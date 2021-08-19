@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:ui/models/agents.dart';
 
+
 class AgentsController extends GetxController {
   RxBool loading = false.obs;
   Rx<Agents> agents = Agents.fromList([]).obs;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ui/widgets/message/animation.dart';
+
 import '../../common/colors.dart';
 
 class Message {
-  static void success(
-      {required BuildContext context, required String message}) {
+  static void success({required BuildContext context, required String message}) {
     late OverlayEntry overlayEntry;
     //cretae an OverlayEntry object
     overlayEntry = new OverlayEntry(builder: (context) {
