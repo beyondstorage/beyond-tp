@@ -88,7 +88,7 @@ class CreateTaskStep extends GetView<CreateTaskController> {
                   Obx(() => getStepButton(1)),
                   SizedBox(width: 12),
                   Text(
-                    'Source Library Settings'.tr,
+                    'Source library settings'.tr,
                     style: TextStyle(
                       color: headlineFontColor,
                       fontSize: 12,
@@ -130,7 +130,7 @@ class CreateTaskStep extends GetView<CreateTaskController> {
                   Obx(() => getStepButton(2)),
                   SizedBox(width: 12),
                   Text(
-                    'Target Library Settings'.tr,
+                    'Target library settings'.tr,
                     style: TextStyle(
                       color: controller.step.value == 1
                           ? disableFontColor
