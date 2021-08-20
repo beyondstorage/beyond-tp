@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+import 'package:date_format/date_format.dart';
 
 import '../../common/global.dart';
+import '../../common/colors.dart';
 import '../../widgets/grid_table/model.dart';
 import '../../widgets/grid_table/index.dart';
 import '../../widgets/page_container/index.dart';
@@ -12,7 +14,6 @@ import 'controller.dart';
 import 'task_status.dart';
 import 'entry_actions.dart';
 
-
 class EntryList extends GetView<DashboardController> {
   final List<GridTableCol> columns = [
     GridTableCol(title: "Name".tr, dataIndex: "name"),
@@ -21,10 +22,26 @@ class EntryList extends GetView<DashboardController> {
       dataIndex: "status",
       render: (value, data) => TaskStatus(value),
     ),
-    GridTableCol(title: "Created at".tr, dataIndex: "createdAt"),
-    GridTableCol(title: "Updated at".tr, dataIndex: "updatedAt"),
     GridTableCol(
-      title: "Actions",
+        title: "Creation time".tr,
+        dataIndex: "createdAt",
+        render: (value, data) {
+          return Container(
+            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+            child: SelectableText(
+              formatDate(
+                DateTime.now(),
+                [yyyy, "-", mm, "-", dd, " ", HH, ":", nn, ":", ss],
+              ),
+              style: TextStyle(
+                fontSize: 12,
+                color: regularFontColor,
+              ),
+            ),
+          );
+        }),
+    GridTableCol(
+      title: "Operation",
       dataIndex: 'actions',
       render: (value, data) => EntryActions(data: data),
     ),
@@ -43,11 +60,13 @@ class EntryList extends GetView<DashboardController> {
         child: Column(
           children: [
             Toolbar(),
-            Obx(() => GridTable(
-              columns: columns,
-              dataList: controller.tasks.value.toList(),
-              maxHeight: Get.height - 336.0,
-            ))
+            Obx(
+              () => GridTable(
+                columns: columns,
+                dataList: controller.tasks.value.toList(),
+                maxHeight: Get.height - 336.0,
+              ),
+            )
           ],
         ),
       ),
