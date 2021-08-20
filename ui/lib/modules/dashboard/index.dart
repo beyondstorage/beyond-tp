@@ -33,7 +33,7 @@ class Dashboard extends GetView<DashboardController> {
                         'Please click the button below to create a task'.tr,
                     buttonText: 'Create task'.tr,
                     onClick: () => Get.dialog(CreateTaskDialog(
-                      name: 'DM Task 1',
+                      name: 'DM task 1',
                       getTasks: controller.getTasks,
                     )),
                   )
