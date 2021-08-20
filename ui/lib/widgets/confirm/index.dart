@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../button/index.dart';
 import '../button/constants.dart';
-
 import '../../common/global.dart';
 import './title.dart';
 
@@ -16,13 +15,14 @@ class Confirm extends StatelessWidget {
   final Color iconColor;
   final String confirmBtnText;
 
-  Confirm({this.title = "Confirm",
+  Confirm({
+      this.title = "Confirm",
       this.icon = Icons.warning_rounded,
       this.description,
       this.onClose,
+      required this.onConfirm,
       this.iconColor = Colors.redAccent,
       this.confirmBtnText = "Delete",
-      required this.onConfirm,
   });
 
   void onClosePressed() {
@@ -65,7 +65,8 @@ class Confirm extends StatelessWidget {
             splashRadius: 1.0,
             onPressed: () => onClosePressed(),
           ),
-          alignment: Alignment.centerRight),
+          alignment: Alignment.centerRight,
+      ),
       titlePadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       content: SizedBox(
         width: confirmDialogWidth,
@@ -94,5 +95,4 @@ class Confirm extends StatelessWidget {
       actionsPadding: EdgeInsets.all(20),
     );
   }
-
 }
