@@ -23,7 +23,7 @@ class Operation {
 List<Operation> operations = [
   Operation(key: 'all', value: 'All'.tr),
   Operation(key: 'running', value: 'Running'.tr),
-  Operation(key: 'not_running', value: 'Not Running'.tr),
+  Operation(key: 'not_running', value: 'Not running'.tr),
   Operation(key: 'completed', value: 'Completed'.tr),
 ];
 
@@ -34,7 +34,7 @@ class Toolbar extends GetView<DashboardController> {
 
   void handleCreateTask() {
     final taskNum = controller.tasks.value.length();
-    final newTaskName = 'DM Task ${taskNum + 1}';
+    final newTaskName = 'DM task ${taskNum + 1}';
     Get.dialog(
         CreateTaskDialog(name: newTaskName, getTasks: controller.getTasks));
   }

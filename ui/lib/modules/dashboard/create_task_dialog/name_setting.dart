@@ -55,7 +55,7 @@ class NameSetting extends GetView<CreateTaskController> {
                               borderSide: BorderSide(color: defaultColor),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            hintText: 'Press Enter To Confirm'.tr,
+                            hintText: 'Press enter to confirm'.tr,
                           ),
                           onEditingComplete: () => onConfirm(c.text),
                         ),
@@ -84,7 +84,7 @@ class NameSetting extends GetView<CreateTaskController> {
                   ),
                   SizedBox(height: 4),
                   SelectableText(
-                    '1-50 Characters, Can Contain Letters, Numbers, Underscores'
+                    '1-50 characters, can contain letters, numbers, underscores'
                         .tr,
                     style: TextStyle(
                       color: disableFontColor,
@@ -120,7 +120,7 @@ class NameSetting extends GetView<CreateTaskController> {
                         iconSize: 14,
                         constraints:
                             BoxConstraints(maxWidth: 14, maxHeight: 14),
-                        padding: EdgeInsets.all(0),
+                        padding: EdgeInsets.only(top: 2),
                         splashRadius: 1.0,
                         onPressed: () => controller.isEditingName(true),
                       ),
@@ -128,7 +128,7 @@ class NameSetting extends GetView<CreateTaskController> {
                   ),
                   SizedBox(height: 4),
                   SelectableText(
-                    'You Can Modify The Task Name'.tr,
+                    'You can Modify the task name'.tr,
                     style: TextStyle(
                       color: disableFontColor,
                       fontSize: 10,
