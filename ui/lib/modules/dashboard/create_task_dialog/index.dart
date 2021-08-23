@@ -86,13 +86,13 @@ class CreateTaskDialog extends StatelessWidget {
           SizedBox(width: 12),
           controller.step.value == 2
               ? Button(
-                  child: Text("Complete Creation".tr),
+                  child: Text("Complete creation".tr),
                   type: ButtonType.primary,
                   disabled: getCompleteCreationStatus(),
                   onPressed: onSubmit,
                 )
               : Button(
-                  child: Text("Next Step".tr),
+                  child: Text("Next step".tr),
                   type: ButtonType.primary,
                   disabled: getNextStepStatus(),
                   onPressed: nextStep,
@@ -101,7 +101,7 @@ class CreateTaskDialog extends StatelessWidget {
         leftButtons: controller.step.value > 1
             ? [
                 Button(
-                  child: Text("Previous Step".tr),
+                  child: Text("Previous step".tr),
                   type: ButtonType.defaults,
                   onPressed: () => controller.step(controller.step.value - 1),
                 )
