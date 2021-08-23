@@ -6,9 +6,9 @@ class ConfirmTitle extends StatelessWidget {
   final Color? color;
 
   ConfirmTitle({
+    this.color,
     required this.title,
     required this.icon,
-    this.color,
   });
 
   @override

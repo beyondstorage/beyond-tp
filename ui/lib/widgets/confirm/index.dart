@@ -16,19 +16,42 @@ class Confirm extends StatelessWidget {
   final Color iconColor;
   final String confirmBtnText;
 
-  Confirm(
-      {this.title = "Confirm",
+  Confirm({this.title = "Confirm",
       this.icon = Icons.warning_rounded,
       this.description,
       this.onClose,
-      required this.onConfirm,
       this.iconColor = Colors.redAccent,
       this.confirmBtnText = "Delete",
+      required this.onConfirm,
   });
 
   void onClosePressed() {
     Get.back();
     this.onClose!();
+  }
+
+  get ConfirmBtn {
+    List<Widget> horizontal = [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Button(
+            child: Text("Cancel".tr),
+            onPressed: () => onClosePressed(),
+            // disabled: true,
+          ),
+          SizedBox(width: 8,),
+          Button(
+            type: ButtonType.primary,
+            child: Text(
+              this.confirmBtnText,
+            ),
+            onPressed: () => onConfirm(),
+          ),
+        ],
+      )
+    ];
+    return horizontal;
   }
 
   @override
@@ -72,27 +95,4 @@ class Confirm extends StatelessWidget {
     );
   }
 
-  get ConfirmBtn {
-    List<Widget> horizontal = [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Button(
-            child: Text("Cancel".tr),
-            onPressed: () => onClosePressed(),
-            // disabled: true,
-          ),
-          SizedBox(width: 8,),
-          Button(
-            type: ButtonType.primary,
-            child: Text(
-              this.confirmBtnText,
-            ),
-            onPressed: () => onConfirm(),
-          ),
-        ],
-      )
-    ];
-    return horizontal;
-  }
 }
