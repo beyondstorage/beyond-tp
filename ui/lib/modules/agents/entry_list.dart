@@ -22,10 +22,13 @@ class EntryList extends GetView<AgentsController> {
                 children: [
                   Toolbar(
                     onClick: () {
-                      controller.getAgents();
-                      Message.success(
+                      controller.getAgents(callBack: () {
+                        Message.success(
                           context: Get.overlayContext as BuildContext,
-                          message: "Refresh successfully！");
+                          message: "Refresh successfully！",
+                        );
+                      });
+                      
                     },
                   ),
                   Expanded(

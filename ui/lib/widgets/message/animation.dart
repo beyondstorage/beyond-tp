@@ -29,8 +29,7 @@ class _MessageAnimationState extends State<MessageAnimation> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     animation = Tween<double>(begin: 0, end: 1).animate(_controller)
       ..addListener(() {
         setState(() {
@@ -40,8 +39,7 @@ class _MessageAnimationState extends State<MessageAnimation> with SingleTickerPr
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          new Future.delayed(Duration(milliseconds: widget.duration))
-              .then((value) {
+          new Future.delayed(Duration(milliseconds: widget.duration)).then((value) {
             _controller.reverse();
           });
         } else if (status == AnimationStatus.dismissed) {

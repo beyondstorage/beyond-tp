@@ -10,9 +10,11 @@ import 'controller.dart';
 
 class Agents extends GetView<AgentsController> {
   final AgentsController c = Get.put(AgentsController());
+
   Agents() {
     c.getAgents();
   }
+  
   @override
   Widget build(BuildContext context) {
     return Layout(

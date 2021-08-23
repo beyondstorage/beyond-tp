@@ -6,10 +6,10 @@ class AgentsController extends GetxController {
   RxBool loading = false.obs;
   Rx<Agents> agents = Agents.fromList([]).obs;
 
-  void getAgents() {
+  void getAgents({callBack}) {
     // todo    Agent interface debugging
     loading(true);
-    new Future.delayed(Duration(milliseconds: 1000)).then((value) {
+    new Future.delayed(Duration(milliseconds: 500)).then((value) {
       agents(Agents.fromList([
         {
           "name": "default",
@@ -26,6 +26,9 @@ class AgentsController extends GetxController {
           "taskNumber": 1
         }
       ]));
+      if (callBack != null) {
+        callBack();
+      }
     });
   }
 }
