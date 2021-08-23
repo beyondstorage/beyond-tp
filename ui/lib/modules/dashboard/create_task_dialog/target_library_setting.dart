@@ -22,7 +22,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SelectableText(
-              'Target Library'.tr,
+              'Target library'.tr,
               style: TextStyle(
                 color: regularFontColor,
                 fontSize: 12,
@@ -32,7 +32,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
             ),
             SizedBox(height: 8),
             DropdownButtonFormField(
-              hint: Text('Please Choose'.tr),
+              hint: Text('Please choose'.tr),
               style: TextStyle(fontSize: 12, height: 1),
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -80,7 +80,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                     Row(
                       children: [
                         SelectableText(
-                          'Bucket Name'.tr,
+                          'Bucket name'.tr,
                           style: TextStyle(
                             color: regularFontColor,
                             fontSize: 12,
@@ -89,7 +89,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                         ),
                         SizedBox(width: 8),
                         SelectableText(
-                          'QingStor Object Storage\'s Bucket Name'.tr,
+                          'QingStor object storage\'s bucket name'.tr,
                           style: TextStyle(
                             color: disableFontColor,
                             fontSize: 10,
@@ -103,7 +103,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         isDense: true,
-                        hintText: 'Please Enter, 6 - 63 Characters'.tr,
+                        hintText: 'Please enter, 6 - 63 characters'.tr,
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                       ),
@@ -111,6 +111,8 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                       style: TextStyle(fontSize: 12),
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.text,
+                      initialValue: controller.dstBucketName.value,
+                      onChanged: controller.dstBucketName,
                       onSaved: controller.dstBucketName,
                     ),
                   ],
@@ -127,7 +129,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                     Row(
                       children: [
                         SelectableText(
-                          'Work Dir'.tr,
+                          'Work dir'.tr,
                           style: TextStyle(
                             color: regularFontColor,
                             fontSize: 12,
@@ -136,7 +138,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                         ),
                         SizedBox(width: 8),
                         SelectableText(
-                          'The Current Working Directory For Service'.tr,
+                          'The current working directory for service'.tr,
                           style: TextStyle(
                             color: disableFontColor,
                             fontSize: 10,
@@ -150,7 +152,7 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         isDense: true,
-                        hintText: 'Please Enter，Default To /'.tr,
+                        hintText: 'Please enter，default to /'.tr,
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                       ),
@@ -158,7 +160,8 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                       style: TextStyle(fontSize: 12),
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.text,
-                      initialValue: '/',
+                      initialValue: controller.dstPath.value,
+                      onChanged: controller.dstPath,
                       onSaved: controller.dstPath,
                     ),
                   ],
