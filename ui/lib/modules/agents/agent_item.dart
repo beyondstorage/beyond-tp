@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui/models/agents.dart';
-import 'package:ui/modules/Agents/controller.dart';
 
 import '../../common/colors.dart';
+import 'controller.dart';
 
 class AgentItem extends GetView<AgentsController> {
   final Agent agent;
