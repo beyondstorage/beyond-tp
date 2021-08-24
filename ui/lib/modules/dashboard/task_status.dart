@@ -7,27 +7,35 @@ class TaskStatus extends StatelessWidget {
 
   Color get bgColor {
     switch (status) {
-      case "created":
-        return rgba(255, 206, 52, 1);
-      case "stopped":
-        return rgba(202, 38, 33, 1);
-      case "finished":
-        return rgba(0, 170, 114, 1);
+      case "Created":
+        return rgba(241, 175, 78, 1);
+      case "Ready":
+        return rgba(241, 175, 78, 1);
+      case "Running":
+        return primaryColor;
+      case "Stopped":
+        return disableFontColor;
+      case "Finished":
+        return rgba(94, 191, 134, 1);
       default:
-        return rgba(0, 170, 114, 1);
+        return rgba(207, 59, 55, 1);
     }
   }
 
-  IconData get iconName {
+  String convertStatus(String status) {
     switch (status) {
-      case "created":
-        return Icons.more_horiz;
-      case "stopped":
-        return Icons.pause;
-      case "finished":
-        return Icons.done;
+      case "Created":
+        return "To Be Run";
+      case "Ready":
+        return "To Be Run";
+      case "Running":
+        return "Running";
+      case "Stopped":
+        return "Paused";
+      case "Finished":
+        return "Completed";
       default:
-        return Icons.done;
+        return "Running Error";
     }
   }
 
@@ -37,27 +45,26 @@ class TaskStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 6,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 12,
-            height: 12,
+            width: 8,
+            height: 8,
+            margin: EdgeInsets.only(top: 4),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(6.0),
-            ),
-            child: Icon(
-              iconName,
-              size: 8,
-              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
+          SizedBox(width: 8),
           SelectableText(
-            status,
-            style: Theme.of(context).textTheme.bodyText1,
+            convertStatus(status),
+            style: TextStyle(
+              fontSize: 12,
+              color: regularFontColor,
+            ),
           ),
         ],
       ),

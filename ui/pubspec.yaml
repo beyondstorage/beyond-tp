@@ -40,6 +40,7 @@ dependencies:
   form_validator: ^0.1.7
 
   flutter_svg: ^0.22.0
+  date_format: ^2.0.4
 
 dev_dependencies:
   flutter_test:
