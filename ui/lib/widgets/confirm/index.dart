@@ -38,7 +38,6 @@ class Confirm extends StatelessWidget {
           Button(
             child: Text("Cancel".tr),
             onPressed: () => onClosePressed(),
-            // disabled: true,
           ),
           SizedBox(width: 8,),
           Button(
