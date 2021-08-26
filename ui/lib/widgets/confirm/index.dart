@@ -58,14 +58,14 @@ class Confirm extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Align(
-          child: IconButton(
-            icon: Icon(Icons.close),
-            iconSize: 20,
-            padding: EdgeInsets.all(1.0),
-            splashRadius: 1.0,
-            onPressed: () => onClosePressed(),
-          ),
-          alignment: Alignment.centerRight,
+        child: IconButton(
+          icon: Icon(Icons.close),
+          iconSize: 20,
+          padding: EdgeInsets.all(1.0),
+          splashRadius: 1.0,
+          onPressed: () => onClosePressed(),
+        ),
+        alignment: Alignment.centerRight,
       ),
       titlePadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       content: SizedBox(
