@@ -19,3 +19,12 @@ Color primaryDisabledColor = rgba(111, 133, 245, opacity);
 
 Color regularLineColor = rgba(203, 213, 225, 1);
 Color lightLineColor = rgba(226, 232, 240, 1);
+
+Color onlineColor = rgba(94, 191, 134, 1);
+Color offlineColor = rgba(148, 163, 184, 1);
+
+// MessageColor
+Color successMessageColor = rgba(239, 249, 243, 1);
+Color successFontColor = rgba(94, 191, 134, 1);
+
+
