@@ -38,7 +38,8 @@ class EntryList extends GetView<AgentsController> {
                         children: [
                           ...controller.agents.value.agents.map((agent) => AgentItem(agent: agent))
                         ],
-                      )),
+                      )
+                  ),
                 ]),
           ),
         ),
