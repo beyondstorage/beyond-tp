@@ -22,7 +22,7 @@ class Identity extends GetView<IdentityController> {
       child: Column(
         children: [
           PageDescription(
-            icon: Icons.how_to_reg,
+            icon: IconData(0xe60b, fontFamily: 'tpIcon'),
             title: 'Identities'.tr,
             subtitle:
                 "Support Binding One Or More Cloud Service Accounts / API Key"
@@ -30,7 +30,7 @@ class Identity extends GetView<IdentityController> {
           ),
           Obx(() => controller.identities.value.length() == 0
               ? EmptyEntryList(
-                  icon: Icons.how_to_reg,
+                  icon: IconData(0xe60b, fontFamily: 'tpIcon'),
                   title: 'The Identity List Is Empty'.tr,
                   subTitle:
                       'Please Click The Button Below To Create Identity'.tr,

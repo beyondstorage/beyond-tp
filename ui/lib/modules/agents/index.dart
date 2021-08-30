@@ -21,7 +21,7 @@ class Agents extends GetView<AgentsController> {
       child: Column(
         children: [
           PageDescription(
-            icon: Icons.dns_sharp,
+            icon: IconData(0xe608, fontFamily: 'tpIcon'),
             title: 'Agents'.tr,
             subtitle:
                 "Go to download Application, add and configure the Agent"

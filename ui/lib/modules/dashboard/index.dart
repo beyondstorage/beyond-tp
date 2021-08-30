@@ -20,14 +20,14 @@ class Dashboard extends GetView<DashboardController> {
       child: Column(
         children: [
           PageDescription(
-            icon: Icons.source,
+            icon: IconData(0xe600, fontFamily: 'tpIcon'),
             title: 'Tasks'.tr,
             subtitle: "Create and manage your data migration tasks".tr,
           ),
           Obx(
             () => controller.tasks.value.length() == 0
                 ? EmptyEntryList(
-                    icon: Icons.source,
+                    icon: IconData(0xe600, fontFamily: 'tpIcon'),
                     title: 'The task list is empty'.tr,
                     subTitle:
                         'Please click the button below to create a task'.tr,

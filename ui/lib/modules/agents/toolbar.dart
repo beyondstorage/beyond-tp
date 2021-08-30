@@ -21,8 +21,9 @@ class Toolbar extends GetView<AgentsController> {
             child: GestureDetector(
               onTap: () => this.onClick(),
               child: Icon(
-                Icons.refresh,
-                size: 22,
+                IconData(0xe604, fontFamily: 'tpIcon'),
+                size: 20,
+                color: Colors.black87,
               ),
             ),
           ),
