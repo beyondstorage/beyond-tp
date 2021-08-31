@@ -62,6 +62,7 @@ flutter:
     - images/logo.svg
     - images/sidebar_graphics.svg
     - images/qingstor_logo.svg
+    - images/agents.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -13,6 +13,7 @@ Color defaultColor = rgba(203, 213, 225, 1);
 Color defaultDisabledColor = rgba(226, 232, 240, 1);
 
 Color primaryColor = rgba(56, 86, 242, 1);
+Color primaryBackgroundColor = rgba(111, 133, 245, 1);
 Color primaryHoveredColor = rgba(89, 126, 247, 1);
 Color primaryPressedColor = rgba(29, 57, 196, 1);
 Color primaryDisabledColor = rgba(111, 133, 245, opacity);
