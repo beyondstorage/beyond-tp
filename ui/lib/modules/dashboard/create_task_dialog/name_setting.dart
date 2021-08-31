@@ -116,7 +116,7 @@ class NameSetting extends GetView<CreateTaskController> {
                       ),
                       SizedBox(width: 10),
                       IconButton(
-                        icon: Icon(Icons.edit),
+                        icon: Icon(IconData(0xe609, fontFamily: 'tpIcon'), size: 12,),
                         iconSize: 14,
                         constraints:
                             BoxConstraints(maxWidth: 14, maxHeight: 14),

@@ -38,7 +38,7 @@ class AgentItem extends GetView<AgentsController> {
             width: 50,
             margin: EdgeInsets.only(right: 16.0),
             child: Icon(
-              Icons.dns_sharp,
+              IconData(0xe608, fontFamily: 'tpIcon'),
               color: regularLineColor,
               size: 32,
             ),

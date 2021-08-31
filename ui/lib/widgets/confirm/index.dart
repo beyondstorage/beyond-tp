@@ -17,7 +17,7 @@ class Confirm extends StatelessWidget {
 
   Confirm({
       this.title = "Confirm",
-      this.icon = Icons.warning_rounded,
+      this.icon = const IconData(0xe603, fontFamily: 'tpIcon'),
       this.description,
       this.onClose,
       required this.onConfirm,
