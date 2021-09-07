@@ -37,7 +37,7 @@ class PageDescription extends StatelessWidget {
                 ),
               ),
               child: Center(
-                child: Icon(icon, size: 32, color: primaryColor),
+                child: Icon(icon, size: 32, color: primaryBackgroundColor),
               ),
             ),
             Expanded(

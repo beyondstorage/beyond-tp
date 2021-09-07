@@ -12,7 +12,7 @@ class Toolbar extends GetView<AgentsController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
+      margin: EdgeInsets.only(bottom: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +28,7 @@ class Toolbar extends GetView<AgentsController> {
             ),
           ),
           SizedBox(
-            width: 10,
+            width: 17,
           ),
           Obx(() => SelectableText(
                 '${controller.agents.value.length()} ${controller.agents.value.length() > 1 ? 'Agents' : 'Agent'}',
