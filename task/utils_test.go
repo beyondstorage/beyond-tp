@@ -114,18 +114,18 @@ func Test_calculatePartSize(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		obj := types.NewObject(nil, true)
+		meta := &types.StorageMeta{}
 		if tt.numberMax > 0 {
-			obj.SetMultipartNumberMaximum(tt.numberMax)
+			meta.SetMultipartNumberMaximum(tt.numberMax)
 		}
 		if tt.partSizeMax > 0 {
-			obj.SetMultipartSizeMaximum(tt.partSizeMax)
+			meta.SetMultipartSizeMaximum(tt.partSizeMax)
 		}
 		if tt.partSizeMin > 0 {
-			obj.SetMultipartSizeMinimum(tt.partSizeMin)
+			meta.SetMultipartSizeMinimum(tt.partSizeMin)
 		}
 
-		partSize, err := calculatePartSize(obj, tt.length)
+		partSize, err := calculatePartSize(meta, tt.length)
 
 		if tt.hasErr {
 			assert.NotNil(t, err, tt.name)
