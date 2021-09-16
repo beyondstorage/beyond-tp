@@ -15,25 +15,17 @@ help:
 check: format vet
 
 format:
-	@echo "go fmt"
-	@go fmt ./...
-	@echo "ok"
+	go fmt ./...
 
 generate:
-	@echo "generate code"
-	@go generate ./...
-	@echo "ok"
+	go generate ./...
 
 vet:
-	@echo "go vet"
-	@go vet ./...
-	@echo "ok"
+	go vet ./...
 
 build-frontend:
-	@echo "build frontend"
 	cd ./ui && flutter build web --release
 	cp -r ui/build/web/* api/ui
-	@echo "ok"
 
 # We remove check target to work around build failed in container build.
 # If we build in container, we will meet errors like:
@@ -44,10 +36,8 @@ build-frontend:
 # > package github.com/google/flatbuffers/samples: C++ source files not allowed when not using cgo or SWIG: sample_bfbs.cpp sample_binary.cpp sample_text.cpp
 # > package github.com/google/flatbuffers/tests: C++ source files not allowed when not using cgo or SWIG: monster_test.grpc.fb.cc native_type_test_impl.cpp test.cpp test_assert.cpp test_builder.cpp
 # > make: *** [Makefile:19: format] Error 1
-build: tidy build-frontend
-	@echo "build beyondtp"
+build: tidy
 	CGO_ENABLED=1 go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
-	@echo "ok"
 
 release: generate tidy check build-frontend
 	@echo "release beyondtp"
@@ -71,12 +61,8 @@ release: generate tidy check build-frontend
 	tar -C ./bin/windows-amd64/ -czf ./releases/beyondtp_windows_amd64.tar.gz beyondtp
 
 test:
-	@echo "run test"
-	@go test -race -v -count=1 ./...
-	@echo "ok"
+	go test -race -v -count=1 ./...
 
 tidy:
-	@echo "Tidy and check the go mod files"
-	@go mod tidy
-	@go mod verify
-	@echo "Done"
+	go mod tidy
+	go mod verify
