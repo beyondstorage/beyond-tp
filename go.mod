@@ -9,7 +9,7 @@ require (
 	github.com/beyondstorage/go-service-cos/v2 v2.3.0
 	github.com/beyondstorage/go-service-dropbox/v2 v2.3.0
 	github.com/beyondstorage/go-service-fs/v3 v3.3.0
-	github.com/beyondstorage/go-service-gcs/v2 v2.2.0
+	github.com/beyondstorage/go-service-gcs/v2 v2.3.0
 	github.com/beyondstorage/go-service-kodo/v2 v2.3.0
 	github.com/beyondstorage/go-service-oss/v2 v2.4.0
 	github.com/beyondstorage/go-service-qingstor/v3 v3.3.0
@@ -45,8 +45,8 @@ require (
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.2 // indirect
 	go.uber.org/zap v1.19.1
-	google.golang.org/grpc v1.38.0
+	google.golang.org/grpc v1.40.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
-	google.golang.org/protobuf v1.26.0
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/resty.v1 v1.12.0 // indirect
 )
