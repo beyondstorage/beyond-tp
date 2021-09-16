@@ -61,7 +61,7 @@ func FormatStorage(st *Storage) (types.Storager, error) {
 		return qingstor.NewStorager(pairs...)
 	case StorageType_S3:
 		// always enable path style for s3, to avoid dns problem
-		pairs = append(pairs, s3.WithForcePathStyle(true))
+		pairs = append(pairs, s3.WithForcePathStyle())
 		return s3.NewStorager(pairs...)
 	default:
 		return nil, errors.New("endpoint type unsupported")
