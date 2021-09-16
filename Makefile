@@ -44,7 +44,7 @@ build-frontend:
 # > package github.com/google/flatbuffers/samples: C++ source files not allowed when not using cgo or SWIG: sample_bfbs.cpp sample_binary.cpp sample_text.cpp
 # > package github.com/google/flatbuffers/tests: C++ source files not allowed when not using cgo or SWIG: monster_test.grpc.fb.cc native_type_test_impl.cpp test.cpp test_assert.cpp test_builder.cpp
 # > make: *** [Makefile:19: format] Error 1
-build: tidy build-frontend
+build: tidy
 	@echo "build beyondtp"
 	CGO_ENABLED=1 go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
 	@echo "ok"

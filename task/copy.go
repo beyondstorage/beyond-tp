@@ -193,7 +193,7 @@ func (rn *runner) HandleCopyMultipartFile(ctx context.Context, msg protobuf.Mess
 		return err
 	}
 
-	partSize, err := calculatePartSize(obj, arg.Size)
+	partSize, err := calculatePartSize(dst.Metadata(), arg.Size)
 	if err != nil {
 		logger.Error("calculate part size", zap.Error(err))
 		return err

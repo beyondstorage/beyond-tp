@@ -6,7 +6,7 @@ import (
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-func calculatePartSize(o *types.Object, totalSize int64) (int64, error) {
+func calculatePartSize(o *types.StorageMeta, totalSize int64) (int64, error) {
 	maxNum, numOK := o.GetMultipartNumberMaximum()
 	maxSize, maxOK := o.GetMultipartSizeMaximum()
 	minSize, minOK := o.GetMultipartSizeMinimum()
@@ -72,7 +72,7 @@ func calculatePartSize(o *types.Object, totalSize int64) (int64, error) {
 }
 
 // validatePartSize used to check user-input part size
-func validatePartSize(o *types.Object, totalSize, partSize int64) error {
+func validatePartSize(o *types.StorageMeta, totalSize, partSize int64) error {
 	if min, ok := o.GetMultipartSizeMinimum(); ok && partSize < min {
 		return fmt.Errorf("part size must larger than {%d}", min)
 	}
