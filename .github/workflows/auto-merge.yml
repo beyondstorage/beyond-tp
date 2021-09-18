@@ -36,8 +36,20 @@ jobs:
       - name: Auto build
         run: make build
 
-      - name: Enable auto-merge for dependabot PRs
+      - name: Auto commit
+        uses: stefanzweifel/git-auto-commit-action@v4
+        if: ${{contains(needs.metadata.outputs.dependency-names, 'github.com/beyondstorage/go-storage/v4')}}
+        with:
+          commit_message: Auto build to generate code
+
+      - name: Auto merge
         run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.ROBOT_GITHUB_TOKEN }}
+
+      - name: Auto approve
+        run: gh pr review "$PR_URL" -a
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.ROBOT_GITHUB_TOKEN }}
