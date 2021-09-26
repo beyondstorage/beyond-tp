@@ -6,7 +6,7 @@ GO_BUILD_OPTION := -trimpath
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
 	@echo "  check				to format code and vet check"
-	@echo "  build				to create bin directory and build beyondtp"
+	@echo "  build				to create bin directory and build btp"
 	@echo "  build-frontend		to build flutter web and copy to api/ui directory"
 	@echo "  generate			to generate code"
 	@echo "  test				to run unit tests"
@@ -37,28 +37,28 @@ build-frontend:
 # > package github.com/google/flatbuffers/tests: C++ source files not allowed when not using cgo or SWIG: monster_test.grpc.fb.cc native_type_test_impl.cpp test.cpp test_assert.cpp test_builder.cpp
 # > make: *** [Makefile:19: format] Error 1
 build: tidy
-	CGO_ENABLED=1 go build ${GO_BUILD_OPTION} -race -o ./bin/beyondtp ./cmd/beyondtp
+	CGO_ENABLED=1 go build ${GO_BUILD_OPTION} -race -o ./bin/btp ./cmd/btp
 
 release: generate tidy check build-frontend
-	@echo "release beyondtp"
+	@echo "release btp"
 	@-rm ./releases/*
 	@mkdir -p ./releases
 
 	@echo "build for linux amd64"
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/linux-amd64/beyondtp ./cmd/beyondtp
-	tar -C ./bin/linux-amd64/ -czf ./releases/beyondtp_linux_amd64.tar.gz beyondtp
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/linux-amd64/btp ./cmd/btp
+	tar -C ./bin/linux-amd64/ -czf ./releases/btp_linux_amd64.tar.gz btp
 
 	@echo "build for macos amd64"
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/darwin-amd64/beyondtp ./cmd/beyondtp
-	tar -C ./bin/darwin-amd64/ -czf ./releases/beyondtp_darwin_amd64.tar.gz beyondtp
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/darwin-amd64/btp ./cmd/btp
+	tar -C ./bin/darwin-amd64/ -czf ./releases/btp_darwin_amd64.tar.gz btp
 
 	@echo "build for macos arm64"
-	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build ${GO_BUILD_OPTION} -o ./bin/darwin-arm64/beyondtp ./cmd/beyondtp
-	tar -C ./bin/darwin-arm64/ -czf ./releases/beyondtp_darwin_arm64.tar.gz beyondtp
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build ${GO_BUILD_OPTION} -o ./bin/darwin-arm64/btp ./cmd/btp
+	tar -C ./bin/darwin-arm64/ -czf ./releases/btp_darwin_arm64.tar.gz btp
 
 	@echo "build for windows amd64"
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/windows-amd64/beyondtp ./cmd/beyondtp
-	tar -C ./bin/windows-amd64/ -czf ./releases/beyondtp_windows_amd64.tar.gz beyondtp
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build ${GO_BUILD_OPTION} -o ./bin/windows-amd64/btp ./cmd/btp
+	tar -C ./bin/windows-amd64/ -czf ./releases/btp_windows_amd64.tar.gz btp
 
 test:
 	go test -race -v -count=1 ./...

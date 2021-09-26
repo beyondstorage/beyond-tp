@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Name and other basic info for beyondtp.
+// Name and other basic info for btp.
 const (
-	Name        = "beyondtp"
+	Name        = "btp"
 	Description = "Advanced tool for data migration."
 	Version     = "0.2.0"
 )
