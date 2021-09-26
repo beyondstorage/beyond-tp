@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/beyondstorage/beyond-tp/models"
-	"github.com/beyondstorage/beyond-tp/task"
 )
 
 const ginCtxKey = "gin_in_ctx"
@@ -17,8 +16,7 @@ type Server struct {
 	Path  string
 	Debug bool
 
-	DB      *models.DB
-	Manager *task.Manager
+	DB *models.DB
 }
 
 func (s *Server) RegisterRouter(r *gin.Engine) {
@@ -33,7 +31,6 @@ func (s *Server) RegisterRouter(r *gin.Engine) {
 	}
 	gplHandler := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{
 		DB:      s.DB,
-		Manager: s.Manager,
 	}}))
 	gqlGroup.POST("", gin.WrapH(gplHandler))
 }

@@ -6,7 +6,6 @@ type Query {
     tasks: [Task!]!
     identities(type: IdentityType): [Identity!]!
     identity(type: IdentityType!, name: String!): Identity!
-    staffs: [Staff!]!
 }
 
 type Mutation {
@@ -25,8 +24,6 @@ type Task {
     created_at: Time!
     updated_at: Time!
     storages: [Storage!]!
-    options: [Pair!]!
-    staffs: [Staff!]!
 }
 
 type Identity {
@@ -48,14 +45,12 @@ type Credential {
 
 input EndpointInput {
     protocol: String!
-    host: String!
-    port: Int!
+    args: [String!]
 }
 
 type Endpoint {
     protocol: String!
-    host: String!
-    port: Int!
+    args: [String!]
 }
 
 enum TaskType {
@@ -79,8 +74,6 @@ input CreateTask {
     name: String!
     type: TaskType!
     storages: [StorageInput!]!
-    options: [PairInput!]!
-    staffs: [StaffInput!]!
 }
 
 input DeleteTask {
@@ -101,33 +94,15 @@ input DeleteIdentity {
 
 input StorageInput {
     type: StorageType!
-    options: [PairInput!]!
+    connection: String!
 }
 
 type Storage {
     type: StorageType!
-    options: [Pair!]!
+    connection: String!
 }
 
 enum StorageType {
     Fs
     Qingstor
-}
-
-input PairInput {
-    key: String!
-    value: String!
-}
-
-type Pair {
-    key: String!
-    value: String!
-}
-
-input StaffInput {
-    id: String!
-}
-
-type Staff {
-    id: String!
 }

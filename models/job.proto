@@ -4,70 +4,70 @@ package job;
 option go_package = "github.com/beyondstorage/beyond-tp/models";
 
 message Job {
-    string id = 1;
-    JobType type = 2;
-    bytes content = 3;
+  string id = 1;
+  JobType type = 2;
+  bytes content = 3;
 }
 
 enum JobType {
-    InvalidJobType = 0;
+  InvalidJobType = 0;
 
-    CopyDir = 1;
-    CopyFile = 2;
-    CopySingleFile = 3;
-    CopyMultipartFile = 4;
-    CopyMultipart = 5;
+  CopyDir = 1;
+  CopyFile = 2;
+  CopySingleFile = 3;
+  CopyMultipartFile = 4;
+  CopyMultipart = 5;
 }
 
 enum JobStatus {
-    InvalidJobStatus = 0;
+  InvalidJobStatus = 0;
 
-    Succeed = 1;
-    Failed = 2;
+  Succeed = 1;
+  Failed = 2;
 }
 
 message CopyDirJob {
-    uint32 src = 1;
-    uint32 dst = 2;
-    string src_path = 3;
-    string dst_path = 4;
-    bool recursive = 5;
+  uint32 src = 1;
+  uint32 dst = 2;
+  string src_path = 3;
+  string dst_path = 4;
+  bool recursive = 5;
 }
 
 message CopyFileJob {
-    uint32 src = 1;
-    uint32 dst = 2;
-    string src_path = 3;
-    string dst_path = 4;
+  uint32 src = 1;
+  uint32 dst = 2;
+  string src_path = 3;
+  string dst_path = 4;
 }
 
 message CopySingleFileJob {
-    uint32 src = 1;
-    uint32 dst = 2;
-    string src_path = 3;
-    string dst_path = 4;
-    int64 size = 5;
+  uint32 src = 1;
+  uint32 dst = 2;
+  string src_path = 3;
+  string dst_path = 4;
+  int64 size = 5;
 }
 
 message CopyMultipartFileJob {
-    uint32 src = 1;
-    uint32 dst = 2;
-    string src_path = 3;
-    string dst_path = 4;
-    int64 size = 5;
+  uint32 src = 1;
+  uint32 dst = 2;
+  string src_path = 3;
+  string dst_path = 4;
+  int64 size = 5;
 }
 
 message CopyMultipartJob {
-    uint32 src = 1;
-    uint32 dst = 2;
-    string src_path = 3;
-    string dst_path = 4;
-    string multipart_id = 5;
-    int64 size = 6;
-    uint32 index = 7;
-    int64 offset = 8;
+  uint32 src = 1;
+  uint32 dst = 2;
+  string src_path = 3;
+  string dst_path = 4;
+  string multipart_id = 5;
+  int64 size = 6;
+  uint32 index = 7;
+  int64 offset = 8;
 }
 
 message WriteMultipartJobMetadata {
-    string etag = 1;
+  string etag = 1;
 }

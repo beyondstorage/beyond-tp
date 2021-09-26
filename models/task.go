@@ -107,13 +107,6 @@ func (d *DB) RunTask(id string) (err error) {
 	if err != nil {
 		return fmt.Errorf("update task %s failed: [%w]", task.Id, err)
 	}
-
-	for _, staffId := range task.StaffIds {
-		err = d.InsertStaffTask(txn, staffId, task.Id)
-		if err != nil {
-			return fmt.Errorf("insert staff task %s to staff %s failed: [%w]", task.Id, staffId, err)
-		}
-	}
 	return
 }
 
@@ -209,65 +202,4 @@ func (d *DB) WaitTask(ctx context.Context, taskId string) (err error) {
 		return nil
 	}
 	return err
-}
-
-// This function will be used to elect task leader.
-// If there is no leader here, we will use input staff as leader.
-// TODO: This logic could be changed.
-func (d *DB) ElectTaskLeader(taskId, staffId, staffAddr string) (electedStaffId, electedStaffAddr string, err error) {
-	txn := d.db.NewTransaction(true)
-
-	sid, saddr, err := d.getTaskLeader(txn, taskId)
-	// We do get a task leader.
-	if err == nil {
-		return sid, saddr, nil
-	}
-	// If err is not key not found, other error happened.
-	if err != badger.ErrKeyNotFound {
-		return "", "", err
-	}
-
-	bs, err := protobuf.Marshal(&TaskLeader{
-		TaskId:    taskId,
-		StaffId:   staffId,
-		StaffAddr: staffAddr,
-	})
-	if err != nil {
-		panic("invalid task leader")
-	}
-
-	err = txn.Set(TaskLeaderKey(taskId), bs)
-	if err != nil {
-		return
-	}
-
-	err = txn.Commit()
-	// Task leader has been updated by other txn, we should discard our changes.
-	if err == badger.ErrConflict {
-		txn.Discard()
-		return d.getTaskLeader(d.db.NewTransaction(false), taskId)
-	}
-	return staffId, staffAddr, nil
-}
-
-func (d *DB) getTaskLeader(txn *badger.Txn, taskId string) (electedStaffId, electedStaffAddr string, err error) {
-	item, err := txn.Get(TaskLeaderKey(taskId))
-	if err != nil {
-		return "", "", err
-	}
-
-	tl := &TaskLeader{}
-
-	err = item.Value(func(val []byte) error {
-		err = protobuf.Unmarshal(val, tl)
-		if err != nil {
-			panic("invalid task leader")
-		}
-		return nil
-	})
-	if err != nil {
-		return
-	}
-
-	return tl.StaffId, tl.StaffAddr, nil
 }

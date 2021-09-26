@@ -65,47 +65,17 @@ func formatStorageType(st models.StorageType) StorageType {
 	}
 }
 
-func parsePairInput(pi *PairInput) *models.Pair {
-	return &models.Pair{
-		Key:   pi.Key,
-		Value: pi.Value,
-	}
-}
-
-func formatPair(pi *models.Pair) *Pair {
-	return &Pair{
-		Key:   pi.Key,
-		Value: pi.Value,
-	}
-}
-
-func parsePairsInput(pis []*PairInput) []*models.Pair {
-	ps := make([]*models.Pair, 0, len(pis))
-	for _, v := range pis {
-		ps = append(ps, parsePairInput(v))
-	}
-	return ps
-}
-
-func formatPairs(pis []*models.Pair) []*Pair {
-	ps := make([]*Pair, 0, len(pis))
-	for _, v := range pis {
-		ps = append(ps, formatPair(v))
-	}
-	return ps
-}
-
 func parseStorageInput(si *StorageInput) *models.Storage {
 	return &models.Storage{
-		Type:    parseStorageType(si.Type),
-		Options: parsePairsInput(si.Options),
+		Type:       parseStorageType(si.Type),
+		Connection: si.Connection,
 	}
 }
 
 func formatStorage(ms *models.Storage) *Storage {
 	return &Storage{
-		Type:    formatStorageType(ms.Type),
-		Options: formatPairs(ms.Options),
+		Type:       formatStorageType(ms.Type),
+		Connection: ms.Connection,
 	}
 }
 
@@ -134,7 +104,6 @@ func formatTask(t *models.Task) *Task {
 		CreatedAt: t.CreatedAt.AsTime(),
 		UpdatedAt: t.UpdatedAt.AsTime(),
 		Storages:  formatStorages(t.Storages),
-		Options:   formatPairs(t.Options),
 	}
 }
 
@@ -198,27 +167,13 @@ func parseCredentialInput(cred *CredentialInput) *models.Credential {
 func formatEndpoint(ep *models.Endpoint) *Endpoint {
 	return &Endpoint{
 		Protocol: ep.Protocol,
-		Host:     ep.Host,
-		Port:     int(ep.Port),
+		Args:     ep.Args,
 	}
 }
 
 func parseEndpointInput(ep *EndpointInput) *models.Endpoint {
 	return &models.Endpoint{
 		Protocol: ep.Protocol,
-		Host:     ep.Host,
-		Port:     int32(ep.Port),
+		Args:     ep.Args,
 	}
-}
-
-func formatStaff(staff *models.Staff) *Staff {
-	return &Staff{ID: staff.Id}
-}
-
-func formatStaffs(staffs []*models.Staff) []*Staff {
-	res := make([]*Staff, 0, len(staffs))
-	for _, staff := range staffs {
-		res = append(res, formatStaff(staff))
-	}
-	return res
 }

@@ -13,17 +13,16 @@ import (
 )
 
 type runner struct {
-	agent *Worker
-	j     *models.Job
+	j *models.Job
 
-	grpcClient models.WorkerClient
+	grpcClient models.AgentClient
 	storages   []types.Storager
 	wg         *sync.WaitGroup
 
 	logger *zap.Logger
 }
 
-func newRunner(a *Worker, j *models.Job) (*runner, error) {
+func newRunner(j *models.Job) (*runner, error) {
 	rn := &runner{
 		j:     j,
 		agent: a,

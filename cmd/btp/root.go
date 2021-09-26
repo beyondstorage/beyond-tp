@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -34,22 +33,8 @@ func newRootCmd() *cobra.Command {
 		Version: Version,
 	}
 
-	rootCmd.PersistentFlags().String(flagDB, "", "path to locate badger db")
-	rootCmd.PersistentFlags().Bool(flagDev, false, "enable dev mode or not")
-	rootCmd.PersistentFlags().String(flagLogLevel, "info", "log level")
-	// Overwrite the default help flag to free -h shorthand.
-	rootCmd.PersistentFlags().Bool("help", false, "help for this command")
-
-	rootCmd.AddCommand(newServerCmd())
-	rootCmd.AddCommand(newStaffCmd())
+	rootCmd.AddCommand(newAgentCmd())
 	rootCmd.AddCommand(newTaskCmd())
-
-	// use local flags to only handle flags for current command
-	rootCmd.LocalFlags().VisitAll(func(flag *pflag.Flag) {
-		key := formatKeyInViper("", flag.Name)
-		viper.BindPFlag(key, flag)
-		viper.SetDefault(key, flag.DefValue)
-	})
 	return rootCmd
 }
 

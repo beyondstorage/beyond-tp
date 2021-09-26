@@ -20,8 +20,6 @@ type CreateTask struct {
 	Name     string          `json:"name"`
 	Type     TaskType        `json:"type"`
 	Storages []*StorageInput `json:"storages"`
-	Options  []*PairInput    `json:"options"`
-	Staffs   []*StaffInput   `json:"staffs"`
 }
 
 type Credential struct {
@@ -44,15 +42,13 @@ type DeleteTask struct {
 }
 
 type Endpoint struct {
-	Protocol string `json:"protocol"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
+	Protocol string   `json:"protocol"`
+	Args     []string `json:"args"`
 }
 
 type EndpointInput struct {
-	Protocol string `json:"protocol"`
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
+	Protocol string   `json:"protocol"`
+	Args     []string `json:"args"`
 }
 
 type Identity struct {
@@ -62,32 +58,14 @@ type Identity struct {
 	Endpoint   *Endpoint    `json:"endpoint"`
 }
 
-type Pair struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
-type PairInput struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
-type Staff struct {
-	ID string `json:"id"`
-}
-
-type StaffInput struct {
-	ID string `json:"id"`
-}
-
 type Storage struct {
-	Type    StorageType `json:"type"`
-	Options []*Pair     `json:"options"`
+	Type       StorageType `json:"type"`
+	Connection string      `json:"connection"`
 }
 
 type StorageInput struct {
-	Type    StorageType  `json:"type"`
-	Options []*PairInput `json:"options"`
+	Type       StorageType `json:"type"`
+	Connection string      `json:"connection"`
 }
 
 type Task struct {
@@ -98,8 +76,6 @@ type Task struct {
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
 	Storages  []*Storage `json:"storages"`
-	Options   []*Pair    `json:"options"`
-	Staffs    []*Staff   `json:"staffs"`
 }
 
 type IdentityType string
