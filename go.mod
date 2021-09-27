@@ -8,7 +8,7 @@ require (
 	github.com/beyondstorage/go-service-azblob/v2 v2.3.0
 	github.com/beyondstorage/go-service-cos/v2 v2.3.0
 	github.com/beyondstorage/go-service-dropbox/v2 v2.3.0
-	github.com/beyondstorage/go-service-fs/v3 v3.3.0
+	github.com/beyondstorage/go-service-fs/v3 v3.5.0
 	github.com/beyondstorage/go-service-gcs/v2 v2.3.0
 	github.com/beyondstorage/go-service-kodo/v2 v2.3.0
 	github.com/beyondstorage/go-service-oss/v2 v2.4.0
@@ -29,7 +29,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/vektah/gqlparser/v2 v2.2.0
 	go.uber.org/zap v1.19.1
-	google.golang.org/grpc v1.40.0
+	google.golang.org/grpc v1.41.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0
 	google.golang.org/protobuf v1.27.1
 )
