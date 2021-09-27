@@ -7,12 +7,14 @@ class ProgressBar extends StatelessWidget {
   final double barWidth;
   final double barHeight;
   final String description;
+  final Color ?barColor;
 
   ProgressBar({
     required this.ratio,
     this.barWidth = 140,
     this.barHeight = 6,
     this.description = '',
+    this.barColor,
   });
 
   @override
@@ -29,14 +31,14 @@ class ProgressBar extends StatelessWidget {
               height: barHeight,
               alignment: Alignment.topLeft,
               decoration: BoxDecoration(
-                color: rgba(242, 242, 242, 1),
+                color: barColor != null ? barColor?.withOpacity(0.1) : rgba(242, 242, 242, 1),
                 borderRadius: BorderRadius.all(Radius.circular(30)),
               ),
               child: Container(
                 width: ratio * barWidth,
                 height: barHeight,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
+                  color: barColor ?? Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                 ),
               ),

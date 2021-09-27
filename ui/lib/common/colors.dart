@@ -28,4 +28,7 @@ Color offlineColor = rgba(148, 163, 184, 1);
 Color successMessageColor = rgba(239, 249, 243, 1);
 Color successFontColor = rgba(94, 191, 134, 1);
 
+Color timeLogBackgroundColor = rgba(10, 12, 16, 1);
+Color logFontColor = rgba(141, 148, 157, 1);
+
 

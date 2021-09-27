@@ -36,7 +36,10 @@ class EntryActions extends GetView<DashboardController> {
                   ),
                 ),
               ),
-              onPressed: () => Get.dialog(TaskDetailDialog(taskId: data["id"])),
+              onPressed: () {
+                // Get.dialog(TaskDetailDialog(taskId: data["id"]));
+                controller.showDetail(true);
+              },
             ),
             TextButton(
               child: Padding(
@@ -67,7 +70,6 @@ class EntryMoreActions extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    // String name = data["name"];
 
     return MoreActions(
       onSelected: (String op) {

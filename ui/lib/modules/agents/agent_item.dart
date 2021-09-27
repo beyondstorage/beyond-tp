@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ui/common/svg_provider.dart';
 import 'package:ui/models/agents.dart';
+import 'package:ui/widgets/dot/index.dart';
 
 import '../../common/colors.dart';
 import 'controller.dart';
@@ -58,27 +59,10 @@ class AgentItem extends GetView<AgentsController> {
               fontWeight: FontWeight.w600,
             )),
             SizedBox(height: 2),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  height: 8,
-                  width: 8,
-                  margin: EdgeInsets.only(right: 4, top: 3),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                    color: this.agent.isOnline ? onlineColor : offlineColor
-                  ),
-                ),
-                SelectableText(this.agent.isOnline ? "Online".tr : "Offline".tr,
-                  style: TextStyle(
-                  color: regularFontColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ))
-              ],
-            )
+            Dot(
+              dotTitle: this.agent.isOnline ? "Online".tr : "Offline".tr,
+              dotColor: this.agent.isOnline ? onlineColor : offlineColor,
+            ),
           ]),
           getShowItem(children: [
             SelectableText(this.agent.id,

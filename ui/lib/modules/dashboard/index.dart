@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:ui/modules/dashboard/task_detail/index.dart';
 
 import '../layout/index.dart';
 import '../../widgets/page_description/index.dart';
@@ -17,30 +18,29 @@ class Dashboard extends GetView<DashboardController> {
     c.getTasks();
 
     return Layout(
-      child: Column(
-        children: [
-          PageDescription(
-            icon: IconData(0xe600, fontFamily: 'tpIcon'),
-            title: 'Tasks'.tr,
-            subtitle: "Create and manage your data migration tasks".tr,
-          ),
-          Obx(
-            () => controller.tasks.value.length() == 0
+      child: Obx(() => controller.showDetail.value
+        ? TaskDetail()
+        : Column(
+            children: [
+              PageDescription(
+                icon: IconData(0xe600, fontFamily: 'tpIcon'),
+                title: 'Tasks'.tr,
+                subtitle: "Create and manage your data migration tasks".tr,
+              ),
+              controller.tasks.value.length() == 0
                 ? EmptyEntryList(
-                    icon: IconData(0xe600, fontFamily: 'tpIcon'),
-                    title: 'The task list is empty'.tr,
-                    subTitle:
-                        'Please click the button below to create a task'.tr,
-                    buttonText: 'Create task'.tr,
-                    onClick: () => Get.dialog(CreateTaskDialog(
-                      name: 'DM task 1',
-                      getTasks: controller.getTasks,
-                    )),
-                  )
+                  icon: IconData(0xe600, fontFamily: 'tpIcon'),
+                  title: 'The task list is empty'.tr,
+                  subTitle: 'Please click the button below to create a task'.tr,
+                  buttonText: 'Create task'.tr,
+                  onClick: () => Get.dialog(CreateTaskDialog(
+                    name: 'DM task 1',
+                    getTasks: controller.getTasks,
+                  )),
+                )
                 : EntryList(),
-          ),
-        ],
-      ),
+            ],
+        )),
     );
   }
 }
