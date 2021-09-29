@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/beyond-tp/api/graphql"
-	"github.com/beyondstorage/beyond-tp/api/ui"
+	"github.com/beyondstorage/beyond-tp/http/graphql"
+	"github.com/beyondstorage/beyond-tp/http/ui"
 	"github.com/beyondstorage/beyond-tp/task"
 )
 

@@ -31,5 +31,5 @@ node_modules
 
 releases
 
-api/ui/*
-!api/ui/ui.go
+http/ui/*
+!http/ui/ui.go
