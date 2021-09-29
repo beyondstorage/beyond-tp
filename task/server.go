@@ -1,170 +1,268 @@
 package task
 
 import (
+	"bytes"
 	"context"
-	"net"
-
-	"github.com/beyondstorage/go-toolbox/zapcontext"
-	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	"errors"
+	"fmt"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
+	"path/filepath"
+	"sync"
 
-	"github.com/beyondstorage/beyond-tp/models"
+	"github.com/dgraph-io/badger/v3"
 )
 
 type Server struct {
-	cfg ServerConfig
+	logger *zap.Logger
 
-	logger     *zap.Logger
-	db         *models.DB
-	grpcServer *grpc.Server
+	db *badger.DB
 
-	models.UnimplementedAgentServer
+	// task id -> job channel.
+	jobCh   map[string]chan *Job
+	jobLock sync.Mutex
 }
 
 type ServerConfig struct {
-	GrpcAddr string
-
-	DatabasePath string
+	DataDir string
+	Logger  *zap.Logger
 }
 
-func NewServer(ctx context.Context, cfg ServerConfig) (s *Server, err error) {
-	logger := zapcontext.From(ctx)
-
-	s.db, err = models.NewDB(s.cfg.DatabasePath, logger)
-	if err != nil {
-		logger.Error("create db",
-			zap.String("path", s.cfg.DatabasePath), zap.Error(err))
-		return
+func NewServer(sc *ServerConfig) (s *Server, err error) {
+	s = &Server{
+		logger: sc.Logger,
 	}
 
-	s.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(
-		middleware.ChainUnaryServer(
-			grpczap.UnaryServerInterceptor(logger),
-			grpc_recovery.UnaryServerInterceptor(),
-		)),
-	)
-	models.RegisterAgentServer(s.grpcServer, s)
-
-	l, err := net.Listen("tcp", cfg.GrpcAddr)
+	// Init badger db.
+	dbDir := filepath.Join(sc.DataDir, "db")
+	ops := badger.
+		DefaultOptions(dbDir).
+		WithLoggingLevel(badger.ERROR)
+	db, err := badger.Open(ops)
 	if err != nil {
-		logger.Error("grpc server listen", zap.Error(err))
-		return
+		return nil, fmt.Errorf("open db: %w", err)
 	}
+	s.db = db
 
-	go func() {
-		err = s.grpcServer.Serve(l)
-		if err != nil {
-			logger.Error("grpc server serve", zap.Error(err))
-			return
-		}
+	s.jobCh = make(map[string]chan *Job)
+	return
+}
+
+func (s *Server) Serve(ctx context.Context) (err error) {
+	return nil
+}
+
+func (s *Server) InsertTask(ctx context.Context, t *Task) (err error) {
+	txn := s.db.NewTransaction(true)
+	defer func() {
+		err = s.CloseTxn(txn, err)
 	}()
 
-	logger.Info("server has been setup", zap.String("addr", cfg.GrpcAddr))
-	return s, nil
+	err = txn.Set(KeyTask(t.Id), FormatTask(t))
+	if err != nil {
+		return fmt.Errorf("db set: %w", err)
+	}
+	return nil
 }
 
-func (s *Server) PollJob(ctx context.Context, req *models.PollJobRequest, opts ...grpc.CallOption) (models.Agent_PollJobClient, error) {
-	logger := s.logger
-
-	for j := range s.jobCh {
-		err = srv.Send(&models.PollJobReply{
-			Status: models.PollJobStatus_Valid,
-			Job:    j,
-		})
-		if err != nil {
-			logger.Error("send next job", zap.Error(err))
-			return
-		}
-	}
-
-	// If job channel has been closed, that means no more new jobs will be added.
-	err = srv.Send(&models.PollJobReply{
-		Status: models.PollJobStatus_Terminated,
+func (s *Server) NextTask(ctx context.Context) (t *Task, err error) {
+	err = s.nextValue(PrefixTask, func(val []byte) error {
+		t = ParseTask(val)
+		return nil
 	})
 	if err != nil {
-		logger.Error("send terminate job", zap.Error(err))
+		return nil, fmt.Errorf("db next value: %w", err)
 	}
 	return
 }
 
-func (s *Server) CreateJob(ctx context.Context, req *models.CreateJobRequest, opts ...grpc.CallOption) (reply *models.CreateJobReply, err error) {
-	logger := zapcontext.From(ctx)
+func (s *Server) NextJob(ctx context.Context, taskId string) (j *Job, err error) {
+	err = s.nextValue(PrefixJob(taskId), func(val []byte) error {
+		j = ParseJob(val)
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("db next value: %w", err)
+	}
+	return
+}
 
-	reply = &models.CreateJobReply{
-		Status: 0,
+func (s *Server) InsertJob(ctx context.Context, j *Job) (err error) {
+	txn := s.db.NewTransaction(true)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
+
+	err = txn.Set(KeyJob(j.TaskId, j.Id), FormatJob(j))
+	if err != nil {
+		return fmt.Errorf("db set: %w", err)
+	}
+	return nil
+}
+
+func (s *Server) GetJob(ctx context.Context, taskId, jobId string) (j *Job, err error) {
+	txn := s.db.NewTransaction(false)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
+
+	item, err := txn.Get(KeyJob(taskId, jobId))
+	if err != nil && errors.Is(err, badger.ErrKeyNotFound) {
+		s.logger.Debug("job not found",
+			zap.String("task_id", taskId),
+			zap.String("job_id", jobId))
+		return nil, nil
+	}
+	err = item.Value(func(val []byte) error {
+		j = ParseJob(val)
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("db value: %w", err)
+	}
+	s.logger.Debug("job found",
+		zap.String("job_id", jobId))
+	return
+}
+
+func (s *Server) WaitJob(ctx context.Context, taskId, jobId string) (err error) {
+	j, err := s.GetJob(ctx, taskId, jobId)
+	if err != nil {
+		return fmt.Errorf("get job: %w", err)
+	}
+	// If job doesn't exist, we can return directly.
+	if j == nil {
+		return nil
 	}
 
-	err = s.db.InsertJob(req.Job)
+	prefix := KeyJob(taskId, jobId)
+	isDeleted := false
+
+	err = s.db.Subscribe(ctx, func(kv *badger.KVList) error {
+		for _, v := range kv.Kv {
+			// Check if prefix valid.
+			if bytes.Compare(v.Key, KeyJob(taskId, jobId)) != 0 {
+				panic(fmt.Errorf("prefix invalid, expected: %s, got: %s", prefix, v.Key))
+			}
+			if v.Value == nil {
+				isDeleted = true
+				return nil
+			}
+		}
+		return nil
+	}, prefix)
 	if err != nil {
-		logger.Error("insert job", zap.Error(err))
+		return fmt.Errorf("db subscribe: %w", err)
+	}
+	if !isDeleted {
+		s.logger.Warn("wait job exited without delete",
+			zap.String("task_id", taskId),
+			zap.String("job_id", jobId))
+	}
+	return
+}
+
+func (s *Server) DeleteJob(ctx context.Context, taskId, jobId string) (err error) {
+	txn := s.db.NewTransaction(true)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
+
+	err = txn.Delete(KeyJob(taskId, jobId))
+	if err != nil {
 		return
 	}
 	return
 }
 
-func (s *Server) WaitJob(ctx context.Context, req *models.WaitJobRequest, opts ...grpc.CallOption) (reply *models.WaitJobReply, err error) {
-	logger := zapcontext.From(ctx)
+func (s *Server) SetMeta(ctx context.Context, taskId, jobId, meteKey, metaValue string) (err error) {
+	txn := s.db.NewTransaction(true)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
 
-	reply = &models.WaitJobReply{
-		Status: 0,
-	}
-
-	err = s.db.WaitJob(ctx, req.JobId)
+	err = txn.Set(KeyMeta(taskId, jobId, meteKey), []byte(metaValue))
 	if err != nil {
-		logger.Error("wait job", zap.Error(err))
+		return
+	}
+	return
+}
+func (s *Server) GetMeta(ctx context.Context, taskId, jobId, meteKey string) (metaValue string, err error) {
+	txn := s.db.NewTransaction(false)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
+
+	item, err := txn.Get(KeyMeta(taskId, jobId, meteKey))
+	if err != nil {
+		return
+	}
+	err = item.Value(func(val []byte) error {
+		metaValue = string(val)
+		return nil
+	})
+	if err != nil {
+		return
+	}
+	return
+}
+func (s *Server) DeleteMeta(ctx context.Context, taskId, jobId, meteKey string) (err error) {
+	txn := s.db.NewTransaction(true)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
+
+	err = txn.Delete(KeyMeta(taskId, jobId, meteKey))
+	if err != nil {
 		return
 	}
 	return
 }
 
-func (s *Server) FinishJob(ctx context.Context, req *models.FinishJobRequest, opts ...grpc.CallOption) (reply *models.FinishJobReply, err error) {
-	logger := zapcontext.From(ctx)
-
-	reply := &models.FinishJobReply{}
-
-	err = s.db.DeleteJob(ctx, req.JobId)
-	if err != nil {
-		logger.Error("delete job", zap.Error(err))
-		return
-	}
-	logger.Debug("job finished", zap.String("id", req.JobId), zap.String("status", req.Status.String()),
-		zap.String("root job", s.rootJobId))
-
-	if req.JobId == s.rootJobId {
-		logger.Debug("root job finished", zap.String("id", req.JobId))
-
-		close(s.doneCh)
-		close(s.jobCh)
-	}
-	return
+// NewTxn export db.NewTransaction method
+func (s *Server) NewTxn(update bool) *badger.Txn {
+	return s.db.NewTransaction(update)
 }
 
-func (s *Server) GetJobMetadata(ctx context.Context, req *models.GetJobMetadataRequest) (
-	*models.GetJobMetadataReply, error) {
-	res, err := s.db.GetJobMetadata(req.JobId)
+func (s *Server) CloseTxn(txn *badger.Txn, err error) error {
+	// Discard all changes and return input error.
 	if err != nil {
-		return nil, err
+		txn.Discard()
+		return fmt.Errorf("discard txn: %w", err)
 	}
-	return &models.GetJobMetadataReply{Metadata: res}, nil
+
+	// Commit all changes and return error during commit.
+	err = txn.Commit()
+	if err != nil {
+		s.logger.Error("txn commit", zap.Error(err))
+		return fmt.Errorf("commit txn: %w", err)
+	}
+	return nil
 }
 
-func (s *Server) SetJobMetadata(ctx context.Context, req *models.SetJobMetadataRequest) (
-	*models.SetJobMetadataReply, error) {
-	err := s.db.SetJobMetadata(req.JobId, req.Metadata)
-	if err != nil {
-		return nil, err
-	}
-	return &models.SetJobMetadataReply{}, nil
-}
+func (s *Server) nextValue(prefix []byte, fn func(val []byte) error) (err error) {
+	txn := s.db.NewTransaction(false)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
 
-func (s *Server) DeleteJobMetadata(ctx context.Context, req *models.DeleteJobMetadataRequest) (
-	*models.DeleteJobMetadataReply, error) {
-	err := s.db.DeleteJobMetadata(req.JobId)
-	if err != nil {
-		return nil, err
+	opt := badger.IteratorOptions{
+		// Only next key to avoid over read.
+		PrefetchSize:   1,
+		PrefetchValues: true,
+		Prefix:         prefix,
 	}
-	return &models.DeleteJobMetadataReply{}, nil
+
+	it := txn.NewIterator(opt)
+	defer it.Close()
+
+	it.Seek(prefix)
+	if !it.ValidForPrefix(prefix) {
+		return nil
+	}
+
+	err = it.Item().Value(fn)
+	if err != nil {
+		return fmt.Errorf("db value: %w", err)
+	}
+	return nil
 }

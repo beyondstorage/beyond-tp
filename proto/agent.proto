@@ -1,0 +1,78 @@
+syntax = "proto3";
+package agent;
+
+option go_package = "github.com/beyondstorage/beyond-tp/proto";
+
+import "google/protobuf/timestamp.proto";
+
+service Agent {
+  rpc Notify(stream Notification) returns (stream Notification){}
+
+  rpc NextTask(NextTaskRequest) returns (TaskReply){}
+
+  rpc NextJob(NextJobRequest) returns (JobReply){}
+  rpc CreateJob(CreateJobRequest) returns (EmptyReply){}
+  rpc WaitJob(WaitJobRequest) returns (EmptyReply){}
+  rpc FinishJob(FinishJobRequest) returns (EmptyReply){}
+
+  rpc SetMeta(MetaEntry) returns (EmptyReply) {}
+  rpc GetMeta(MetaKey) returns (MetaValue) {}
+  rpc DeleteMeta(MetaKey) returns (EmptyReply){}
+}
+
+message EmptyReply {}
+
+message Notification {}
+
+message TaskReply {
+  string id = 1;
+  string name = 2;
+  int64 type = 3;
+  int64 status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  repeated string storage_connections = 7;
+}
+message NextTaskRequest {}
+
+message JobReply {
+  string id = 1;
+  string task_id = 2;
+  int64 type = 3;
+  bytes content = 4;
+}
+message NextJobRequest {
+  string task_id = 1;
+}
+
+message CreateJobRequest {
+  string task_id = 1;
+  int64 type = 2;
+  bytes content = 3;
+}
+message WaitJobRequest {
+  string task_id = 1;
+  string job_id = 2;
+}
+message FinishJobRequest {
+  string task_id = 1;
+  string job_id = 2;
+  int64 status = 3;
+}
+
+message MetaKey {
+  string task_id = 1;
+  string job_id = 2;
+  string key = 3;
+}
+
+message MetaValue {
+  string value = 1;
+}
+
+message MetaEntry {
+  string task_id = 1;
+  string job_id = 2;
+  string key = 3;
+  string value = 4;
+}
