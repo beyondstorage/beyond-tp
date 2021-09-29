@@ -45,7 +45,7 @@ func (rn *Runner) HandleCopyPartJob(ctx context.Context, j *Job) (err error) {
 
 	_, err = rn.c.gc.SetMeta(ctx, &proto.MetaEntry{
 		Key:   nil,
-		Value: []byte(part.ETag),
+		Value: part.ETag,
 	})
 	if err != nil {
 		return

@@ -75,6 +75,17 @@ func (s *Server) NextTask(ctx context.Context) (t *Task, err error) {
 	return
 }
 
+func (s *Server) HasTask(ctx context.Context) (has bool, err error) {
+	err = s.nextValue(PrefixTask, func(val []byte) error {
+		has = true
+		return nil
+	})
+	if err != nil {
+		return false, fmt.Errorf("db next value: %w", err)
+	}
+	return has, nil
+}
+
 func (s *Server) NextJob(ctx context.Context, taskId string) (j *Job, err error) {
 	err = s.nextValue(PrefixJob(taskId), func(val []byte) error {
 		j = ParseJob(val)

@@ -22,7 +22,9 @@ service Agent {
 
 message EmptyReply {}
 
-message Notification {}
+message Notification {
+  string message = 1;
+}
 
 message TaskReply {
   string id = 1;

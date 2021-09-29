@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"io"
 	"net"
 
 	"github.com/beyondstorage/beyond-tp/proto"
@@ -60,7 +61,30 @@ func (s *Server) Serve(ctx context.Context) (err error) {
 }
 
 func (s *Server) Notify(stream proto.Agent_NotifyServer) error {
-	return nil
+	for {
+		n, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		switch n.Message {
+		case task.ClientHello:
+			has, err := s.ts.HasTask(stream.Context())
+			if err != nil {
+				return fmt.Errorf("has task: %w", err)
+			}
+			if has {
+				err = stream.Send(&proto.Notification{Message: task.ServerTaskAvailable})
+				if err != nil {
+					return err
+				}
+			}
+		default:
+			panic(fmt.Errorf("invalid notification send from client: %s", n.Message))
+		}
+	}
 }
 
 func (s *Server) NextTask(ctx context.Context, req *proto.NextTaskRequest) (*proto.TaskReply, error) {

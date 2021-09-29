@@ -2,7 +2,6 @@ package task
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/beyondstorage/beyond-tp/proto"
 	"io"
@@ -19,9 +18,26 @@ func (c *Client) Start(ctx context.Context) (err error) {
 	}
 
 	for {
-		no, err := nc.Recv()
-		if err != nil && errors.Is(err, io.EOF) {
-			break
+		n, err := nc.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		switch n.Message {
+		case ServerTaskAvailable:
+			err = c.NextTask(ctx)
+			if err != nil {
+				return err
+			}
+		default:
+			panic(fmt.Errorf("invalid notification send from server: %s", n.Message))
 		}
 	}
+}
+
+func (c *Client) NextTask(ctx context.Context) (err error) {
+	return nil
 }
