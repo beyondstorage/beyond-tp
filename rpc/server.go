@@ -95,7 +95,7 @@ func (s *Server) NextTask(ctx context.Context, req *proto.NextTaskRequest) (*pro
 	if t == nil {
 		return nil, status.Error(codes.NotFound, "no more tasks")
 	}
-	return FromTask(t), nil
+	return task.FromTask(t), nil
 }
 
 func (s *Server) NextJob(ctx context.Context, req *proto.NextJobRequest) (*proto.JobReply, error) {
@@ -106,7 +106,7 @@ func (s *Server) NextJob(ctx context.Context, req *proto.NextJobRequest) (*proto
 	if j == nil {
 		return nil, status.Error(codes.NotFound, "no more jobs")
 	}
-	return FromJob(j), nil
+	return task.FromJob(j), nil
 }
 
 func (s *Server) CreateJob(ctx context.Context, req *proto.CreateJobRequest) (*proto.EmptyReply, error) {

@@ -1,13 +1,16 @@
 package task
 
-import "github.com/google/uuid"
+import (
+	"github.com/beyondstorage/beyond-tp/proto"
+	"github.com/google/uuid"
+)
 
 const (
 	_ = iota
 	JobTypeCopyDir
 	JobTypeCopySmallFile
 	JobTypeCopyLargeFile
-	JonTypeCopyPart
+	JobTypeCopyPart
 )
 
 type Job struct {
@@ -34,6 +37,24 @@ func ParseJob(bs []byte) (t *Job) {
 	t = &Job{}
 	MustUnmarshal(bs, t)
 	return t
+}
+
+func FromJob(j *Job) *proto.JobReply {
+	return &proto.JobReply{
+		Id:      j.Id,
+		TaskId:  j.TaskId,
+		Type:    int64(j.Type),
+		Content: j.Content,
+	}
+}
+
+func ToJob(jr *proto.JobReply) *Job {
+	return &Job{
+		Id:      jr.Id,
+		TaskId:  jr.TaskId,
+		Type:    int(jr.Type),
+		Content: jr.Content,
+	}
 }
 
 type CopyDirJob struct {

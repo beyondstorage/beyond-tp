@@ -2,6 +2,8 @@ package task
 
 import (
 	"fmt"
+	"github.com/beyondstorage/beyond-tp/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 
 	"github.com/google/uuid"
@@ -59,4 +61,28 @@ func ParseTask(bs []byte) (t *Task) {
 		panic(fmt.Errorf("unmarshal task: %w", err))
 	}
 	return t
+}
+
+func FromTask(t *Task) *proto.TaskReply {
+	return &proto.TaskReply{
+		Id:                 t.Id,
+		Name:               t.Name,
+		Type:               int64(t.Type),
+		Status:             int64(t.Status),
+		CreatedAt:          timestamppb.New(t.CreatedAt),
+		UpdatedAt:          timestamppb.New(t.UpdatedAt),
+		StorageConnections: t.StorageConnections,
+	}
+}
+
+func ToTask(tr *proto.TaskReply) *Task {
+	return &Task{
+		Id:                 tr.Id,
+		Name:               tr.Name,
+		Type:               int(tr.Type),
+		Status:             int(tr.Status),
+		CreatedAt:          tr.CreatedAt.AsTime(),
+		UpdatedAt:          tr.UpdatedAt.AsTime(),
+		StorageConnections: tr.StorageConnections,
+	}
 }
