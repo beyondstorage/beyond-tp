@@ -5,107 +5,56 @@ package graphql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/beyondstorage/beyond-tp/models"
+	"github.com/beyondstorage/beyond-tp/task"
 	"github.com/beyondstorage/go-toolbox/zapcontext"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input *CreateTask) (*Task, error) {
 	gc := GinContextFrom(ctx)
 	_ = zapcontext.FromGin(gc)
-	db := r.DB
 
-	task := models.NewTask(input.Name, parseTaskType(input.Type))
-	task.Storages = parseStoragesInput(input.Storages)
+	t := task.NewTask(input.Name, parseTaskType(input.Type))
+	t.Storages = input.Storages
 
-	if err := db.InsertTask(nil, task); err != nil {
-		return nil, err
+	err := r.ts.InsertTask(ctx, t)
+	if err != nil {
+		return nil, fmt.Errorf("insert task: %w", err)
 	}
-	return formatTask(task), nil
+	return formatTask(t), nil
 }
 
 func (r *mutationResolver) DeleteTask(ctx context.Context, input *DeleteTask) (*Task, error) {
-	// try to get task first
-	task, err := r.DB.GetTask(input.ID)
+	t, err := r.ts.GetTask(ctx, input.ID)
+	if err != nil {
+		return nil, fmt.Errorf("get task: %w", err)
+	}
+	if t == nil {
+		return nil, fmt.Errorf("task not exist")
+	}
+
+	err = r.ts.DeleteTask(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
-	// then delete task
-	if err = r.DB.DeleteTask(input.ID); err != nil {
-		return nil, err
-	}
-	return formatTask(task), nil
+	return formatTask(t), nil
 }
 
 func (r *mutationResolver) RunTask(ctx context.Context, id string) (*Task, error) {
-	// try to get task first
-	task, err := r.DB.GetTask(id)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = r.DB.RunTask(task.Id); err != nil {
-		return nil, err
-	}
-	return formatTask(task), nil
+	panic("implement me!")
 }
 
-func (r *mutationResolver) CreateIdentity(ctx context.Context, input *CreateIdentity) (*Identity, error) {
-	identity := &models.Identity{
-		Name:       input.Name,
-		Type:       parseIdentityType(input.Type),
-		Credential: parseCredentialInput(input.Credential),
-		Endpoint:   parseEndpointInput(input.Endpoint),
-	}
-
-	// handle transaction manually
-	txn := r.DB.NewTxn(true)
-	_, err := r.DB.GetIdentity(txn, parseIdentityType(input.Type), input.Name)
-	if err == nil {
-		txn.Discard()
-		return nil, fmt.Errorf("record with type: %s, name: %s, %w", input.Type.String(), input.Name, models.ErrAlreadyExists)
-	}
-
-	if errors.Is(err, models.ErrNotFound) {
-		if err = r.DB.InsertIdentity(nil, identity); err != nil {
-			txn.Discard()
-			return nil, err
-		}
-		if err = txn.Commit(); err != nil {
-			return nil, err
-		}
-		return formatIdentity(identity), nil
-	}
-
-	txn.Discard()
-	return nil, err
+func (r *mutationResolver) CreateService(ctx context.Context, input *CreateService) (*Service, error) {
+	panic("implement me!")
 }
 
-func (r *mutationResolver) DeleteIdentity(ctx context.Context, input *DeleteIdentity) (*Identity, error) {
-	// handle transaction manually
-	txn := r.DB.NewTxn(true)
-	// try to get identity first
-	id, err := r.DB.GetIdentity(txn, parseIdentityType(input.Type), input.Name)
-	if err != nil {
-		txn.Discard()
-		return nil, err
-	}
-	// then delete identity
-	if err = r.DB.DeleteIdentity(txn, parseIdentityType(input.Type), input.Name); err != nil {
-		txn.Discard()
-		return nil, err
-	}
-
-	if err = txn.Commit(); err != nil {
-		return nil, err
-	}
-	return formatIdentity(id), nil
+func (r *mutationResolver) DeleteService(ctx context.Context, input *DeleteService) (*Service, error) {
+	panic("implement me!")
 }
 
 func (r *queryResolver) Task(ctx context.Context, id string) (*Task, error) {
-	t, err := r.DB.GetTask(id)
+	t, err := r.ts.GetTask(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -113,33 +62,15 @@ func (r *queryResolver) Task(ctx context.Context, id string) (*Task, error) {
 }
 
 func (r *queryResolver) Tasks(ctx context.Context) ([]*Task, error) {
-	ts, err := r.DB.ListTasks()
-	if err != nil {
-		return nil, err
-	}
-	return formatTasks(ts), nil
+	panic("implement me!")
 }
 
-func (r *queryResolver) Identities(ctx context.Context, typeArg *IdentityType) ([]*Identity, error) {
-	var idType *models.IdentityType = nil
-	if typeArg != nil {
-		t := parseIdentityType(*typeArg)
-		idType = &t
-	}
-
-	ids, err := r.DB.ListIdentity(idType)
-	if err != nil {
-		return nil, err
-	}
-	return formatIdentities(ids), nil
+func (r *queryResolver) Service(ctx context.Context, typeArg ServiceType, name string) (*Service, error) {
+	panic("implement me!")
 }
 
-func (r *queryResolver) Identity(ctx context.Context, typeArg IdentityType, name string) (*Identity, error) {
-	id, err := r.DB.GetIdentity(nil, parseIdentityType(typeArg), name)
-	if err != nil {
-		return nil, err
-	}
-	return formatIdentity(id), nil
+func (r *queryResolver) Services(ctx context.Context, typeArg *ServiceType) ([]*Service, error) {
+	panic("implement me!")
 }
 
 // Mutation returns MutationResolver implementation.

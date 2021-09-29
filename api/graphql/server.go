@@ -7,7 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 
-	"github.com/beyondstorage/beyond-tp/models"
+	"github.com/beyondstorage/beyond-tp/task"
 )
 
 const ginCtxKey = "gin_in_ctx"
@@ -16,7 +16,7 @@ type Server struct {
 	Path  string
 	Debug bool
 
-	DB *models.DB
+	Task *task.Server
 }
 
 func (s *Server) RegisterRouter(r *gin.Engine) {
@@ -30,7 +30,7 @@ func (s *Server) RegisterRouter(r *gin.Engine) {
 		gqlGroup.GET("", gin.WrapF(playGroundHandler))
 	}
 	gplHandler := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{
-		DB:      s.DB,
+		ts: s.Task,
 	}}))
 	gqlGroup.POST("", gin.WrapH(gplHandler))
 }

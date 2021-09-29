@@ -14,7 +14,6 @@ import (
 
 	"github.com/beyondstorage/beyond-tp/api/graphql"
 	"github.com/beyondstorage/beyond-tp/api/ui"
-	"github.com/beyondstorage/beyond-tp/models"
 	"github.com/beyondstorage/beyond-tp/task"
 )
 
@@ -25,9 +24,8 @@ type Server struct {
 
 	DevMode bool
 
-	Logger  *zap.Logger
-	DB      *models.DB
-	Manager *task.Manager
+	Logger *zap.Logger
+	ts     *task.Server
 }
 
 // Start a HTTP server
@@ -63,10 +61,9 @@ func (s *Server) Start() error {
 
 	// register routers for graphql
 	gqlServer := graphql.Server{
-		Path:    "/graphql",
-		Debug:   s.DevMode,
-		DB:      s.DB,
-		Manager: s.Manager,
+		Path:  "/graphql",
+		Debug: s.DevMode,
+		Task:  s.ts,
 	}
 	gqlServer.RegisterRouter(r)
 

@@ -33,7 +33,7 @@ message TaskReply {
   int64 status = 4;
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp updated_at = 6;
-  repeated string storage_connections = 7;
+  repeated string storages = 7;
 }
 message NextTaskRequest {}
 

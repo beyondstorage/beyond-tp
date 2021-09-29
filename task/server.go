@@ -51,6 +51,30 @@ func (s *Server) Serve(ctx context.Context) (err error) {
 	return nil
 }
 
+func (s *Server) GetTask(ctx context.Context, taskId string) (t *Task, err error) {
+	txn := s.db.NewTransaction(false)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
+
+	item, err := txn.Get(KeyTask(taskId))
+	if err != nil && errors.Is(err, badger.ErrKeyNotFound) {
+		s.logger.Debug("task not found",
+			zap.String("task_id", taskId))
+		return nil, nil
+	}
+	err = item.Value(func(val []byte) error {
+		t = ParseTask(val)
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("db value: %w", err)
+	}
+	s.logger.Debug("task found",
+		zap.String("task_id", taskId))
+	return
+}
+
 func (s *Server) InsertTask(ctx context.Context, t *Task) (err error) {
 	txn := s.db.NewTransaction(true)
 	defer func() {
@@ -84,6 +108,19 @@ func (s *Server) HasTask(ctx context.Context) (has bool, err error) {
 		return false, fmt.Errorf("db next value: %w", err)
 	}
 	return has, nil
+}
+
+func (s *Server) DeleteTask(ctx context.Context, taskId string) (err error) {
+	txn := s.db.NewTransaction(true)
+	defer func() {
+		err = s.CloseTxn(txn, err)
+	}()
+
+	err = txn.Delete(KeyTask(taskId))
+	if err != nil {
+		return
+	}
+	return
 }
 
 func (s *Server) NextJob(ctx context.Context, taskId string) (j *Job, err error) {

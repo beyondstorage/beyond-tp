@@ -11,23 +11,24 @@ import (
 )
 
 const (
-	_ = iota
+	TaskTypeInvalid = iota
 	TaskTypeCopyDir
 )
 
 const (
-	_ = iota
+	TaskStatusInvalid = iota
 	TaskStatusReady
+	TaskStatusRunning
 )
 
 type Task struct {
-	Id                 string
-	Name               string
-	Type               int
-	Status             int
-	CreatedAt          time.Time `msgpack:"cat"`
-	UpdatedAt          time.Time `msgpack:"uat"`
-	StorageConnections []string  `msgpack:"sc"`
+	Id        string
+	Name      string
+	Type      int
+	Status    int
+	CreatedAt time.Time `msgpack:"cat"`
+	UpdatedAt time.Time `msgpack:"uat"`
+	Storages  []string  `msgpack:"ss"`
 
 	// msgpack trick to omit all empty fields in struct.
 	_msgpack struct{} `msgpack:",omitempty"`
@@ -65,24 +66,24 @@ func ParseTask(bs []byte) (t *Task) {
 
 func FromTask(t *Task) *proto.TaskReply {
 	return &proto.TaskReply{
-		Id:                 t.Id,
-		Name:               t.Name,
-		Type:               int64(t.Type),
-		Status:             int64(t.Status),
-		CreatedAt:          timestamppb.New(t.CreatedAt),
-		UpdatedAt:          timestamppb.New(t.UpdatedAt),
-		StorageConnections: t.StorageConnections,
+		Id:        t.Id,
+		Name:      t.Name,
+		Type:      int64(t.Type),
+		Status:    int64(t.Status),
+		CreatedAt: timestamppb.New(t.CreatedAt),
+		UpdatedAt: timestamppb.New(t.UpdatedAt),
+		Storages:  t.Storages,
 	}
 }
 
 func ToTask(tr *proto.TaskReply) *Task {
 	return &Task{
-		Id:                 tr.Id,
-		Name:               tr.Name,
-		Type:               int(tr.Type),
-		Status:             int(tr.Status),
-		CreatedAt:          tr.CreatedAt.AsTime(),
-		UpdatedAt:          tr.UpdatedAt.AsTime(),
-		StorageConnections: tr.StorageConnections,
+		Id:        tr.Id,
+		Name:      tr.Name,
+		Type:      int(tr.Type),
+		Status:    int(tr.Status),
+		CreatedAt: tr.CreatedAt.AsTime(),
+		UpdatedAt: tr.UpdatedAt.AsTime(),
+		Storages:  tr.Storages,
 	}
 }

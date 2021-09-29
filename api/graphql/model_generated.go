@@ -9,62 +9,30 @@ import (
 	"time"
 )
 
-type CreateIdentity struct {
-	Name       string           `json:"name"`
-	Type       IdentityType     `json:"type"`
-	Credential *CredentialInput `json:"credential"`
-	Endpoint   *EndpointInput   `json:"endpoint"`
+type CreateService struct {
+	Name       string      `json:"name"`
+	Type       ServiceType `json:"type"`
+	Connection string      `json:"connection"`
 }
 
 type CreateTask struct {
-	Name     string          `json:"name"`
-	Type     TaskType        `json:"type"`
-	Storages []*StorageInput `json:"storages"`
+	Name     string   `json:"name"`
+	Type     TaskType `json:"type"`
+	Storages []string `json:"storages"`
 }
 
-type Credential struct {
-	Protocol string   `json:"protocol"`
-	Args     []string `json:"args"`
-}
-
-type CredentialInput struct {
-	Protocol string   `json:"protocol"`
-	Args     []string `json:"args"`
-}
-
-type DeleteIdentity struct {
-	Name string       `json:"name"`
-	Type IdentityType `json:"type"`
+type DeleteService struct {
+	Name string      `json:"name"`
+	Type ServiceType `json:"type"`
 }
 
 type DeleteTask struct {
 	ID string `json:"id"`
 }
 
-type Endpoint struct {
-	Protocol string   `json:"protocol"`
-	Args     []string `json:"args"`
-}
-
-type EndpointInput struct {
-	Protocol string   `json:"protocol"`
-	Args     []string `json:"args"`
-}
-
-type Identity struct {
-	Name       string       `json:"name"`
-	Type       IdentityType `json:"type"`
-	Credential *Credential  `json:"credential"`
-	Endpoint   *Endpoint    `json:"endpoint"`
-}
-
-type Storage struct {
-	Type       StorageType `json:"type"`
-	Connection string      `json:"connection"`
-}
-
-type StorageInput struct {
-	Type       StorageType `json:"type"`
+type Service struct {
+	Name       string      `json:"name"`
+	Type       ServiceType `json:"type"`
 	Connection string      `json:"connection"`
 }
 
@@ -75,112 +43,65 @@ type Task struct {
 	Status    TaskStatus `json:"status"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
-	Storages  []*Storage `json:"storages"`
+	Storages  []string   `json:"storages"`
 }
 
-type IdentityType string
+type ServiceType string
 
 const (
-	IdentityTypeQingstor IdentityType = "Qingstor"
+	ServiceTypeQingstor ServiceType = "qingstor"
+	ServiceTypeS3       ServiceType = "s3"
 )
 
-var AllIdentityType = []IdentityType{
-	IdentityTypeQingstor,
+var AllServiceType = []ServiceType{
+	ServiceTypeQingstor,
+	ServiceTypeS3,
 }
 
-func (e IdentityType) IsValid() bool {
+func (e ServiceType) IsValid() bool {
 	switch e {
-	case IdentityTypeQingstor:
+	case ServiceTypeQingstor, ServiceTypeS3:
 		return true
 	}
 	return false
 }
 
-func (e IdentityType) String() string {
+func (e ServiceType) String() string {
 	return string(e)
 }
 
-func (e *IdentityType) UnmarshalGQL(v interface{}) error {
+func (e *ServiceType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = IdentityType(str)
+	*e = ServiceType(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid IdentityType", str)
+		return fmt.Errorf("%s is not a valid ServiceType", str)
 	}
 	return nil
 }
 
-func (e IdentityType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type StorageType string
-
-const (
-	StorageTypeFs       StorageType = "Fs"
-	StorageTypeQingstor StorageType = "Qingstor"
-)
-
-var AllStorageType = []StorageType{
-	StorageTypeFs,
-	StorageTypeQingstor,
-}
-
-func (e StorageType) IsValid() bool {
-	switch e {
-	case StorageTypeFs, StorageTypeQingstor:
-		return true
-	}
-	return false
-}
-
-func (e StorageType) String() string {
-	return string(e)
-}
-
-func (e *StorageType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = StorageType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid StorageType", str)
-	}
-	return nil
-}
-
-func (e StorageType) MarshalGQL(w io.Writer) {
+func (e ServiceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type TaskStatus string
 
 const (
-	TaskStatusCreated  TaskStatus = "Created"
-	TaskStatusReady    TaskStatus = "Ready"
-	TaskStatusRunning  TaskStatus = "Running"
-	TaskStatusFinished TaskStatus = "Finished"
-	TaskStatusStopped  TaskStatus = "Stopped"
-	TaskStatusError    TaskStatus = "Error"
+	TaskStatusReady   TaskStatus = "Ready"
+	TaskStatusRunning TaskStatus = "Running"
 )
 
 var AllTaskStatus = []TaskStatus{
-	TaskStatusCreated,
 	TaskStatusReady,
 	TaskStatusRunning,
-	TaskStatusFinished,
-	TaskStatusStopped,
-	TaskStatusError,
 }
 
 func (e TaskStatus) IsValid() bool {
 	switch e {
-	case TaskStatusCreated, TaskStatusReady, TaskStatusRunning, TaskStatusFinished, TaskStatusStopped, TaskStatusError:
+	case TaskStatusReady, TaskStatusRunning:
 		return true
 	}
 	return false
@@ -210,7 +131,7 @@ func (e TaskStatus) MarshalGQL(w io.Writer) {
 type TaskType string
 
 const (
-	TaskTypeCopyDir TaskType = "copyDir"
+	TaskTypeCopyDir TaskType = "CopyDir"
 )
 
 var AllTaskType = []TaskType{

@@ -43,40 +43,24 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Credential struct {
-		Args     func(childComplexity int) int
-		Protocol func(childComplexity int) int
-	}
-
-	Endpoint struct {
-		Args     func(childComplexity int) int
-		Protocol func(childComplexity int) int
-	}
-
-	Identity struct {
-		Credential func(childComplexity int) int
-		Endpoint   func(childComplexity int) int
-		Name       func(childComplexity int) int
-		Type       func(childComplexity int) int
-	}
-
 	Mutation struct {
-		CreateIdentity func(childComplexity int, input *CreateIdentity) int
-		CreateTask     func(childComplexity int, input *CreateTask) int
-		DeleteIdentity func(childComplexity int, input *DeleteIdentity) int
-		DeleteTask     func(childComplexity int, input *DeleteTask) int
-		RunTask        func(childComplexity int, id string) int
+		CreateService func(childComplexity int, input *CreateService) int
+		CreateTask    func(childComplexity int, input *CreateTask) int
+		DeleteService func(childComplexity int, input *DeleteService) int
+		DeleteTask    func(childComplexity int, input *DeleteTask) int
+		RunTask       func(childComplexity int, id string) int
 	}
 
 	Query struct {
-		Identities func(childComplexity int, typeArg *IdentityType) int
-		Identity   func(childComplexity int, typeArg IdentityType, name string) int
-		Task       func(childComplexity int, id string) int
-		Tasks      func(childComplexity int) int
+		Service  func(childComplexity int, typeArg ServiceType, name string) int
+		Services func(childComplexity int, typeArg *ServiceType) int
+		Task     func(childComplexity int, id string) int
+		Tasks    func(childComplexity int) int
 	}
 
-	Storage struct {
+	Service struct {
 		Connection func(childComplexity int) int
+		Name       func(childComplexity int) int
 		Type       func(childComplexity int) int
 	}
 
@@ -95,14 +79,14 @@ type MutationResolver interface {
 	CreateTask(ctx context.Context, input *CreateTask) (*Task, error)
 	DeleteTask(ctx context.Context, input *DeleteTask) (*Task, error)
 	RunTask(ctx context.Context, id string) (*Task, error)
-	CreateIdentity(ctx context.Context, input *CreateIdentity) (*Identity, error)
-	DeleteIdentity(ctx context.Context, input *DeleteIdentity) (*Identity, error)
+	CreateService(ctx context.Context, input *CreateService) (*Service, error)
+	DeleteService(ctx context.Context, input *DeleteService) (*Service, error)
 }
 type QueryResolver interface {
 	Task(ctx context.Context, id string) (*Task, error)
 	Tasks(ctx context.Context) ([]*Task, error)
-	Identities(ctx context.Context, typeArg *IdentityType) ([]*Identity, error)
-	Identity(ctx context.Context, typeArg IdentityType, name string) (*Identity, error)
+	Service(ctx context.Context, typeArg ServiceType, name string) (*Service, error)
+	Services(ctx context.Context, typeArg *ServiceType) ([]*Service, error)
 }
 
 type executableSchema struct {
@@ -120,73 +104,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Credential.args":
-		if e.complexity.Credential.Args == nil {
+	case "Mutation.createService":
+		if e.complexity.Mutation.CreateService == nil {
 			break
 		}
 
-		return e.complexity.Credential.Args(childComplexity), true
-
-	case "Credential.protocol":
-		if e.complexity.Credential.Protocol == nil {
-			break
-		}
-
-		return e.complexity.Credential.Protocol(childComplexity), true
-
-	case "Endpoint.args":
-		if e.complexity.Endpoint.Args == nil {
-			break
-		}
-
-		return e.complexity.Endpoint.Args(childComplexity), true
-
-	case "Endpoint.protocol":
-		if e.complexity.Endpoint.Protocol == nil {
-			break
-		}
-
-		return e.complexity.Endpoint.Protocol(childComplexity), true
-
-	case "Identity.credential":
-		if e.complexity.Identity.Credential == nil {
-			break
-		}
-
-		return e.complexity.Identity.Credential(childComplexity), true
-
-	case "Identity.endpoint":
-		if e.complexity.Identity.Endpoint == nil {
-			break
-		}
-
-		return e.complexity.Identity.Endpoint(childComplexity), true
-
-	case "Identity.name":
-		if e.complexity.Identity.Name == nil {
-			break
-		}
-
-		return e.complexity.Identity.Name(childComplexity), true
-
-	case "Identity.type":
-		if e.complexity.Identity.Type == nil {
-			break
-		}
-
-		return e.complexity.Identity.Type(childComplexity), true
-
-	case "Mutation.createIdentity":
-		if e.complexity.Mutation.CreateIdentity == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createIdentity_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createService_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateIdentity(childComplexity, args["input"].(*CreateIdentity)), true
+		return e.complexity.Mutation.CreateService(childComplexity, args["input"].(*CreateService)), true
 
 	case "Mutation.createTask":
 		if e.complexity.Mutation.CreateTask == nil {
@@ -200,17 +128,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTask(childComplexity, args["input"].(*CreateTask)), true
 
-	case "Mutation.deleteIdentity":
-		if e.complexity.Mutation.DeleteIdentity == nil {
+	case "Mutation.deleteService":
+		if e.complexity.Mutation.DeleteService == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteIdentity_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteService_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteIdentity(childComplexity, args["input"].(*DeleteIdentity)), true
+		return e.complexity.Mutation.DeleteService(childComplexity, args["input"].(*DeleteService)), true
 
 	case "Mutation.deleteTask":
 		if e.complexity.Mutation.DeleteTask == nil {
@@ -236,29 +164,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RunTask(childComplexity, args["id"].(string)), true
 
-	case "Query.identities":
-		if e.complexity.Query.Identities == nil {
+	case "Query.service":
+		if e.complexity.Query.Service == nil {
 			break
 		}
 
-		args, err := ec.field_Query_identities_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_service_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Identities(childComplexity, args["type"].(*IdentityType)), true
+		return e.complexity.Query.Service(childComplexity, args["type"].(ServiceType), args["name"].(string)), true
 
-	case "Query.identity":
-		if e.complexity.Query.Identity == nil {
+	case "Query.services":
+		if e.complexity.Query.Services == nil {
 			break
 		}
 
-		args, err := ec.field_Query_identity_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_services_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Identity(childComplexity, args["type"].(IdentityType), args["name"].(string)), true
+		return e.complexity.Query.Services(childComplexity, args["type"].(*ServiceType)), true
 
 	case "Query.task":
 		if e.complexity.Query.Task == nil {
@@ -279,19 +207,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Tasks(childComplexity), true
 
-	case "Storage.connection":
-		if e.complexity.Storage.Connection == nil {
+	case "Service.connection":
+		if e.complexity.Service.Connection == nil {
 			break
 		}
 
-		return e.complexity.Storage.Connection(childComplexity), true
+		return e.complexity.Service.Connection(childComplexity), true
 
-	case "Storage.type":
-		if e.complexity.Storage.Type == nil {
+	case "Service.name":
+		if e.complexity.Service.Name == nil {
 			break
 		}
 
-		return e.complexity.Storage.Type(childComplexity), true
+		return e.complexity.Service.Name(childComplexity), true
+
+	case "Service.type":
+		if e.complexity.Service.Type == nil {
+			break
+		}
+
+		return e.complexity.Service.Type(childComplexity), true
 
 	case "Task.created_at":
 		if e.complexity.Task.CreatedAt == nil {
@@ -412,16 +347,18 @@ scalar Any
 type Query {
     task(id: String!): Task!
     tasks: [Task!]!
-    identities(type: IdentityType): [Identity!]!
-    identity(type: IdentityType!, name: String!): Identity!
+
+    service(type: ServiceType!, name: String!): Service!
+    services(type: ServiceType): [Service!]!
 }
 
 type Mutation {
     createTask(input: CreateTask): Task!
     deleteTask(input: DeleteTask): Task!
     runTask(id: String!): Task!
-    createIdentity(input: CreateIdentity): Identity!
-    deleteIdentity(input: DeleteIdentity): Identity!
+
+    createService(input: CreateService): Service!
+    deleteService(input: DeleteService): Service!
 }
 
 type Task {
@@ -431,88 +368,48 @@ type Task {
     status: TaskStatus!
     created_at: Time!
     updated_at: Time!
-    storages: [Storage!]!
+    storages: [String!]!
 }
 
-type Identity {
+type Service {
     name: String!
-    type: IdentityType!
-    credential: Credential!
-    endpoint: Endpoint!
-}
-
-input CredentialInput {
-    protocol: String!
-    args: [String!]
-}
-
-type Credential {
-    protocol: String!
-    args: [String!]
-}
-
-input EndpointInput {
-    protocol: String!
-    args: [String!]
-}
-
-type Endpoint {
-    protocol: String!
-    args: [String!]
+    type: ServiceType!
+    connection: String!
 }
 
 enum TaskType {
-    copyDir
+    CopyDir
 }
 
 enum TaskStatus {
-    Created
     Ready
     Running
-    Finished
-    Stopped
-    Error
 }
 
-enum IdentityType {
-    Qingstor
+enum ServiceType {
+    qingstor
+    s3
 }
 
 input CreateTask {
     name: String!
     type: TaskType!
-    storages: [StorageInput!]!
+    storages: [String!]!
 }
 
 input DeleteTask {
     id: String!
 }
 
-input CreateIdentity {
+input CreateService {
     name: String!
-    type: IdentityType!
-    credential: CredentialInput!
-    endpoint: EndpointInput!
-}
-
-input DeleteIdentity {
-    name: String!
-    type: IdentityType!
-}
-
-input StorageInput {
-    type: StorageType!
+    type: ServiceType!
     connection: String!
 }
 
-type Storage {
-    type: StorageType!
-    connection: String!
-}
-
-enum StorageType {
-    Fs
-    Qingstor
+input DeleteService {
+    name: String!
+    type: ServiceType!
 }
 `, BuiltIn: false},
 }
@@ -522,13 +419,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createIdentity_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createService_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *CreateIdentity
+	var arg0 *CreateService
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCreateIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateIdentity(ctx, tmp)
+		arg0, err = ec.unmarshalOCreateService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateService(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -552,13 +449,13 @@ func (ec *executionContext) field_Mutation_createTask_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteIdentity_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteService_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *DeleteIdentity
+	var arg0 *DeleteService
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalODeleteIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteIdentity(ctx, tmp)
+		arg0, err = ec.unmarshalODeleteService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteService(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -612,28 +509,13 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_identities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_service_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *IdentityType
+	var arg0 ServiceType
 	if tmp, ok := rawArgs["type"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg0, err = ec.unmarshalOIdentityType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["type"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_identity_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 IdentityType
-	if tmp, ok := rawArgs["type"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg0, err = ec.unmarshalNIdentityType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx, tmp)
+		arg0, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -648,6 +530,21 @@ func (ec *executionContext) field_Query_identity_args(ctx context.Context, rawAr
 		}
 	}
 	args["name"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_services_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *ServiceType
+	if tmp, ok := rawArgs["type"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+		arg0, err = ec.unmarshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["type"] = arg0
 	return args, nil
 }
 
@@ -703,280 +600,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _Credential_protocol(ctx context.Context, field graphql.CollectedField, obj *Credential) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Credential",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Protocol, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Credential_args(ctx context.Context, field graphql.CollectedField, obj *Credential) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Credential",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Args, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Endpoint_protocol(ctx context.Context, field graphql.CollectedField, obj *Endpoint) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Endpoint",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Protocol, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Endpoint_args(ctx context.Context, field graphql.CollectedField, obj *Endpoint) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Endpoint",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Args, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Identity_name(ctx context.Context, field graphql.CollectedField, obj *Identity) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Identity",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Identity_type(ctx context.Context, field graphql.CollectedField, obj *Identity) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Identity",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(IdentityType)
-	fc.Result = res
-	return ec.marshalNIdentityType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Identity_credential(ctx context.Context, field graphql.CollectedField, obj *Identity) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Identity",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Credential, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Credential)
-	fc.Result = res
-	return ec.marshalNCredential2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCredential(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Identity_endpoint(ctx context.Context, field graphql.CollectedField, obj *Identity) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Identity",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Endpoint, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Endpoint)
-	fc.Result = res
-	return ec.marshalNEndpoint2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐEndpoint(ctx, field.Selections, res)
-}
 
 func (ec *executionContext) _Mutation_createTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
@@ -1104,7 +727,7 @@ func (ec *executionContext) _Mutation_runTask(ctx context.Context, field graphql
 	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_createIdentity(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_createService(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1121,7 +744,7 @@ func (ec *executionContext) _Mutation_createIdentity(ctx context.Context, field 
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_createIdentity_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_createService_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1129,7 +752,7 @@ func (ec *executionContext) _Mutation_createIdentity(ctx context.Context, field 
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateIdentity(rctx, args["input"].(*CreateIdentity))
+		return ec.resolvers.Mutation().CreateService(rctx, args["input"].(*CreateService))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1141,12 +764,12 @@ func (ec *executionContext) _Mutation_createIdentity(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Identity)
+	res := resTmp.(*Service)
 	fc.Result = res
-	return ec.marshalNIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentity(ctx, field.Selections, res)
+	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_deleteIdentity(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_deleteService(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1163,7 +786,7 @@ func (ec *executionContext) _Mutation_deleteIdentity(ctx context.Context, field 
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_deleteIdentity_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_deleteService_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1171,7 +794,7 @@ func (ec *executionContext) _Mutation_deleteIdentity(ctx context.Context, field 
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteIdentity(rctx, args["input"].(*DeleteIdentity))
+		return ec.resolvers.Mutation().DeleteService(rctx, args["input"].(*DeleteService))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1183,9 +806,9 @@ func (ec *executionContext) _Mutation_deleteIdentity(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Identity)
+	res := resTmp.(*Service)
 	fc.Result = res
-	return ec.marshalNIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentity(ctx, field.Selections, res)
+	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_task(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1265,7 +888,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	return ec.marshalNTask2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_identities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_service(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1282,7 +905,7 @@ func (ec *executionContext) _Query_identities(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_identities_args(ctx, rawArgs)
+	args, err := ec.field_Query_service_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1290,7 +913,7 @@ func (ec *executionContext) _Query_identities(ctx context.Context, field graphql
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Identities(rctx, args["type"].(*IdentityType))
+		return ec.resolvers.Query().Service(rctx, args["type"].(ServiceType), args["name"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1302,12 +925,12 @@ func (ec *executionContext) _Query_identities(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*Identity)
+	res := resTmp.(*Service)
 	fc.Result = res
-	return ec.marshalNIdentity2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityᚄ(ctx, field.Selections, res)
+	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_identity(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_services(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1324,7 +947,7 @@ func (ec *executionContext) _Query_identity(ctx context.Context, field graphql.C
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_identity_args(ctx, rawArgs)
+	args, err := ec.field_Query_services_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1332,7 +955,7 @@ func (ec *executionContext) _Query_identity(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Identity(rctx, args["type"].(IdentityType), args["name"].(string))
+		return ec.resolvers.Query().Services(rctx, args["type"].(*ServiceType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1344,9 +967,9 @@ func (ec *executionContext) _Query_identity(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Identity)
+	res := resTmp.([]*Service)
 	fc.Result = res
-	return ec.marshalNIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentity(ctx, field.Selections, res)
+	return ec.marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1420,7 +1043,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Storage_type(ctx context.Context, field graphql.CollectedField, obj *Storage) (ret graphql.Marshaler) {
+func (ec *executionContext) _Service_name(ctx context.Context, field graphql.CollectedField, obj *Service) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1428,7 +1051,42 @@ func (ec *executionContext) _Storage_type(ctx context.Context, field graphql.Col
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "Storage",
+		Object:     "Service",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Service_type(ctx context.Context, field graphql.CollectedField, obj *Service) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Service",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -1450,12 +1108,12 @@ func (ec *executionContext) _Storage_type(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(StorageType)
+	res := resTmp.(ServiceType)
 	fc.Result = res
-	return ec.marshalNStorageType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageType(ctx, field.Selections, res)
+	return ec.marshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Storage_connection(ctx context.Context, field graphql.CollectedField, obj *Storage) (ret graphql.Marshaler) {
+func (ec *executionContext) _Service_connection(ctx context.Context, field graphql.CollectedField, obj *Service) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1463,7 +1121,7 @@ func (ec *executionContext) _Storage_connection(ctx context.Context, field graph
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "Storage",
+		Object:     "Service",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -1730,9 +1388,9 @@ func (ec *executionContext) _Task_storages(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*Storage)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNStorage2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageᚄ(ctx, field.Selections, res)
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2857,8 +2515,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateIdentity(ctx context.Context, obj interface{}) (CreateIdentity, error) {
-	var it CreateIdentity
+func (ec *executionContext) unmarshalInputCreateService(ctx context.Context, obj interface{}) (CreateService, error) {
+	var it CreateService
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -2878,23 +2536,15 @@ func (ec *executionContext) unmarshalInputCreateIdentity(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNIdentityType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx, v)
+			it.Type, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "credential":
+		case "connection":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("credential"))
-			it.Credential, err = ec.unmarshalNCredentialInput2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCredentialInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "endpoint":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endpoint"))
-			it.Endpoint, err = ec.unmarshalNEndpointInput2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐEndpointInput(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("connection"))
+			it.Connection, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2933,7 +2583,7 @@ func (ec *executionContext) unmarshalInputCreateTask(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("storages"))
-			it.Storages, err = ec.unmarshalNStorageInput2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageInputᚄ(ctx, v)
+			it.Storages, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2943,39 +2593,8 @@ func (ec *executionContext) unmarshalInputCreateTask(ctx context.Context, obj in
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCredentialInput(ctx context.Context, obj interface{}) (CredentialInput, error) {
-	var it CredentialInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	for k, v := range asMap {
-		switch k {
-		case "protocol":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("protocol"))
-			it.Protocol, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "args":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("args"))
-			it.Args, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputDeleteIdentity(ctx context.Context, obj interface{}) (DeleteIdentity, error) {
-	var it DeleteIdentity
+func (ec *executionContext) unmarshalInputDeleteService(ctx context.Context, obj interface{}) (DeleteService, error) {
+	var it DeleteService
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -2995,7 +2614,7 @@ func (ec *executionContext) unmarshalInputDeleteIdentity(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNIdentityType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx, v)
+			it.Type, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3028,68 +2647,6 @@ func (ec *executionContext) unmarshalInputDeleteTask(ctx context.Context, obj in
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputEndpointInput(ctx context.Context, obj interface{}) (EndpointInput, error) {
-	var it EndpointInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	for k, v := range asMap {
-		switch k {
-		case "protocol":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("protocol"))
-			it.Protocol, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "args":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("args"))
-			it.Args, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputStorageInput(ctx context.Context, obj interface{}) (StorageInput, error) {
-	var it StorageInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	for k, v := range asMap {
-		switch k {
-		case "type":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNStorageType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "connection":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("connection"))
-			it.Connection, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3097,106 +2654,6 @@ func (ec *executionContext) unmarshalInputStorageInput(ctx context.Context, obj 
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
-
-var credentialImplementors = []string{"Credential"}
-
-func (ec *executionContext) _Credential(ctx context.Context, sel ast.SelectionSet, obj *Credential) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, credentialImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Credential")
-		case "protocol":
-			out.Values[i] = ec._Credential_protocol(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "args":
-			out.Values[i] = ec._Credential_args(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var endpointImplementors = []string{"Endpoint"}
-
-func (ec *executionContext) _Endpoint(ctx context.Context, sel ast.SelectionSet, obj *Endpoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, endpointImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Endpoint")
-		case "protocol":
-			out.Values[i] = ec._Endpoint_protocol(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "args":
-			out.Values[i] = ec._Endpoint_args(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var identityImplementors = []string{"Identity"}
-
-func (ec *executionContext) _Identity(ctx context.Context, sel ast.SelectionSet, obj *Identity) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, identityImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Identity")
-		case "name":
-			out.Values[i] = ec._Identity_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "type":
-			out.Values[i] = ec._Identity_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "credential":
-			out.Values[i] = ec._Identity_credential(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "endpoint":
-			out.Values[i] = ec._Identity_endpoint(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -3228,13 +2685,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createIdentity":
-			out.Values[i] = ec._Mutation_createIdentity(ctx, field)
+		case "createService":
+			out.Values[i] = ec._Mutation_createService(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteIdentity":
-			out.Values[i] = ec._Mutation_deleteIdentity(ctx, field)
+		case "deleteService":
+			out.Values[i] = ec._Mutation_deleteService(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3292,7 +2749,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
-		case "identities":
+		case "service":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -3300,13 +2757,13 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_identities(ctx, field)
+				res = ec._Query_service(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
 				return res
 			})
-		case "identity":
+		case "services":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -3314,7 +2771,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_identity(ctx, field)
+				res = ec._Query_services(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3335,24 +2792,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var storageImplementors = []string{"Storage"}
+var serviceImplementors = []string{"Service"}
 
-func (ec *executionContext) _Storage(ctx context.Context, sel ast.SelectionSet, obj *Storage) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, storageImplementors)
+func (ec *executionContext) _Service(ctx context.Context, sel ast.SelectionSet, obj *Service) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, serviceImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Storage")
+			out.Values[i] = graphql.MarshalString("Service")
+		case "name":
+			out.Values[i] = ec._Service_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "type":
-			out.Values[i] = ec._Storage_type(ctx, field, obj)
+			out.Values[i] = ec._Service_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "connection":
-			out.Values[i] = ec._Storage_connection(ctx, field, obj)
+			out.Values[i] = ec._Service_connection(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3689,41 +3151,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCredential2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCredential(ctx context.Context, sel ast.SelectionSet, v *Credential) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Credential(ctx, sel, v)
+func (ec *executionContext) marshalNService2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx context.Context, sel ast.SelectionSet, v Service) graphql.Marshaler {
+	return ec._Service(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNCredentialInput2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCredentialInput(ctx context.Context, v interface{}) (*CredentialInput, error) {
-	res, err := ec.unmarshalInputCredentialInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNEndpoint2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐEndpoint(ctx context.Context, sel ast.SelectionSet, v *Endpoint) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Endpoint(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNEndpointInput2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐEndpointInput(ctx context.Context, v interface{}) (*EndpointInput, error) {
-	res, err := ec.unmarshalInputEndpointInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNIdentity2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentity(ctx context.Context, sel ast.SelectionSet, v Identity) graphql.Marshaler {
-	return ec._Identity(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNIdentity2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityᚄ(ctx context.Context, sel ast.SelectionSet, v []*Identity) graphql.Marshaler {
+func (ec *executionContext) marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceᚄ(ctx context.Context, sel ast.SelectionSet, v []*Service) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3747,7 +3179,7 @@ func (ec *executionContext) marshalNIdentity2ᚕᚖgithubᚗcomᚋbeyondstorage�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentity(ctx, sel, v[i])
+			ret[i] = ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3767,113 +3199,23 @@ func (ec *executionContext) marshalNIdentity2ᚕᚖgithubᚗcomᚋbeyondstorage�
 	return ret
 }
 
-func (ec *executionContext) marshalNIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentity(ctx context.Context, sel ast.SelectionSet, v *Identity) graphql.Marshaler {
+func (ec *executionContext) marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx context.Context, sel ast.SelectionSet, v *Service) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
 		}
 		return graphql.Null
 	}
-	return ec._Identity(ctx, sel, v)
+	return ec._Service(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNIdentityType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx context.Context, v interface{}) (IdentityType, error) {
-	var res IdentityType
+func (ec *executionContext) unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, v interface{}) (ServiceType, error) {
+	var res ServiceType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNIdentityType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx context.Context, sel ast.SelectionSet, v IdentityType) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) marshalNStorage2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageᚄ(ctx context.Context, sel ast.SelectionSet, v []*Storage) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNStorage2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorage(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNStorage2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorage(ctx context.Context, sel ast.SelectionSet, v *Storage) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Storage(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNStorageInput2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageInputᚄ(ctx context.Context, v interface{}) ([]*StorageInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*StorageInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNStorageInput2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNStorageInput2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageInput(ctx context.Context, v interface{}) (*StorageInput, error) {
-	res, err := ec.unmarshalInputStorageInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNStorageType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageType(ctx context.Context, v interface{}) (StorageType, error) {
-	var res StorageType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNStorageType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐStorageType(ctx context.Context, sel ast.SelectionSet, v StorageType) graphql.Marshaler {
+func (ec *executionContext) marshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, sel ast.SelectionSet, v ServiceType) graphql.Marshaler {
 	return v
 }
 
@@ -3890,6 +3232,42 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNTask2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx context.Context, sel ast.SelectionSet, v Task) graphql.Marshaler {
@@ -4266,11 +3644,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOCreateIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateIdentity(ctx context.Context, v interface{}) (*CreateIdentity, error) {
+func (ec *executionContext) unmarshalOCreateService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateService(ctx context.Context, v interface{}) (*CreateService, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputCreateIdentity(ctx, v)
+	res, err := ec.unmarshalInputCreateService(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -4282,11 +3660,11 @@ func (ec *executionContext) unmarshalOCreateTask2ᚖgithubᚗcomᚋbeyondstorage
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalODeleteIdentity2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteIdentity(ctx context.Context, v interface{}) (*DeleteIdentity, error) {
+func (ec *executionContext) unmarshalODeleteService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteService(ctx context.Context, v interface{}) (*DeleteService, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputDeleteIdentity(ctx, v)
+	res, err := ec.unmarshalInputDeleteService(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -4298,16 +3676,16 @@ func (ec *executionContext) unmarshalODeleteTask2ᚖgithubᚗcomᚋbeyondstorage
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOIdentityType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx context.Context, v interface{}) (*IdentityType, error) {
+func (ec *executionContext) unmarshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, v interface{}) (*ServiceType, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(IdentityType)
+	var res = new(ServiceType)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOIdentityType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐIdentityType(ctx context.Context, sel ast.SelectionSet, v *IdentityType) graphql.Marshaler {
+func (ec *executionContext) marshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, sel ast.SelectionSet, v *ServiceType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -4321,48 +3699,6 @@ func (ec *executionContext) unmarshalOString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	return graphql.MarshalString(v)
-}
-
-func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

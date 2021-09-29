@@ -4,16 +4,18 @@ scalar Any
 type Query {
     task(id: String!): Task!
     tasks: [Task!]!
-    identities(type: IdentityType): [Identity!]!
-    identity(type: IdentityType!, name: String!): Identity!
+
+    service(type: ServiceType!, name: String!): Service!
+    services(type: ServiceType): [Service!]!
 }
 
 type Mutation {
     createTask(input: CreateTask): Task!
     deleteTask(input: DeleteTask): Task!
     runTask(id: String!): Task!
-    createIdentity(input: CreateIdentity): Identity!
-    deleteIdentity(input: DeleteIdentity): Identity!
+
+    createService(input: CreateService): Service!
+    deleteService(input: DeleteService): Service!
 }
 
 type Task {
@@ -23,86 +25,46 @@ type Task {
     status: TaskStatus!
     created_at: Time!
     updated_at: Time!
-    storages: [Storage!]!
+    storages: [String!]!
 }
 
-type Identity {
+type Service {
     name: String!
-    type: IdentityType!
-    credential: Credential!
-    endpoint: Endpoint!
-}
-
-input CredentialInput {
-    protocol: String!
-    args: [String!]
-}
-
-type Credential {
-    protocol: String!
-    args: [String!]
-}
-
-input EndpointInput {
-    protocol: String!
-    args: [String!]
-}
-
-type Endpoint {
-    protocol: String!
-    args: [String!]
+    type: ServiceType!
+    connection: String!
 }
 
 enum TaskType {
-    copyDir
+    CopyDir
 }
 
 enum TaskStatus {
-    Created
     Ready
     Running
-    Finished
-    Stopped
-    Error
 }
 
-enum IdentityType {
-    Qingstor
+enum ServiceType {
+    qingstor
+    s3
 }
 
 input CreateTask {
     name: String!
     type: TaskType!
-    storages: [StorageInput!]!
+    storages: [String!]!
 }
 
 input DeleteTask {
     id: String!
 }
 
-input CreateIdentity {
+input CreateService {
     name: String!
-    type: IdentityType!
-    credential: CredentialInput!
-    endpoint: EndpointInput!
-}
-
-input DeleteIdentity {
-    name: String!
-    type: IdentityType!
-}
-
-input StorageInput {
-    type: StorageType!
+    type: ServiceType!
     connection: String!
 }
 
-type Storage {
-    type: StorageType!
-    connection: String!
-}
-
-enum StorageType {
-    Fs
-    Qingstor
+input DeleteService {
+    name: String!
+    type: ServiceType!
 }
