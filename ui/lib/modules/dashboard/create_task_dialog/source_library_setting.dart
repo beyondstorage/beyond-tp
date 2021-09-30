@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
 import '../../../common/colors.dart';
-import './controller.dart';
+
+import 'identity_form_field/index.dart';
+import 'controller.dart';
 
 class SourceLibrarySetting extends GetView<CreateTaskController> {
   final GlobalKey<FormState> sourceFormKey;
@@ -76,62 +78,8 @@ class SourceLibrarySetting extends GetView<CreateTaskController> {
                 visible: controller.srcType.value == 'Qingstor',
                 child: Column(
                   children: [
-                    // SizedBox(height: 24),
-                    // Row(
-                    //   crossAxisAlignment: CrossAxisAlignment.end,
-                    //   children: [
-                    //     SelectableText(
-                    //       'Identity'.tr,
-                    //       style: TextStyle(
-                    //         color: regularFontColor,
-                    //         fontSize: 12,
-                    //         height: 1.67,
-                    //         fontWeight: FontWeight.w500,
-                    //       ),
-                    //     ),
-                    //     SizedBox(width: 8),
-                    //     SelectableText(
-                    //       'Accessed Library Credential And Endpoint'.tr,
-                    //       style: TextStyle(
-                    //         color: disableFontColor,
-                    //         fontSize: 10,
-                    //         fontWeight: FontWeight.w400,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    // SizedBox(height: 8),
-                    // SizedBox(
-                    //   width: 328,
-                    //   child: OutlineButton.icon(
-                    //     icon: Icon(Icons.add),
-                    //     color: Colors.white,
-                    //     borderSide: BorderSide(
-                    //       color: primaryColor,
-                    //       style: BorderStyle.solid,
-                    //     ),
-                    //     shape: RoundedRectangleBorder(
-                    //         side: BorderSide(
-                    //           color: primaryColor,
-                    //           style: BorderStyle.solid,
-                    //         ),
-                    //         borderRadius: BorderRadius.all(Radius.circular(4))),
-                    //     textColor: primaryColor,
-                    //     label: Container(
-                    //       height: 32,
-                    //       alignment: Alignment.center,
-                    //       child: Text(
-                    //         'Create Identity'.tr,
-                    //         style: TextStyle(
-                    //           color: regularFontColor,
-                    //           fontSize: 12,
-                    //           fontWeight: FontWeight.w500,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     onPressed: () => controller.isCreatingIdentity(true),
-                    //   ),
-                    // ),
+                    SizedBox(height: 24),
+                    IdentityFormField(),
                     SizedBox(height: 24),
                     Row(
                       children: [
