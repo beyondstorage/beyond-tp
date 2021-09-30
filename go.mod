@@ -14,7 +14,7 @@ require (
 	github.com/beyondstorage/go-service-oss/v2 v2.4.0
 	github.com/beyondstorage/go-service-qingstor/v3 v3.3.0
 	github.com/beyondstorage/go-service-s3/v2 v2.4.0
-	github.com/beyondstorage/go-storage/v4 v4.7.0
+	github.com/beyondstorage/go-storage/v4 v4.8.0
 	github.com/beyondstorage/go-toolbox v0.0.0-20210525101004-db84362b9d67
 	github.com/dgraph-io/badger/v3 v3.2011.1
 	github.com/gin-contrib/cors v1.3.1
