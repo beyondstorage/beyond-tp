@@ -1,8 +1,7 @@
-package api
+package http
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,26 +18,33 @@ import (
 
 // Server handle configs to start a server
 type Server struct {
-	Host string
-	Port int
-
-	DevMode bool
-
-	Logger *zap.Logger
+	addr   string
+	logger *zap.Logger
 	ts     *task.Server
 }
 
-// Start a HTTP server
-func (s *Server) Start() error {
-	// set gin mode instead of env GIN_MODE
-	mode := gin.ReleaseMode
-	if s.DevMode {
-		mode = gin.DebugMode
+type Config struct {
+	Addr   string
+	Logger *zap.Logger
+	Task   *task.Server
+}
+
+func New(c *Config) (s *Server) {
+	s = &Server{
+		addr:   c.Addr,
+		logger: c.Logger,
+		ts:     c.Task,
 	}
-	gin.SetMode(mode)
+	return
+}
+
+// Serve a HTTP server
+func (s *Server) Serve() error {
+	// FIXME: we will add global dev mode.
+	gin.SetMode(gin.DebugMode)
 
 	r := gin.New()
-	logger := s.Logger
+	logger := s.logger
 
 	// register middleware here
 	r.Use(setRequestID(), setLoggerWithReqID(logger)) // set requestID and logger
@@ -62,20 +68,19 @@ func (s *Server) Start() error {
 	// register routers for graphql
 	gqlServer := graphql.Server{
 		Path:  "/graphql",
-		Debug: s.DevMode,
+		Debug: true,
 		Task:  s.ts,
 	}
 	gqlServer.RegisterRouter(r)
 
-	endpoint := fmt.Sprintf("%s:%d", s.Host, s.Port)
 	srv := &http.Server{
-		Addr:    endpoint,
+		Addr:    s.addr,
 		Handler: r,
 	}
 
 	go func() {
 		// connect service
-		logger.Info("server now started", zap.String("endpoint", endpoint))
+		logger.Info("server now started", zap.String("addr", s.addr))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Fatal("listen:", zap.Error(err))
 		}

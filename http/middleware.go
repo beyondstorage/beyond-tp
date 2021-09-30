@@ -1,4 +1,4 @@
-package api
+package http
 
 import (
 	"net"
@@ -9,10 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beyondstorage/go-toolbox/zapcontext"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"github.com/beyondstorage/go-toolbox/zapcontext"
 )
 
 const requestIDCtxKey = "request_id_ctx_key"
