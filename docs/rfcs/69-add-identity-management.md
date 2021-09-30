@@ -4,7 +4,7 @@ status: draft
 updated_at: 2021-05-19
 ---
 
-# DMP-69: Add identity management APIs
+# BTP-69: Add identity management APIs
 
 ## Background
 
