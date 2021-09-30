@@ -1,7 +1,7 @@
 - Author: Xuanwo <github@xuanwo.io>
 - Start Date: 2021-09-29
 - RFC PR: [beyondstorage/beyond-tp#176](https://github.com/beyondstorage/beyond-tp/issues/176)
-- Tracking Issue: [beyondstorage/beyond-tp#0](https://github.com/beyondstorage/beyond-tp/issues/0)
+- Tracking Issue: [beyondstorage/beyond-tp#177](https://github.com/beyondstorage/beyond-tp/issues/177)
 
 # BTP-176: Streamlined Architecture
 
