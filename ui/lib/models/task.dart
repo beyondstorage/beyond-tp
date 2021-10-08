@@ -143,3 +143,14 @@ class Staffs {
 
   int length() => staffs.length;
 }
+class TimeLog {
+  String logContent;
+  int time;
+
+  TimeLog({
+    required this.logContent,
+    required this.time
+  });
+}
+
+

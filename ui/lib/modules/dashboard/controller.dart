@@ -9,6 +9,8 @@ class DashboardController extends GetxController {
   Rx<Tasks> tasks = Tasks.fromList([]).obs;
   Rx<TaskDetail> taskDetail = TaskDetail.fromMap({}).obs;
   RxString filters = ''.obs;
+  RxBool showDetail = true.obs;
+  RxString detailTaskId = ''.obs;
 
   final String query = r'''
     query {
