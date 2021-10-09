@@ -26,7 +26,7 @@ class IdentityDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SelectableText(
-                  'credential',
+                  'Credential',
                   style: TextStyle(
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w500,
@@ -70,7 +70,7 @@ class IdentityDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 20,),
                 SelectableText(
-                  'endpoint',
+                  'Endpoint',
                   style: TextStyle(
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w500,

@@ -47,7 +47,7 @@ class TaskDescription extends GetView<DashboardController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SelectableText('DM Task - 1', style: Theme.of(context).textTheme.headline2),
-                    SelectableText('task ID：DM 2021041223', style: Theme.of(context).textTheme.bodyText2),
+                    SelectableText('Task id：DM 2021041223', style: Theme.of(context).textTheme.bodyText2),
                   ],
                 ),
                 SizedBox(width: 30,),
@@ -95,7 +95,7 @@ class TaskDescription extends GetView<DashboardController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SelectableText(
-                        'Task Progress'.tr,
+                        'Task progress'.tr,
                         style: TextStyle(
                           fontFamily: 'Roboto',
                           fontStyle: FontStyle.normal,
@@ -104,7 +104,7 @@ class TaskDescription extends GetView<DashboardController> {
                           color: headlineFontColor,
                         ),
                       ),
-                      SizedBox(height: 14,),
+                      SizedBox(height: 7,),
                       ProgressBar(
                         ratio: 0.4,
                         barWidth: 480,

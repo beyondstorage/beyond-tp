@@ -17,11 +17,11 @@ class TaskInformation extends GetView<DashboardController> {
   
   List<TabPane> TabsList = [
     TabPane(
-      tabTitle: 'Base Information'.tr,
+      tabTitle: 'Base information'.tr,
       pane: BaseInformationPane()
     ),
     TabPane(
-      tabTitle: 'Real - Time Log'.tr,
+      tabTitle: 'Real - time log'.tr,
       pane: TimeLogPane(
         logTitle: 'Unit Test (1.16, macos-latest)',
         description: 'Successed on 18 Mar in 53s',
