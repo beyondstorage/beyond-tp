@@ -51,7 +51,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
           ),
           SizedBox(height: 22),
           SelectableText(
-            'Identity Name'.tr,
+            'Services Name'.tr,
             style: TextStyle(
               color: regularFontColor,
               fontSize: 12,

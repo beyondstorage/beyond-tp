@@ -13,7 +13,7 @@ class IdentityDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonDialog(
-      title: 'QingStor - identity 1'.tr,
+      title: 'QingStor - Services 1'.tr,
       width: 800,
       content: Container(
         width: 320,

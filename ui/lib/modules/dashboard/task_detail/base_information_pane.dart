@@ -151,7 +151,7 @@ class BaseInformationPane extends StatelessWidget {
                                 Get.dialog(IdentityDialog());
                               },
                               child: Text(
-                                'QingStor - identity 1',
+                                'QingStor - Services 1',
                                 style: TextStyle(
                                   decoration: TextDecoration.underline,
                                 )
