@@ -20,8 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type AgentClient interface {
 	Notify(ctx context.Context, opts ...grpc.CallOption) (Agent_NotifyClient, error)
 	NextTask(ctx context.Context, in *NextTaskRequest, opts ...grpc.CallOption) (*TaskReply, error)
-	NextJob(ctx context.Context, in *NextJobRequest, opts ...grpc.CallOption) (*JobReply, error)
-	CreateJob(ctx context.Context, in *CreateJobRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	NextJob(ctx context.Context, in *NextJobRequest, opts ...grpc.CallOption) (*Job, error)
+	CreateJob(ctx context.Context, in *Job, opts ...grpc.CallOption) (*EmptyReply, error)
 	WaitJob(ctx context.Context, in *WaitJobRequest, opts ...grpc.CallOption) (*EmptyReply, error)
 	FinishJob(ctx context.Context, in *FinishJobRequest, opts ...grpc.CallOption) (*EmptyReply, error)
 	SetMeta(ctx context.Context, in *MetaEntry, opts ...grpc.CallOption) (*EmptyReply, error)
@@ -77,8 +77,8 @@ func (c *agentClient) NextTask(ctx context.Context, in *NextTaskRequest, opts ..
 	return out, nil
 }
 
-func (c *agentClient) NextJob(ctx context.Context, in *NextJobRequest, opts ...grpc.CallOption) (*JobReply, error) {
-	out := new(JobReply)
+func (c *agentClient) NextJob(ctx context.Context, in *NextJobRequest, opts ...grpc.CallOption) (*Job, error) {
+	out := new(Job)
 	err := c.cc.Invoke(ctx, "/agent.Agent/NextJob", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (c *agentClient) NextJob(ctx context.Context, in *NextJobRequest, opts ...g
 	return out, nil
 }
 
-func (c *agentClient) CreateJob(ctx context.Context, in *CreateJobRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+func (c *agentClient) CreateJob(ctx context.Context, in *Job, opts ...grpc.CallOption) (*EmptyReply, error) {
 	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, "/agent.Agent/CreateJob", in, out, opts...)
 	if err != nil {
@@ -146,8 +146,8 @@ func (c *agentClient) DeleteMeta(ctx context.Context, in *MetaKey, opts ...grpc.
 type AgentServer interface {
 	Notify(Agent_NotifyServer) error
 	NextTask(context.Context, *NextTaskRequest) (*TaskReply, error)
-	NextJob(context.Context, *NextJobRequest) (*JobReply, error)
-	CreateJob(context.Context, *CreateJobRequest) (*EmptyReply, error)
+	NextJob(context.Context, *NextJobRequest) (*Job, error)
+	CreateJob(context.Context, *Job) (*EmptyReply, error)
 	WaitJob(context.Context, *WaitJobRequest) (*EmptyReply, error)
 	FinishJob(context.Context, *FinishJobRequest) (*EmptyReply, error)
 	SetMeta(context.Context, *MetaEntry) (*EmptyReply, error)
@@ -166,10 +166,10 @@ func (UnimplementedAgentServer) Notify(Agent_NotifyServer) error {
 func (UnimplementedAgentServer) NextTask(context.Context, *NextTaskRequest) (*TaskReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NextTask not implemented")
 }
-func (UnimplementedAgentServer) NextJob(context.Context, *NextJobRequest) (*JobReply, error) {
+func (UnimplementedAgentServer) NextJob(context.Context, *NextJobRequest) (*Job, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NextJob not implemented")
 }
-func (UnimplementedAgentServer) CreateJob(context.Context, *CreateJobRequest) (*EmptyReply, error) {
+func (UnimplementedAgentServer) CreateJob(context.Context, *Job) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateJob not implemented")
 }
 func (UnimplementedAgentServer) WaitJob(context.Context, *WaitJobRequest) (*EmptyReply, error) {
@@ -263,7 +263,7 @@ func _Agent_NextJob_Handler(srv interface{}, ctx context.Context, dec func(inter
 }
 
 func _Agent_CreateJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateJobRequest)
+	in := new(Job)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -275,7 +275,7 @@ func _Agent_CreateJob_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/agent.Agent/CreateJob",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServer).CreateJob(ctx, req.(*CreateJobRequest))
+		return srv.(AgentServer).CreateJob(ctx, req.(*Job))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -1,8 +1,9 @@
 package task
 
 import (
-	"github.com/beyondstorage/beyond-tp/proto"
 	"github.com/google/uuid"
+
+	"github.com/beyondstorage/beyond-tp/proto"
 )
 
 const (
@@ -39,8 +40,8 @@ func ParseJob(bs []byte) (t *Job) {
 	return t
 }
 
-func FromJob(j *Job) *proto.JobReply {
-	return &proto.JobReply{
+func ToProtoJob(j *Job) *proto.Job {
+	return &proto.Job{
 		Id:      j.Id,
 		TaskId:  j.TaskId,
 		Type:    int64(j.Type),
@@ -48,7 +49,7 @@ func FromJob(j *Job) *proto.JobReply {
 	}
 }
 
-func ToJob(jr *proto.JobReply) *Job {
+func FromProtoJob(jr *proto.Job) *Job {
 	return &Job{
 		Id:      jr.Id,
 		TaskId:  jr.TaskId,
@@ -81,10 +82,4 @@ type CopyPartJob struct {
 	Size        int64
 	Index       int
 	Offset      int64
-}
-
-func ParseCopyPartJob(bs []byte) (t *CopyPartJob) {
-	t = &CopyPartJob{}
-	MustUnmarshal(bs, t)
-	return t
 }

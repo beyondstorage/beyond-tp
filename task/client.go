@@ -88,6 +88,7 @@ func (c *Client) NextTask(ctx context.Context) (err error) {
 	if err != nil {
 		return fmt.Errorf("next task: %w", err)
 	}
+
 	for {
 		jr, err := c.gc.NextJob(ctx, &proto.NextJobRequest{TaskId: tr.Id})
 		if err != nil {
@@ -100,7 +101,7 @@ func (c *Client) NextTask(ctx context.Context) (err error) {
 		}
 
 		err = c.pool.Submit(func() {
-			StartWorker(c, ToJob(jr))
+			HandleJob(c, FromProtoJob(jr))
 		})
 		if err != nil {
 			return fmt.Errorf("submit task: %w", err)

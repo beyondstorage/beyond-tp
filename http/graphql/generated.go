@@ -425,7 +425,7 @@ func (ec *executionContext) field_Mutation_createService_args(ctx context.Contex
 	var arg0 *CreateService
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCreateService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateService(ctx, tmp)
+		arg0, err = ec.unmarshalOCreateService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐCreateService(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -440,7 +440,7 @@ func (ec *executionContext) field_Mutation_createTask_args(ctx context.Context, 
 	var arg0 *CreateTask
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOCreateTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateTask(ctx, tmp)
+		arg0, err = ec.unmarshalOCreateTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐCreateTask(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -455,7 +455,7 @@ func (ec *executionContext) field_Mutation_deleteService_args(ctx context.Contex
 	var arg0 *DeleteService
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalODeleteService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteService(ctx, tmp)
+		arg0, err = ec.unmarshalODeleteService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐDeleteService(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -470,7 +470,7 @@ func (ec *executionContext) field_Mutation_deleteTask_args(ctx context.Context, 
 	var arg0 *DeleteTask
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalODeleteTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteTask(ctx, tmp)
+		arg0, err = ec.unmarshalODeleteTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐDeleteTask(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -515,7 +515,7 @@ func (ec *executionContext) field_Query_service_args(ctx context.Context, rawArg
 	var arg0 ServiceType
 	if tmp, ok := rawArgs["type"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg0, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, tmp)
+		arg0, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -539,7 +539,7 @@ func (ec *executionContext) field_Query_services_args(ctx context.Context, rawAr
 	var arg0 *ServiceType
 	if tmp, ok := rawArgs["type"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg0, err = ec.unmarshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, tmp)
+		arg0, err = ec.unmarshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -640,7 +640,7 @@ func (ec *executionContext) _Mutation_createTask(ctx context.Context, field grap
 	}
 	res := resTmp.(*Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -682,7 +682,7 @@ func (ec *executionContext) _Mutation_deleteTask(ctx context.Context, field grap
 	}
 	res := resTmp.(*Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_runTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -724,7 +724,7 @@ func (ec *executionContext) _Mutation_runTask(ctx context.Context, field graphql
 	}
 	res := resTmp.(*Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createService(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -766,7 +766,7 @@ func (ec *executionContext) _Mutation_createService(ctx context.Context, field g
 	}
 	res := resTmp.(*Service)
 	fc.Result = res
-	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, field.Selections, res)
+	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐService(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteService(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -808,7 +808,7 @@ func (ec *executionContext) _Mutation_deleteService(ctx context.Context, field g
 	}
 	res := resTmp.(*Service)
 	fc.Result = res
-	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, field.Selections, res)
+	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐService(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_task(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -850,7 +850,7 @@ func (ec *executionContext) _Query_task(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTask(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -885,7 +885,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*Task)
 	fc.Result = res
-	return ec.marshalNTask2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskᚄ(ctx, field.Selections, res)
+	return ec.marshalNTask2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_service(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -927,7 +927,7 @@ func (ec *executionContext) _Query_service(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*Service)
 	fc.Result = res
-	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, field.Selections, res)
+	return ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐService(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_services(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -969,7 +969,7 @@ func (ec *executionContext) _Query_services(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*Service)
 	fc.Result = res
-	return ec.marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceᚄ(ctx, field.Selections, res)
+	return ec.marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1110,7 +1110,7 @@ func (ec *executionContext) _Service_type(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(ServiceType)
 	fc.Result = res
-	return ec.marshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, field.Selections, res)
+	return ec.marshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Service_connection(ctx context.Context, field graphql.CollectedField, obj *Service) (ret graphql.Marshaler) {
@@ -1250,7 +1250,7 @@ func (ec *executionContext) _Task_type(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(TaskType)
 	fc.Result = res
-	return ec.marshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskType(ctx, field.Selections, res)
+	return ec.marshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_status(ctx context.Context, field graphql.CollectedField, obj *Task) (ret graphql.Marshaler) {
@@ -1285,7 +1285,7 @@ func (ec *executionContext) _Task_status(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(TaskStatus)
 	fc.Result = res
-	return ec.marshalNTaskStatus2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskStatus(ctx, field.Selections, res)
+	return ec.marshalNTaskStatus2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Task_created_at(ctx context.Context, field graphql.CollectedField, obj *Task) (ret graphql.Marshaler) {
@@ -2536,7 +2536,7 @@ func (ec *executionContext) unmarshalInputCreateService(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, v)
+			it.Type, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2575,7 +2575,7 @@ func (ec *executionContext) unmarshalInputCreateTask(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskType(ctx, v)
+			it.Type, err = ec.unmarshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2614,7 +2614,7 @@ func (ec *executionContext) unmarshalInputDeleteService(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx, v)
+			it.Type, err = ec.unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3151,11 +3151,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNService2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx context.Context, sel ast.SelectionSet, v Service) graphql.Marshaler {
+func (ec *executionContext) marshalNService2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐService(ctx context.Context, sel ast.SelectionSet, v Service) graphql.Marshaler {
 	return ec._Service(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceᚄ(ctx context.Context, sel ast.SelectionSet, v []*Service) graphql.Marshaler {
+func (ec *executionContext) marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceᚄ(ctx context.Context, sel ast.SelectionSet, v []*Service) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3179,7 +3179,7 @@ func (ec *executionContext) marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorage�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx, sel, v[i])
+			ret[i] = ec.marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐService(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3199,7 +3199,7 @@ func (ec *executionContext) marshalNService2ᚕᚖgithubᚗcomᚋbeyondstorage�
 	return ret
 }
 
-func (ec *executionContext) marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐService(ctx context.Context, sel ast.SelectionSet, v *Service) graphql.Marshaler {
+func (ec *executionContext) marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐService(ctx context.Context, sel ast.SelectionSet, v *Service) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3209,13 +3209,13 @@ func (ec *executionContext) marshalNService2ᚖgithubᚗcomᚋbeyondstorageᚋbe
 	return ec._Service(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, v interface{}) (ServiceType, error) {
+func (ec *executionContext) unmarshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx context.Context, v interface{}) (ServiceType, error) {
 	var res ServiceType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, sel ast.SelectionSet, v ServiceType) graphql.Marshaler {
+func (ec *executionContext) marshalNServiceType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx context.Context, sel ast.SelectionSet, v ServiceType) graphql.Marshaler {
 	return v
 }
 
@@ -3270,11 +3270,11 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) marshalNTask2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx context.Context, sel ast.SelectionSet, v Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTask(ctx context.Context, sel ast.SelectionSet, v Task) graphql.Marshaler {
 	return ec._Task(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTask2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*Task) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3298,7 +3298,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbe
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx, sel, v[i])
+			ret[i] = ec.marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTask(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3318,7 +3318,7 @@ func (ec *executionContext) marshalNTask2ᚕᚖgithubᚗcomᚋbeyondstorageᚋbe
 	return ret
 }
 
-func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTask(ctx context.Context, sel ast.SelectionSet, v *Task) graphql.Marshaler {
+func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTask(ctx context.Context, sel ast.SelectionSet, v *Task) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3328,23 +3328,23 @@ func (ec *executionContext) marshalNTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyon
 	return ec._Task(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTaskStatus2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskStatus(ctx context.Context, v interface{}) (TaskStatus, error) {
+func (ec *executionContext) unmarshalNTaskStatus2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskStatus(ctx context.Context, v interface{}) (TaskStatus, error) {
 	var res TaskStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTaskStatus2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v TaskStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNTaskStatus2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskStatus(ctx context.Context, sel ast.SelectionSet, v TaskStatus) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskType(ctx context.Context, v interface{}) (TaskType, error) {
+func (ec *executionContext) unmarshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskType(ctx context.Context, v interface{}) (TaskType, error) {
 	var res TaskType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐTaskType(ctx context.Context, sel ast.SelectionSet, v TaskType) graphql.Marshaler {
+func (ec *executionContext) marshalNTaskType2githubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐTaskType(ctx context.Context, sel ast.SelectionSet, v TaskType) graphql.Marshaler {
 	return v
 }
 
@@ -3644,7 +3644,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOCreateService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateService(ctx context.Context, v interface{}) (*CreateService, error) {
+func (ec *executionContext) unmarshalOCreateService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐCreateService(ctx context.Context, v interface{}) (*CreateService, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3652,7 +3652,7 @@ func (ec *executionContext) unmarshalOCreateService2ᚖgithubᚗcomᚋbeyondstor
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOCreateTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐCreateTask(ctx context.Context, v interface{}) (*CreateTask, error) {
+func (ec *executionContext) unmarshalOCreateTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐCreateTask(ctx context.Context, v interface{}) (*CreateTask, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3660,7 +3660,7 @@ func (ec *executionContext) unmarshalOCreateTask2ᚖgithubᚗcomᚋbeyondstorage
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalODeleteService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteService(ctx context.Context, v interface{}) (*DeleteService, error) {
+func (ec *executionContext) unmarshalODeleteService2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐDeleteService(ctx context.Context, v interface{}) (*DeleteService, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3668,7 +3668,7 @@ func (ec *executionContext) unmarshalODeleteService2ᚖgithubᚗcomᚋbeyondstor
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalODeleteTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐDeleteTask(ctx context.Context, v interface{}) (*DeleteTask, error) {
+func (ec *executionContext) unmarshalODeleteTask2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐDeleteTask(ctx context.Context, v interface{}) (*DeleteTask, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3676,7 +3676,7 @@ func (ec *executionContext) unmarshalODeleteTask2ᚖgithubᚗcomᚋbeyondstorage
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, v interface{}) (*ServiceType, error) {
+func (ec *executionContext) unmarshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx context.Context, v interface{}) (*ServiceType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3685,7 +3685,7 @@ func (ec *executionContext) unmarshalOServiceType2ᚖgithubᚗcomᚋbeyondstorag
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋapiᚋgraphqlᚐServiceType(ctx context.Context, sel ast.SelectionSet, v *ServiceType) graphql.Marshaler {
+func (ec *executionContext) marshalOServiceType2ᚖgithubᚗcomᚋbeyondstorageᚋbeyondᚑtpᚋhttpᚋgraphqlᚐServiceType(ctx context.Context, sel ast.SelectionSet, v *ServiceType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

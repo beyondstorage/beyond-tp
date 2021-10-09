@@ -76,6 +76,7 @@ func FromTask(t *Task) *proto.TaskReply {
 	}
 }
 
+
 func ToTask(tr *proto.TaskReply) *Task {
 	return &Task{
 		Id:        tr.Id,

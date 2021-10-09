@@ -98,7 +98,7 @@ func (s *Server) NextTask(ctx context.Context, req *proto.NextTaskRequest) (*pro
 	return task.FromTask(t), nil
 }
 
-func (s *Server) NextJob(ctx context.Context, req *proto.NextJobRequest) (*proto.JobReply, error) {
+func (s *Server) NextJob(ctx context.Context, req *proto.NextJobRequest) (*proto.Job, error) {
 	j, err := s.ts.NextJob(ctx, req.TaskId)
 	if err != nil {
 		return nil, fmt.Errorf("next task: %w", err)
@@ -106,10 +106,10 @@ func (s *Server) NextJob(ctx context.Context, req *proto.NextJobRequest) (*proto
 	if j == nil {
 		return nil, status.Error(codes.NotFound, "no more jobs")
 	}
-	return task.FromJob(j), nil
+	return task.ToProtoJob(j), nil
 }
 
-func (s *Server) CreateJob(ctx context.Context, req *proto.CreateJobRequest) (*proto.EmptyReply, error) {
+func (s *Server) CreateJob(ctx context.Context, req *proto.Job) (*proto.EmptyReply, error) {
 	j := task.NewJob(req.TaskId, int(req.Type), req.Content)
 
 	err := s.ts.InsertJob(ctx, j)
