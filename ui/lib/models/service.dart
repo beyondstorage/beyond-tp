@@ -44,20 +44,20 @@ class Endpoint {
       };
 }
 
-class Identity {
+class Service {
   String name;
   String type;
   Credential credential;
   Endpoint endpoint;
 
-  Identity({
+  Service({
     required this.name,
     required this.type,
     required this.credential,
     required this.endpoint,
   });
 
-  factory Identity.fromMap(Map<String, dynamic> json) => Identity(
+  factory Service.fromMap(Map<String, dynamic> json) => Service(
         name: json["name"] ?? "",
         type: json["type"] ?? "",
         credential: Credential.fromMap(json["credential"] ?? ""),
@@ -72,28 +72,28 @@ class Identity {
       };
 }
 
-class Identities {
-  List<Identity> identities;
+class Services {
+  List<Service> services;
 
-  Identities({
-    required this.identities,
+  Services({
+    required this.services,
   });
 
-  factory Identities.fromList(List<Object> _identities) {
-    return Identities(
-      identities: List<Identity>.from(
+  factory Services.fromList(List<Object> _identities) {
+    return Services(
+      services: List<Service>.from(
         _identities.map(
-          (identity) => Identity.fromMap(identity as Map<String, dynamic>),
+          (service) => Service.fromMap(service as Map<String, dynamic>),
         ),
       ),
     );
   }
 
   List<Map<String, dynamic>> toList() {
-    return identities.map((identity) => identity.toMap()).toList();
+    return services.map((service) => service.toMap()).toList();
   }
 
   String toString() => json.encode(toList());
 
-  int length() => identities.length;
+  int length() => services.length;
 }

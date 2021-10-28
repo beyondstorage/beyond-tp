@@ -14,7 +14,6 @@ class CreateTaskDialog extends StatelessWidget {
   final CreateTaskController controller = Get.put(CreateTaskController());
   final GlobalKey<FormState> sourceFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> targetFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> createIdentityFormKey = GlobalKey<FormState>();
   final Function getTasks;
 
   CreateTaskDialog({required name, required this.getTasks}) {

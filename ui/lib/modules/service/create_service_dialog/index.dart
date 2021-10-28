@@ -8,13 +8,12 @@ import '../../../widgets/button/constants.dart';
 import 'form.dart';
 import 'controller.dart';
 
-class CreateIdentityDialog extends StatelessWidget {
-  final CreateIdentityController controller =
-      Get.put(CreateIdentityController());
+class CreateServiceDialog extends StatelessWidget {
+  final CreateServiceController controller = Get.put(CreateServiceController());
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final Function getIdentities;
 
-  CreateIdentityDialog({required this.getIdentities});
+  CreateServiceDialog({required this.getIdentities});
 
   void onSubmit() {
     final form = formKey.currentState;
@@ -30,13 +29,13 @@ class CreateIdentityDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonDialog(
-      title: 'Create Identity'.tr,
+      title: 'Create service'.tr,
       width: 400,
       content: Container(
         width: 400,
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-          child: CreateIdentityForm(formKey, onSubmit),
+          child: CreateServiceForm(formKey, onSubmit),
         ),
       ),
       buttons: [

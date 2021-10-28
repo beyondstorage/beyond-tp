@@ -6,13 +6,13 @@ import '../../widgets/page_description/index.dart';
 import '../../widgets/empty_entry_list/index.dart';
 
 import 'entry_list.dart';
-import 'create_identity_dialog/index.dart';
+import 'create_service_dialog/index.dart';
 import 'controller.dart';
 
-class Identity extends GetView<IdentityController> {
-  final IdentityController c = Get.put(IdentityController());
+class Service extends GetView<ServiceController> {
+  final ServiceController c = Get.put(ServiceController());
 
-  Identity() {
+  Service() {
     c.getIdentities();
   }
 
@@ -23,19 +23,19 @@ class Identity extends GetView<IdentityController> {
         children: [
           PageDescription(
             icon: IconData(0xe60b, fontFamily: 'tpIcon'),
-            title: 'Identities'.tr,
+            title: 'Services'.tr,
             subtitle:
-                "Support Binding One Or More Cloud Service Accounts / API Key"
+                "Support binding one or more cloud service accounts / API key"
                     .tr,
           ),
           Obx(() => controller.identities.value.length() == 0
               ? EmptyEntryList(
                   icon: IconData(0xe60b, fontFamily: 'tpIcon'),
-                  title: 'The Identity List Is Empty'.tr,
+                  title: 'The service list is empty'.tr,
                   subTitle:
-                      'Please Click The Button Below To Create Identity'.tr,
-                  buttonText: 'Create Identity'.tr,
-                  onClick: () => Get.dialog(CreateIdentityDialog(
+                      'Please click the button below to create service'.tr,
+                  buttonText: 'Create service'.tr,
+                  onClick: () => Get.dialog(CreateServiceDialog(
                       getIdentities: controller.getIdentities)),
                 )
               : EntryList()),

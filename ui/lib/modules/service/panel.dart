@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../common/colors.dart';
-import '../../models/identity.dart';
+import '../../models/service.dart';
 import '../../widgets/more_actions/index.dart';
 import '../../widgets/confirm/index.dart';
 import '../../widgets/dotted_line/index.dart';
 
 import 'controller.dart';
 
-class IdentityPanel extends GetView<IdentityController> {
-  final Identity identity;
+class ServicePanel extends GetView<ServiceController> {
+  final Service service;
 
-  IdentityPanel({required this.identity});
+  ServicePanel({required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +50,12 @@ class IdentityPanel extends GetView<IdentityController> {
               MoreActions(
                 onSelected: (String option) {
                   Get.dialog(Confirm(
-                      title: "Are You Sure To Delete This Identity?".tr,
+                      title: "Are you sure to delete this service ?".tr,
                       description:
-                          "After Deleting, It Will Not Affect The Created Tasks, But It Will Not Appear In The Identity List And The Identity Option Of The Created Task."
+                          "After deleting, it will not affect the created tasks, but it will not appear in the service list and the identity option of the created task."
                               .tr,
                       onConfirm: () {
-                        controller.deleteIdentity(identity).then((result) {
+                        controller.deleteIdentity(service).then((result) {
                           Get.back();
                         });
                       }));
@@ -64,7 +64,7 @@ class IdentityPanel extends GetView<IdentityController> {
                   PopupMenuItem(
                     value: "delete",
                     height: 32.0,
-                    child: Text("Delete Identity".tr,
+                    child: Text("Delete service".tr,
                         style: TextStyle(
                           fontSize: 12.0,
                           color: regularFontColor,
@@ -82,7 +82,7 @@ class IdentityPanel extends GetView<IdentityController> {
           ),
           SizedBox(height: 12),
           SelectableText(
-            "${identity.type} - ${identity.name}",
+            "${service.type} - ${service.name}",
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -111,7 +111,7 @@ class IdentityPanel extends GetView<IdentityController> {
                   ),
                 ),
                 SelectableText(
-                  identity.credential.protocol,
+                  service.credential.protocol,
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.67,
@@ -120,7 +120,7 @@ class IdentityPanel extends GetView<IdentityController> {
                   ),
                 ),
                 SelectableText(
-                  identity.credential.args[0],
+                  service.credential.args[0],
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.67,
@@ -129,7 +129,7 @@ class IdentityPanel extends GetView<IdentityController> {
                   ),
                 ),
                 SelectableText(
-                  identity.credential.args[1],
+                  service.credential.args[1],
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.67,
@@ -148,7 +148,7 @@ class IdentityPanel extends GetView<IdentityController> {
                   ),
                 ),
                 SelectableText(
-                  "${identity.endpoint.protocol}://${identity.endpoint.host}:${identity.endpoint.port}",
+                  "${service.endpoint.protocol}://${service.endpoint.host}:${service.endpoint.port}",
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.67,

@@ -10,11 +10,11 @@ import '../../../widgets/radio_group/model.dart';
 
 import 'controller.dart';
 
-class CreateIdentityForm extends GetView<CreateIdentityController> {
+class CreateServiceForm extends GetView<CreateServiceController> {
   final GlobalKey<FormState> formKey;
   final Function onSubmit;
 
-  CreateIdentityForm(this.formKey, this.onSubmit);
+  CreateServiceForm(this.formKey, this.onSubmit);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SelectableText(
-            'Library Type'.tr,
+            'Library type'.tr,
             style: TextStyle(
               color: regularFontColor,
               fontSize: 12,
@@ -37,7 +37,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
           Obx(
             () => Select(
               validator: ValidationBuilder()
-                  .minLength(1, 'Please Select Library Type')
+                  .minLength(1, 'Please select library type')
                   .build(),
               options: [
                 SelectOption(
@@ -51,7 +51,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
           ),
           SizedBox(height: 22),
           SelectableText(
-            'Identity Name'.tr,
+            'Service name'.tr,
             style: TextStyle(
               color: regularFontColor,
               fontSize: 12,
@@ -72,7 +72,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
             textInputAction: TextInputAction.next,
             keyboardType: TextInputType.text,
             validator: ValidationBuilder()
-                .minLength(1, 'Please Enter Identity Name')
+                .minLength(1, 'Please enter service name')
                 .build(),
             onSaved: controller.name,
           ),
@@ -88,7 +88,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
           ),
           SizedBox(height: 4),
           SelectableText(
-            'Please Select The Protocol And Fill In The Corresponding Value'.tr,
+            'Please select the protocol and fill in the corresponding value'.tr,
             style: TextStyle(
               color: disableFontColor,
               fontSize: 10,
@@ -111,7 +111,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SelectableText(
-                'Access Key',
+                'Access key',
                 style: TextStyle(
                   color: regularFontColor,
                   fontSize: 12,
@@ -132,7 +132,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.text,
                   validator: ValidationBuilder()
-                      .minLength(1, 'Please Enter Access key')
+                      .minLength(1, 'Please enter access key')
                       .build(),
                   onSaved: controller.credentialAccessKey,
                 ),
@@ -144,7 +144,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SelectableText(
-                'Secret Key',
+                'Secret key',
                 style: TextStyle(
                   color: regularFontColor,
                   fontSize: 12,
@@ -165,7 +165,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.text,
                   validator: ValidationBuilder()
-                      .minLength(1, 'Please Enter Secret key')
+                      .minLength(1, 'Please enter secret key')
                       .build(),
                   onSaved: controller.credentialSecretKey,
                 ),
@@ -184,7 +184,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
           ),
           SizedBox(height: 4),
           SelectableText(
-            'Please Fill In The Format Of <Protocol> :// <Host> : <Port>'.tr,
+            'Please fill in the format of <Protocol> :// <Host> : <Port>'.tr,
             style: TextStyle(
               color: disableFontColor,
               fontSize: 10,
@@ -204,7 +204,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
                     SelectOption(label: 'http', value: 'http'),
                   ],
                   validator: ValidationBuilder()
-                      .minLength(1, 'Please Select Protocol')
+                      .minLength(1, 'Please select protocol')
                       .build(),
                   onChange: controller.endpointProtocol,
                 ),
@@ -231,7 +231,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.text,
                   validator: ValidationBuilder()
-                      .minLength(1, 'Please Enter Host')
+                      .minLength(1, 'Please enter host')
                       .build(),
                   onSaved: controller.endpointHost,
                 ),
@@ -258,7 +258,7 @@ class CreateIdentityForm extends GetView<CreateIdentityController> {
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.text,
                   validator: ValidationBuilder()
-                      .minLength(1, 'Please Enter Port')
+                      .minLength(1, 'Please enter port')
                       .build(),
                   onSaved: controller.endpointPort,
                 ),
