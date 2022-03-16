@@ -3,7 +3,7 @@ module github.com/beyondstorage/beyond-tp
 go 1.16
 
 require (
-	github.com/99designs/gqlgen v0.16.0
+	github.com/99designs/gqlgen v0.17.1
 	github.com/Xuanwo/go-bufferpool v0.2.0
 	github.com/beyondstorage/go-service-azblob/v2 v2.3.0
 	github.com/beyondstorage/go-service-cos/v2 v2.3.0
