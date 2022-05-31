@@ -18,7 +18,7 @@ require (
 	github.com/beyondstorage/go-toolbox v0.0.0-20210525101004-db84362b9d67
 	github.com/dgraph-io/badger/v3 v3.2011.1
 	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-gonic/gin v1.7.7
+	github.com/gin-gonic/gin v1.8.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
