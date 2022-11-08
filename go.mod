@@ -16,12 +16,13 @@ require (
 	github.com/beyondstorage/go-service-s3/v2 v2.5.0
 	github.com/beyondstorage/go-storage/v4 v4.8.0
 	github.com/beyondstorage/go-toolbox v0.0.0-20210525101004-db84362b9d67
-	github.com/dgraph-io/badger/v3 v3.2011.1
+	github.com/dgraph-io/badger/v3 v3.2103.4
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
