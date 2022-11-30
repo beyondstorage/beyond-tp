@@ -5,7 +5,7 @@ import 'controller.dart';
 import 'toolbar.dart';
 import 'panel.dart';
 
-class EntryList extends GetView<IdentityController> {
+class EntryList extends GetView<ServiceController> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -26,9 +26,9 @@ class EntryList extends GetView<IdentityController> {
                       spacing: 24,
                       runSpacing: 24,
                       children: [
-                        ...controller.identities.value.identities.map(
-                          (identity) => IdentityPanel(
-                            identity: identity,
+                        ...controller.identities.value.services.map(
+                          (service) => ServicePanel(
+                            service: service,
                           ),
                         ),
                       ],

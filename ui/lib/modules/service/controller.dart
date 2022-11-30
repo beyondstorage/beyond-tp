@@ -1,14 +1,15 @@
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '../../models/identity.dart';
+import '../../models/service.dart';
 import '../../common/request.dart';
 
-class IdentityController extends GetxController {
+class ServiceController extends GetxController {
   RxBool loading = false.obs;
-  Rx<Identities> identities = Identities.fromList([]).obs;
+  Rx<Services> identities = Services.fromList([]).obs;
 
-  final String query = '''
+  final String query =
+      '''
     query {
       identities(type: Qingstor) {
         name
@@ -33,17 +34,18 @@ class IdentityController extends GetxController {
       loading(false);
 
       if (result.data != null) {
-        identities(Identities.fromList(result.data["identities"] ?? []));
+        identities(Services.fromList(result.data["identities"] ?? []));
       }
     }).catchError((error) {
       loading(false);
     });
   }
 
-  Future<QueryResult> deleteIdentity(Identity identity) {
-    String _query = '''
+  Future<QueryResult> deleteIdentity(Service service) {
+    String _query =
+        '''
       mutation {
-        deleteIdentity(input: { name: "${identity.name}", type: ${identity.type} }) { }
+        deleteIdentity(input: { name: "${service.name}", type: ${service.type} }) { }
       }
     ''';
 

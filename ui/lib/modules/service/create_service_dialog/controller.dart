@@ -4,7 +4,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../../../common/request.dart';
 
-class CreateIdentityController extends GetxController {
+class CreateServiceController extends GetxController {
   RxString type = 'Qingstor'.obs;
   RxString name = ''.obs;
   RxString credentialProtocol = 'hamc'.obs;
@@ -18,12 +18,12 @@ class CreateIdentityController extends GetxController {
 
   void closeDialog() {
     Get.back();
-    Get.delete<CreateIdentityController>();
+    Get.delete<CreateServiceController>();
   }
 
-  void onSubmit(getIdentities) {
-    createIdentity()
-        .then((value) => getIdentities())
+  void onSubmit(getServices) {
+    createService()
+        .then((value) => getServices())
         .then((value) => closeDialog());
   }
 
@@ -62,7 +62,7 @@ class CreateIdentityController extends GetxController {
     ''';
   }
 
-  Future<QueryResult> createIdentity() {
+  Future<QueryResult> createService() {
     return queryGraphQL(QueryOptions(document: gql(mutation))).then((result) {
       return result;
     });
