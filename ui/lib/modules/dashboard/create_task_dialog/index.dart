@@ -5,6 +5,7 @@ import '../../../widgets/dialog/index.dart';
 import '../../../widgets/button/index.dart';
 import '../../../widgets/button/constants.dart';
 
+import 'create_identity/index.dart';
 import 'step.dart';
 import 'form.dart';
 
@@ -19,6 +20,25 @@ class CreateTaskDialog extends StatelessWidget {
 
   CreateTaskDialog({required name, required this.getTasks}) {
     controller.name(name);
+  }
+
+  Widget getFormContent() {
+    if (controller.isCreatingIdentity.value) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CreateIdentity(),
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CreateTaskStep(),
+        CreateTaskForm(sourceFormKey, targetFormKey, onSubmit),
+      ],
+    );
   }
 
   bool getNextStepStatus() {
@@ -60,17 +80,7 @@ class CreateTaskDialog extends StatelessWidget {
       () => CommonDialog(
         title: 'Create task'.tr,
         width: 800,
-        content: Container(
-          width: 800,
-          height: 548,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CreateTaskStep(),
-              CreateTaskForm(sourceFormKey, targetFormKey, onSubmit),
-            ],
-          ),
-        ),
+        content: getFormContent(),
         actions: controller.isCreatingIdentity.value
             ? Container(
                 width: 800,

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
 import '../../../common/colors.dart';
-import './controller.dart';
+
+import 'identity_form_field/index.dart';
+import 'controller.dart';
 
 class TargetLibrarySetting extends GetView<CreateTaskController> {
   final GlobalKey<FormState> targetFormKey;
@@ -76,6 +78,8 @@ class TargetLibrarySetting extends GetView<CreateTaskController> {
                 visible: controller.dstType.value == 'Qingstor',
                 child: Column(
                   children: [
+                    SizedBox(height: 24),
+                    IdentityFormField(),
                     SizedBox(height: 24),
                     Row(
                       children: [
