@@ -101,7 +101,7 @@ class BaseInformationPane extends StatelessWidget {
               children: [
                 getPane(
                   [
-                    getTitle('source library settings'),
+                    getTitle('Source library settings'),
                     SizedBox(height: 20,),
                     Row(
                       children: [
@@ -109,8 +109,8 @@ class BaseInformationPane extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: getContent(
-                            'target  library',
-                            textContent: 'local files - FS',
+                            'Target  library',
+                            textContent: 'Local files - FS',
                           ),
                         ),
                         Expanded(
@@ -126,7 +126,7 @@ class BaseInformationPane extends StatelessWidget {
                 ),
                 getPane(
                   [
-                    getTitle('target library settings'),
+                    getTitle('Target library settings'),
                     SizedBox(height: 20,),
                     Row(
                       children: [
@@ -134,14 +134,14 @@ class BaseInformationPane extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: getContent(
-                            'target  library',
-                            textContent: 'local files - FS'
+                            'Target  library',
+                            textContent: 'Local files - FS'
                           ),
                         ),
                         Expanded(
                           flex: 2,
                           child: getContent(
-                            'identity',
+                            'Identity',
                             customWidet: TextButton(
                               style: ButtonStyle(
                                 foregroundColor: MaterialStateProperty.resolveWith(getForeGroundColor),
@@ -151,7 +151,7 @@ class BaseInformationPane extends StatelessWidget {
                                 Get.dialog(IdentityDialog());
                               },
                               child: Text(
-                                'QingStor - identity 1',
+                                'QingStor - Services 1',
                                 style: TextStyle(
                                   decoration: TextDecoration.underline,
                                 )
@@ -168,7 +168,7 @@ class BaseInformationPane extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: getContent(
-                            'bucket name',
+                            'Bucket name',
                             textContent: 'QingStor bucket name',
                           ),
                         ),
@@ -185,7 +185,7 @@ class BaseInformationPane extends StatelessWidget {
                 ),
                 getPane(
                   [
-                    getTitle('other settings'),
+                    getTitle('Other settings'),
                     SizedBox(height: 20,),
                     Row(
                       children: [
@@ -193,7 +193,7 @@ class BaseInformationPane extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: getContent(
-                            'task type',
+                            'Task type',
                             textContent: 'One - time task',
                           ),
                         ),

@@ -13,7 +13,7 @@ class IdentityDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonDialog(
-      title: 'QingStor - identity 1'.tr,
+      title: 'QingStor - Services 1'.tr,
       width: 800,
       content: Container(
         width: 320,
@@ -26,7 +26,7 @@ class IdentityDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SelectableText(
-                  'credential',
+                  'Credential',
                   style: TextStyle(
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w500,
@@ -70,7 +70,7 @@ class IdentityDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 20,),
                 SelectableText(
-                  'endpoint',
+                  'Endpoint',
                   style: TextStyle(
                     fontFamily: 'Roboto',
                     fontWeight: FontWeight.w500,

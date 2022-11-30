@@ -15,7 +15,7 @@ class Toolbar extends GetView<IdentityController> {
       children: [
         Button(
           icon: Icons.add,
-          child: Text("Create Identity".tr),
+          child: Text("Create Services".tr),
           type: ButtonType.primary,
           onPressed: () => Get.dialog(
               CreateIdentityDialog(getIdentities: controller.getIdentities)),
@@ -23,7 +23,7 @@ class Toolbar extends GetView<IdentityController> {
         SizedBox(width: 20),
         Obx(
           () => SelectableText(
-            '${controller.identities.value.length()} Identities',
+            '${controller.identities.value.length()} Services',
             style: TextStyle(
               color: regularFontColor,
               fontSize: 12,

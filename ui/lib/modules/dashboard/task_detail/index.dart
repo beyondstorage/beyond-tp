@@ -14,7 +14,7 @@ class TaskDetail extends GetView<DashboardController> {
     return Column(
       children: [
         ReturnToList(
-          title: "Return Tasks List".tr,
+          title: "Return tasks tist".tr,
           onTap: () {
             controller.showDetail(false);
             controller.detailTaskId('');

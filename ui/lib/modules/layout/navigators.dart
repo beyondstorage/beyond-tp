@@ -49,7 +49,7 @@ class Navigators extends StatelessWidget {
           SideLink(title: "Tasks".tr, icon: IconData(0xe600, fontFamily: 'tpIcon'), path: Routes.main),
           SideLink(title: "Agents".tr, icon: IconData(0xe608, fontFamily: 'tpIcon'), path: Routes.agents),
           SideLink(
-            title: "Identities".tr,
+            title: "Services".tr,
             icon: IconData(0xe60b, fontFamily: 'tpIcon'),
             path: Routes.identities,
           ),

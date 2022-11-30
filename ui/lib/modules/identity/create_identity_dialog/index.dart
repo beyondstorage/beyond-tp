@@ -30,7 +30,7 @@ class CreateIdentityDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonDialog(
-      title: 'Create Identity'.tr,
+      title: 'Create Services'.tr,
       width: 400,
       content: Container(
         width: 400,

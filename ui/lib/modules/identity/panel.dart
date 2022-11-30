@@ -50,9 +50,9 @@ class IdentityPanel extends GetView<IdentityController> {
               MoreActions(
                 onSelected: (String option) {
                   Get.dialog(Confirm(
-                      title: "Are You Sure To Delete This Identity?".tr,
+                      title: "Are You Sure To Delete This Services?".tr,
                       description:
-                          "After Deleting, It Will Not Affect The Created Tasks, But It Will Not Appear In The Identity List And The Identity Option Of The Created Task."
+                          "After Deleting, It Will Not Affect The Created Tasks, But It Will Not Appear In The Services List And The Services Option Of The Created Task."
                               .tr,
                       onConfirm: () {
                         controller.deleteIdentity(identity).then((result) {
@@ -64,7 +64,7 @@ class IdentityPanel extends GetView<IdentityController> {
                   PopupMenuItem(
                     value: "delete",
                     height: 32.0,
-                    child: Text("Delete Identity".tr,
+                    child: Text("Delete Services".tr,
                         style: TextStyle(
                           fontSize: 12.0,
                           color: regularFontColor,
